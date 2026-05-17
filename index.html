@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Download high-quality wallpapers for Android, Windows, iOS, and all devices. HD, 4K, and 8K resolutions available.">
+    <meta name="keywords" content="wallpapers, HD wallpapers, 4K wallpapers, 8K wallpapers, mobile wallpapers, desktop backgrounds">
+    <title>WallpaperHub - Premium HD Wallpapers for All Devices</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-image"></i>
+                <span>WallpaperHub</span>
+            </div>
+            
+            <div class="nav-links" id="navLinks">
+                <a href="#home" class="nav-link active">Home</a>
+                <a href="#categories" class="nav-link">Categories</a>
+                <a href="#popular" class="nav-link">Popular</a>
+                <a href="#new" class="nav-link">New</a>
+                <a href="#contact" class="nav-link">Contact</a>
+            </div>
+            
+            <div class="nav-actions">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="user-btn" id="userBtn">
+                    <i class="fas fa-user"></i>
+                </button>
+                <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1 class="hero-title">Discover Premium Wallpapers</h1>
+            <p class="hero-subtitle">High-quality wallpapers for all your devices in HD, 4K, and 8K</p>
+            
+            <!-- Search Bar -->
+            <div class="search-container">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search wallpapers...">
+                <button class="search-btn">
+                    <i class="fas fa-search"></i>
+                </button>
+                <div class="search-suggestions" id="searchSuggestions"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="categories-section" id="categories">
+        <div class="container">
+            <h2 class="section-title">Browse by Category</h2>
+            <div class="categories-grid">
+                <div class="category-card" data-category="nature">
+                    <i class="fas fa-tree"></i>
+                    <span>Nature</span>
+                </div>
+                <div class="category-card" data-category="abstract">
+                    <i class="fas fa-palette"></i>
+                    <span>Abstract</span>
+                </div>
+                <div class="category-card" data-category="technology">
+                    <i class="fas fa-microchip"></i>
+                    <span>Technology</span>
+                </div>
+                <div class="category-card" data-category="minimalist">
+                    <i class="fas fa-circle"></i>
+                    <span>Minimalist</span>
+                </div>
+                <div class="category-card" data-category="dark">
+                    <i class="fas fa-moon"></i>
+                    <span>Dark Mode</span>
+                </div>
+                <div class="category-card" data-category="anime">
+                    <i class="fas fa-dragon"></i>
+                    <span>Anime</span>
+                </div>
+                <div class="category-card" data-category="cars">
+                    <i class="fas fa-car"></i>
+                    <span>Cars</span>
+                </div>
+                <div class="category-card" data-category="space">
+                    <i class="fas fa-rocket"></i>
+                    <span>Space</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filters -->
+    <section class="filters-section">
+        <div class="container">
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="nature">Nature</button>
+                <button class="filter-btn" data-filter="abstract">Abstract</button>
+                <button class="filter-btn" data-filter="technology">Technology</button>
+                <button class="filter-btn" data-filter="minimalist">Minimalist</button>
+                <button class="filter-btn" data-filter="dark">Dark Mode</button>
+                <button class="filter-btn" data-filter="anime">Anime</button>
+                <button class="filter-btn" data-filter="cars">Cars</button>
+                <button class="filter-btn" data-filter="space">Space</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Wallpaper Gallery -->
+    <section class="gallery-section" id="popular">
+        <div class="container">
+            <h2 class="section-title">Popular Wallpapers</h2>
+            <div class="wallpaper-grid" id="wallpaperGrid">
+                <!-- Wallpapers will be dynamically loaded here -->
+            </div>
+            <button class="load-more-btn" id="loadMoreBtn">Load More</button>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact-section" id="contact">
+        <div class="container">
+            <h2 class="section-title">Get in Touch</h2>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <span>contact@wallpaperhub.com</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <span>+1 (555) 123-4567</span>
+                    </div>
+                    <div class="social-links">
+                        <a href="#" class="social-link"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-pinterest"></i></a>
+                    </div>
+                </div>
+                <form class="contact-form">
+                    <input type="text" placeholder="Your Name" required>
+                    <input type="email" placeholder="Your Email" required>
+                    <textarea placeholder="Your Message" rows="5" required></textarea>
+                    <button type="submit" class="submit-btn">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>WallpaperHub</h3>
+                    <p>Your destination for premium high-quality wallpapers</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <a href="#home">Home</a>
+                    <a href="#categories">Categories</a>
+                    <a href="#popular">Popular</a>
+                    <a href="#contact">Contact</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Legal</h4>
+                    <a href="privacy.html">Privacy Policy</a>
+                    <a href="terms.html">Terms of Use</a>
+                    <a href="#dmca">DMCA</a>
+                    <a href="#cookies">Cookie Policy</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Follow Us</h4>
+                    <div class="footer-social">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-pinterest"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 WallpaperHub. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Wallpaper Modal -->
+    <div class="modal" id="wallpaperModal">
+        <div class="modal-overlay" id="modalOverlay"></div>
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-body">
+                <img src="" alt="Wallpaper" class="modal-image" id="modalImage">
+                <div class="modal-info">
+                    <h3 class="modal-title" id="modalTitle">Wallpaper Title</h3>
+                    <p class="modal-category" id="modalCategory">Category</p>
+                    <div class="modal-stats">
+                        <span><i class="fas fa-eye"></i> <span id="modalViews">0</span> views</span>
+                        <span><i class="fas fa-download"></i> <span id="modalDownloads">0</span> downloads</span>
+                    </div>
+                    <div class="resolution-selector">
+                        <h4>Select Resolution</h4>
+                        <div class="resolution-options">
+                            <button class="resolution-btn" data-resolution="hd">HD (1920x1080)</button>
+                            <button class="resolution-btn" data-resolution="2k">2K (2560x1440)</button>
+                            <button class="resolution-btn" data-resolution="4k">4K (3840x2160)</button>
+                            <button class="resolution-btn" data-resolution="8k">8K (7680x4320)</button>
+                        </div>
+                    </div>
+                    <div class="device-selector">
+                        <h4>Select Device</h4>
+                        <div class="device-options">
+                            <button class="device-btn" data-device="android">
+                                <i class="fab fa-android"></i> Android
+                            </button>
+                            <button class="device-btn" data-device="windows">
+                                <i class="fab fa-windows"></i> Windows
+                            </button>
+                            <button class="device-btn" data-device="ios">
+                                <i class="fab fa-apple"></i> iOS
+                            </button>
+                            <button class="device-btn" data-device="desktop">
+                                <i class="fas fa-desktop"></i> Desktop
+                            </button>
+                        </div>
+                    </div>
+                    <button class="download-btn" id="downloadBtn">
+                        <i class="fas fa-download"></i> Download Wallpaper
+                    </button>
+                    <button class="favorite-btn" id="favoriteBtn">
+                        <i class="far fa-heart"></i> Add to Favorites
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Modal -->
+    <div class="modal" id="userModal">
+        <div class="modal-overlay" id="userModalOverlay"></div>
+        <div class="modal-content user-modal-content">
+            <button class="modal-close" id="userModalClose">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="user-modal-body">
+                <h3>Sign In</h3>
+                <form class="auth-form" id="authForm">
+                    <input type="email" placeholder="Email" required>
+                    <input type="password" placeholder="Password" required>
+                    <button type="submit" class="auth-btn">Sign In</button>
+                </form>
+                <p class="auth-switch">Don't have an account? <a href="#" id="switchToSignup">Sign Up</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
