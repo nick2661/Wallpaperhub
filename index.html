@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#2563eb">
     <meta name="description" content="Download high-quality wallpapers for Android, Windows, iOS, and all devices. HD, 4K, and 8K resolutions available.">
     <meta name="keywords" content="wallpapers, HD wallpapers, 4K wallpapers, 8K wallpapers, mobile wallpapers, desktop backgrounds">
     <title>WallpaperHub - Premium HD Wallpapers for All Devices</title>
@@ -30,10 +31,10 @@
                 <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
                     <i class="fas fa-moon"></i>
                 </button>
-                <button class="user-btn" id="userBtn">
+                <button class="user-btn" id="userBtn" aria-label="Sign in">
                     <i class="fas fa-user"></i>
                 </button>
-                <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
                     <i class="fas fa-bars"></i>
                 </button>
             </div>
@@ -49,7 +50,7 @@
             <!-- Search Bar -->
             <div class="search-container">
                 <input type="text" class="search-input" id="searchInput" placeholder="Search wallpapers...">
-                <button class="search-btn">
+                <button class="search-btn" aria-label="Search">
                     <i class="fas fa-search"></i>
                 </button>
                 <div class="search-suggestions" id="searchSuggestions"></div>
@@ -62,6 +63,10 @@
         <div class="container">
             <h2 class="section-title">Browse by Category</h2>
             <div class="categories-grid">
+                <div class="category-card featured" data-category="live">
+                    <i class="fas fa-bolt"></i>
+                    <span>Live Wallpapers</span>
+                </div>
                 <div class="category-card" data-category="nature">
                     <i class="fas fa-tree"></i>
                     <span>Nature</span>
@@ -103,6 +108,7 @@
         <div class="container">
             <div class="filters">
                 <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="live"><i class="fas fa-bolt"></i> Live</button>
                 <button class="filter-btn" data-filter="nature">Nature</button>
                 <button class="filter-btn" data-filter="abstract">Abstract</button>
                 <button class="filter-btn" data-filter="technology">Technology</button>
@@ -111,6 +117,13 @@
                 <button class="filter-btn" data-filter="anime">Anime</button>
                 <button class="filter-btn" data-filter="cars">Cars</button>
                 <button class="filter-btn" data-filter="space">Space</button>
+            </div>
+            <div class="view-bar">
+                <span class="result-count" id="resultCount" aria-live="polite"></span>
+                <div class="view-toggle" role="group" aria-label="Preview shape">
+                    <button class="view-btn" data-view="phone" aria-label="Phone shape"><i class="fas fa-mobile-screen"></i> Phone</button>
+                    <button class="view-btn" data-view="desktop" aria-label="Desktop shape"><i class="fas fa-desktop"></i> Desktop</button>
+                </div>
             </div>
         </div>
     </section>
@@ -203,22 +216,20 @@
                 <i class="fas fa-times"></i>
             </button>
             <div class="modal-body">
-                <img src="" alt="Wallpaper" class="modal-image" id="modalImage">
+                <div class="modal-media" id="modalMedia">
+                    <img src="" alt="Wallpaper" class="modal-image" id="modalImage">
+                    <canvas class="modal-canvas" id="modalCanvas" hidden></canvas>
+                    <video class="modal-video" id="modalVideo" muted loop playsinline hidden></video>
+                    <button class="preview-fs-btn" id="previewFsBtn" aria-label="Full screen preview"><i class="fas fa-expand"></i></button>
+                </div>
                 <div class="modal-info">
-                    <h3 class="modal-title" id="modalTitle">Wallpaper Title</h3>
-                    <p class="modal-category" id="modalCategory">Category</p>
+                    <div>
+                        <h3 class="modal-title" id="modalTitle">Wallpaper Title</h3>
+                        <p class="modal-category" id="modalCategory">Category</p>
+                    </div>
                     <div class="modal-stats">
                         <span><i class="fas fa-eye"></i> <span id="modalViews">0</span> views</span>
                         <span><i class="fas fa-download"></i> <span id="modalDownloads">0</span> downloads</span>
-                    </div>
-                    <div class="resolution-selector">
-                        <h4>Select Resolution</h4>
-                        <div class="resolution-options">
-                            <button class="resolution-btn" data-resolution="hd">HD (1920x1080)</button>
-                            <button class="resolution-btn" data-resolution="2k">2K (2560x1440)</button>
-                            <button class="resolution-btn" data-resolution="4k">4K (3840x2160)</button>
-                            <button class="resolution-btn" data-resolution="8k">8K (7680x4320)</button>
-                        </div>
                     </div>
                     <div class="device-selector">
                         <h4>Select Device</h4>
@@ -226,23 +237,35 @@
                             <button class="device-btn" data-device="android">
                                 <i class="fab fa-android"></i> Android
                             </button>
-                            <button class="device-btn" data-device="windows">
-                                <i class="fab fa-windows"></i> Windows
-                            </button>
                             <button class="device-btn" data-device="ios">
                                 <i class="fab fa-apple"></i> iOS
+                            </button>
+                            <button class="device-btn" data-device="windows">
+                                <i class="fab fa-windows"></i> Windows
                             </button>
                             <button class="device-btn" data-device="desktop">
                                 <i class="fas fa-desktop"></i> Desktop
                             </button>
                         </div>
                     </div>
-                    <button class="download-btn" id="downloadBtn">
-                        <i class="fas fa-download"></i> Download Wallpaper
-                    </button>
-                    <button class="favorite-btn" id="favoriteBtn">
-                        <i class="far fa-heart"></i> Add to Favorites
-                    </button>
+                    <div class="resolution-selector">
+                        <h4>Select Resolution</h4>
+                        <div class="resolution-options">
+                            <button class="resolution-btn" data-resolution="hd"></button>
+                            <button class="resolution-btn" data-resolution="2k"></button>
+                            <button class="resolution-btn" data-resolution="4k"></button>
+                            <button class="resolution-btn" data-resolution="8k"></button>
+                        </div>
+                        <p class="live-note" id="liveNote" hidden>Live wallpapers download as a 10-second looping video (HD or 2K).</p>
+                    </div>
+                    <div class="modal-actions">
+                        <button class="favorite-btn" id="favoriteBtn" aria-label="Add to favorites">
+                            <i class="far fa-heart"></i><span class="fav-label"> Favorite</span>
+                        </button>
+                        <button class="download-btn" id="downloadBtn">
+                            <i class="fas fa-download"></i> <span id="downloadLabel">Download</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -267,6 +290,7 @@
         </div>
     </div>
 
+    <script src="live.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

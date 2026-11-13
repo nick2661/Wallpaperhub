@@ -239,3 +239,15 @@ For support, email contact@wallpaperhub.com or open an issue in the repository.
 ---
 
 **Made with ❤️ for wallpaper enthusiasts**
+
+## ➕ Adding wallpapers (v2)
+
+Edit the `wallpapers` array at the top of `script.js`.
+
+- **Photo**: `{ id: 39, title: "My Photo", category: "nature", image: "https://images.unsplash.com/photo-XXXX?w=800", views: 0, downloads: 0 }`
+  Unsplash URLs are resized automatically for phone/desktop and for each download resolution. If an image URL 404s the card hides itself.
+- **Live (code-drawn)**: `{ id: 109, title: "X", category: "live", type: "live", engine: "aurora", views: 0, downloads: 0 }`
+  Engines are in `live.js` (`aurora, warp, matrix, waves, constellation, bokeh, lava, sakura`). Add your own by adding a function to `LIVE_ENGINES`.
+- **Live (video file)**: put an `.mp4`/`.webm` in a `videos/` folder, then
+  `{ id: 201, title: "Rain", category: "live", type: "video", video: "videos/rain.mp4", poster: "videos/rain.jpg", views: 0, downloads: 0 }`
+  Keep clips short (5–15 s, under ~5 MB) so they load fast on mobile data.
