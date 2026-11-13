@@ -626,11 +626,26 @@ userBtn.addEventListener('click', openUserModal);
 userModalClose.addEventListener('click', closeUserModal);
 userModalOverlay.addEventListener('click', closeUserModal);
 
-// ===== Contact Form =====
-document.querySelector('.contact-form').addEventListener('submit', (e) => {
+// ===== Contact Form (sends through Formspree) =====
+document.querySelector('.contact-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    showNotification('Message sent successfully!');
-    e.target.reset();
+    const form = e.target;
+    const btn = form.querySelector('.submit-btn');
+    btn.disabled = true;
+    try {
+        const res = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: { Accept: 'application/json' }
+        });
+        if (!res.ok) throw new Error('failed');
+        showNotification('Message sent successfully!');
+        form.reset();
+    } catch (err) {
+        showNotification('Could not send. Please try again.');
+    } finally {
+        btn.disabled = false;
+    }
 });
 
 // ===== Auth Form =====
