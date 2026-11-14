@@ -1253,7 +1253,21 @@ img {
     .modal-body { padding: 14px 16px 0; gap: 14px; }
     .modal-media,
     .modal-media.portrait { border-radius: 14px; }
-    .modal-media.portrait { height: min(52vh, 460px); height: min(52dvh, 460px); }
+    /* Smaller preview so Device + Resolution are visible without scrolling */
+    .modal-media.portrait { height: min(34vh, 340px); height: min(34dvh, 340px); }
+    .modal-stats { gap: 14px; font-size: 13px; flex-wrap: wrap; }
+    .device-options,
+    .resolution-options { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .device-btn {
+        flex-direction: column;
+        gap: 4px;
+        min-height: 58px;
+        padding: 8px 2px;
+        font-size: 12px;
+    }
+    .device-btn i { font-size: 18px; }
+    .resolution-btn { min-height: 58px; padding: 8px 2px; font-size: 13px; }
+    .resolution-btn small { font-size: 10.5px; }
     .modal-title { font-size: 22px; padding-right: 48px; }
     .modal-info { gap: 14px; }
     .resolution-selector h4,
@@ -1292,6 +1306,12 @@ img {
     .footer-content { grid-template-columns: 1fr; gap: 24px; }
 
     .toast { left: 16px; right: 16px; max-width: none; text-align: center; }
+}
+
+@media (max-width: 600px) and (max-height: 700px) {
+    .modal-media.portrait { height: min(28vh, 220px); height: min(28dvh, 220px); }
+    .modal-body { padding-top: 10px; gap: 10px; }
+    .modal-title { font-size: 20px; }
 }
 
 @media (max-width: 360px) {
