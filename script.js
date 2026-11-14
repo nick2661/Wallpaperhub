@@ -102,6 +102,7 @@ const resolutionBtns = document.querySelectorAll('.resolution-btn');
 const deviceBtns = document.querySelectorAll('.device-btn');
 const downloadBtn = document.getElementById('downloadBtn');
 const favoriteBtn = document.getElementById('favoriteBtn');
+const customizeBtn = document.getElementById('customizeBtn');
 const userBtn = document.getElementById('userBtn');
 const userModal = document.getElementById('userModal');
 const userModalOverlay = document.getElementById('userModalOverlay');
@@ -476,6 +477,7 @@ function openWallpaperModal(wallpaper) {
     deviceBtns.forEach(b => b.classList.toggle('active', b.dataset.device === selectedDevice));
 
     setFavoriteButton();
+    customizeBtn.hidden = typeOf(wallpaper) !== 'image'; // editor works on photos; live wallpapers download as video
     updateResolutionLabels();
 
     wallpaperModal.classList.add('active');
@@ -504,6 +506,13 @@ previewFsBtn.addEventListener('click', (e) => {
     if (modalPlayer) requestAnimationFrame(() => modalPlayer && modalPlayer.resize());
 });
 modalMedia.addEventListener('click', () => { if (modalMedia.classList.contains('fullscreen')) { exitPreview(); if (modalPlayer) requestAnimationFrame(() => modalPlayer && modalPlayer.resize()); } });
+
+// ===== Customize (rotate / crop / adjust editor, see editor.js) =====
+customizeBtn.addEventListener('click', () => {
+    if (currentWallpaper && typeof openEditor === 'function') {
+        openEditor(currentWallpaper, { device: selectedDevice, resolution: selectedResolution });
+    }
+});
 
 // ===== Resolution Selection =====
 resolutionBtns.forEach(btn => {
@@ -672,6 +681,7 @@ function showNotification(message, opts = {}) {
 // ===== Keyboard Shortcuts =====
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
+        if (document.body.classList.contains('editor-open')) return; // the editor closes itself
         if (modalMedia.classList.contains('fullscreen')) { exitPreview(); return; }
         if (wallpaperModal.classList.contains('active')) closeWallpaperModal();
         if (userModal.classList.contains('active')) closeUserModal();
