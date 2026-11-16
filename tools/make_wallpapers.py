@@ -460,6 +460,175 @@ def low_poly(c1, c2, c3, seed, cols=8, rows=18):
 
 # ----------------------------------------------------------------- list
 # (slug, title, category, seed, function returning the image)
+# ---------------------------------------------------------------- pack 3: quotes + festivals
+from PIL import ImageFont
+FONT_DIR = "/usr/share/fonts/opentype/inter/"
+SERIF = "/usr/share/fonts/truetype/crosextra/Caladea-Italic.ttf"
+
+
+def _font(path, size):
+    try:
+        return ImageFont.truetype(path, size)
+    except OSError:
+        return ImageFont.load_default()
+
+
+def with_quote(base, text, color="#ffffff", style="sans", y=0.34, size=118, small=None, opacity=0.95):
+    """Draw an original short line of text, centred, on top of a float RGB base image."""
+    im = Image.fromarray(np.clip(base, 0, 255).astype(np.uint8), "RGB").convert("RGBA")
+    layer = Image.new("RGBA", im.size, (0, 0, 0, 0))
+    d = ImageDraw.Draw(layer)
+    path = SERIF if style == "serif" else FONT_DIR + ("Inter-Light.otf" if style == "light" else "Inter-SemiBold.otf")
+    f = _font(path, size)
+    col = tuple(int(v) for v in hexc(color)) + (int(255 * opacity),)
+    lines = text.split("\n")
+    lh = int(size * 1.28)
+    top = int(H * y) - lh * len(lines) // 2
+    for i, ln in enumerate(lines):
+        w = d.textlength(ln, font=f)
+        d.text(((W - w) / 2, top + i * lh), ln, font=f, fill=col)
+    if small:
+        f2 = _font(FONT_DIR + "Inter-Medium.otf", 44)
+        w = d.textlength(small, font=f2)
+        d.text(((W - w) / 2, top + len(lines) * lh + 50), small, font=f2, fill=col[:3] + (int(255 * opacity * 0.6),))
+    return np.array(Image.alpha_composite(im, layer).convert("RGB"), dtype=np.float32)
+
+
+def glow_dots(seed, n, colors, rmin, rmax, blur, alpha=0.8, region=(0, 1)):
+    rng = np.random.default_rng(seed)
+    layer = Image.new("RGB", (W, H), (0, 0, 0))
+    d = ImageDraw.Draw(layer)
+    for _ in range(n):
+        r = rng.uniform(rmin, rmax)
+        x, y = rng.uniform(0, W), rng.uniform(region[0], region[1]) * H
+        c = hexc(colors[rng.integers(len(colors))]) * rng.uniform(0.5, 1.0) * alpha
+        d.ellipse([x - r, y - r, x + r, y + r], fill=tuple(int(v) for v in c))
+    layer = layer.filter(ImageFilter.GaussianBlur(blur))
+    return np.array(layer, dtype=np.float32)
+
+
+def screen(a, b):
+    return 255 - (255 - a) * (255 - np.clip(b, 0, 255)) / 255
+
+
+def q_over(base_fn, **kw):
+    return lambda: with_quote(base_fn(), **kw)
+
+
+def diwali_glow():
+    base = linear("#2a0505", "#8a2a05", 90, c3="#1a0303")
+    g = glow_dots(5, 70, ["#ffb347", "#ffd27a", "#ff8c1a"], 6, 26, 7, 0.9, (0.05, 0.95))
+    g2 = glow_dots(6, 14, ["#ffcf70", "#ffa930"], 40, 90, 30, 0.8, (0.1, 0.9))
+    return screen(screen(base, g), g2)
+
+
+def diya():
+    base = mesh(["#12040a", "#3a0d12", "#0a0203"], [(.5, .45), (.5, .75), (.5, .1)], power=2.0)
+    cx, cy = 0.5 * W, 0.56 * H
+    # flame glow
+    d2 = ((XX - cx) / 520) ** 2 + ((YY - cy) / 620) ** 2
+    base = screen(base, np.exp(-d2 * 2.2)[..., None] * hexc("#ff9a2a") * 0.55)
+    # flame (teardrop)
+    t = (YY - (cy - 190)) / 190.0
+    wd = 62 * np.sin(np.clip(t, 0, 1) * np.pi * 0.95) ** 0.85 * (1 - 0.15 * np.clip(t, 0, 1))
+    flame = smooth(1.6, 0.0, np.abs(XX - cx) / np.maximum(wd, 1)) * ((t > 0) & (t < 1.05))
+    core = np.clip(flame ** 2.2, 0, 1)[..., None]
+    fcol = hexc("#ff7a18") * (1 - core) + hexc("#fff3b0") * core
+    base = base * (1 - flame[..., None]) + fcol * flame[..., None]
+    # bowl
+    bx, by = (XX - cx) / 250, (YY - (cy + 20)) / 120
+    inside = (bx ** 2 + by ** 2 < 1) & (by > 0)
+    shade = np.clip(0.55 + 0.45 * (1 - by), 0, 1)[..., None]
+    bowl = hexc("#c2571a") * shade + hexc("#ffb15c") * np.clip(0.4 - np.abs(bx + 0.35), 0, 1)[..., None] * 0.9
+    m = inside[..., None]
+    base = np.where(m, bowl, base)
+    rim = (np.abs(by) < 0.03) & (np.abs(bx) < 1)
+    base = np.where(rim[..., None], hexc("#ffcf80"), base)
+    return base
+
+
+def mandala():
+    cx, cy = W / 2, H * 0.5
+    dx, dy = XX - cx, YY - cy
+    r = np.sqrt(dx * dx + dy * dy)
+    th = np.arctan2(dy, dx)
+    base = mesh(["#2b0a3d", "#7a1530", "#12061f"], [(.5, .5), (.2, .8), (.8, .1)], power=2.0)
+    pat = np.zeros_like(r)
+    for k, (n, r0, amp, wd) in enumerate([(12, 170, 42, 5), (16, 300, 58, 5), (24, 440, 70, 4), (12, 560, 90, 6), (32, 680, 40, 3)]):
+        rr = r0 + amp * np.abs(np.cos(n / 2 * th))
+        pat += smooth(wd, 0, np.abs(r - rr))
+    pat += smooth(4, 0, np.abs(r - 760)) + smooth(4, 0, np.abs(r - 790)) * 0.7
+    pat += smooth(30, 0, r - 0) * 0.0
+    pat = np.clip(pat, 0, 1)[..., None]
+    gold = hexc("#ffc857")
+    base = base * (1 - pat * 0.9) + gold * pat * 0.9
+    base = screen(base, np.exp(-(r / 220) ** 2)[..., None] * hexc("#ffb347") * 0.5)
+    return base
+
+
+def holi():
+    base = mesh(["#ff2e93", "#ffd400", "#00c2ff", "#7b2ff7", "#2ee6a6"], [(.15, .1), (.85, .25), (.2, .6), (.85, .75), (.4, .95)], power=2.0)
+    g = glow_dots(11, 28, ["#ff2e93", "#ffd400", "#00c2ff", "#7b2ff7", "#2ee6a6", "#ff7a00"], 40, 150, 22, 0.55)
+    return np.clip(base * 0.8 + g * 0.55, 0, 255)
+
+
+def snowfall():
+    base = linear("#0b2a3a", "#16543f", 90, c3="#081a24")
+    s1 = glow_dots(21, 260, ["#ffffff"], 3, 9, 1.5, 0.9)
+    s2 = glow_dots(22, 40, ["#ffffff"], 12, 26, 9, 0.7)
+    return screen(base, s1 * 0.9 + s2)
+
+
+def fireworks():
+    rng = np.random.default_rng(31)
+    base = linear("#050818", "#140a30", 90)
+    layer = Image.new("RGB", (W, H), (0, 0, 0))
+    d = ImageDraw.Draw(layer)
+    cols = ["#ff5d8f", "#ffd166", "#6ee7ff", "#b48cff", "#7dffb3"]
+    for cx, cy, R in [(.3, .22, 330), (.72, .35, 420), (.4, .62, 360), (.78, .75, 280)]:
+        c = hexc(cols[rng.integers(len(cols))])
+        for a in np.linspace(0, 2 * np.pi, 46, endpoint=False):
+            for t in np.linspace(0.35, 1, 11):
+                rr = R * t
+                x, y = cx * W + np.cos(a) * rr, cy * H + np.sin(a) * rr + (t ** 3) * 30
+                s = 5 * (1.1 - t) + 1.5
+                d.ellipse([x - s, y - s, x + s, y + s], fill=tuple(int(v * (1.1 - t * 0.6)) for v in c))
+    layer = layer.filter(ImageFilter.GaussianBlur(2.2))
+    glow = layer.filter(ImageFilter.GaussianBlur(24))
+    return screen(screen(base, np.array(glow, np.float32) * 1.6), np.array(layer, np.float32))
+
+
+def lanterns():
+    base = linear("#0a1233", "#4a1d5a", 90, c3="#e0653a")
+    rng = np.random.default_rng(41)
+    layer = Image.new("RGB", (W, H), (0, 0, 0))
+    d = ImageDraw.Draw(layer)
+    for _ in range(26):
+        x, y = rng.uniform(0.05, 0.95) * W, rng.uniform(0.08, 0.92) * H
+        w = rng.uniform(34, 90)
+        h = w * 1.3
+        c = hexc(["#ffb347", "#ff8c42", "#ffd27a"][rng.integers(3)]) * rng.uniform(0.7, 1)
+        d.rounded_rectangle([x - w / 2, y - h / 2, x + w / 2, y + h / 2], radius=w * 0.35, fill=tuple(int(v) for v in c))
+    glow = layer.filter(ImageFilter.GaussianBlur(26))
+    soft = layer.filter(ImageFilter.GaussianBlur(1.2))
+    return screen(screen(base, np.array(glow, np.float32) * 1.4), np.array(soft, np.float32))
+
+
+def crescent():
+    base = mesh(["#041c24", "#0b4a52", "#020b10"], [(.5, .3), (.2, .8), (.85, .9)], power=2.0)
+    cx, cy, R = 0.5 * W, 0.36 * H, 300
+    a = ((XX - cx) ** 2 + (YY - cy) ** 2) < R * R
+    b = ((XX - cx - 95) ** 2 + (YY - cy - 30) ** 2) < (R * 0.86) ** 2
+    cr = (a & ~b).astype(np.float32)
+    cr = np.array(Image.fromarray((cr * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(1.6)), np.float32) / 255
+    glow = np.array(Image.fromarray((cr * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(60)), np.float32) / 255
+    base = screen(base, glow[..., None] * hexc("#ffd98a") * 0.7)
+    base = base * (1 - cr[..., None]) + hexc("#ffe7a8") * cr[..., None]
+    st = stars(8, 260, 1.8)[..., None] * 255
+    return screen(base, st)
+
+
+
 DESIGNS = [
     # --- abstract: mesh gradients
     ("aurora-mesh", "Aurora Mesh", "abstract", lambda: mesh(["#0f2027", "#2c5364", "#00c9a7", "#845ec2", "#0b1e3b"], [(.2, .1), (.8, .3), (.3, .75), (.85, .9), (.5, .5)])),
@@ -527,6 +696,23 @@ DESIGNS = [
     ("hex-grid", "Hex Grid", "technology", lambda: hex_grid("#06122b", "#0b3a5c", "#3fd0ff", "#3fd0ff")),
     ("low-poly-blue", "Low Poly Blue", "technology", lambda: low_poly("#0b1f4d", "#1d6fd1", "#76d7ff", 4)),
     ("low-poly-sunset", "Low Poly Sunset", "technology", lambda: low_poly("#3a1c71", "#d76d77", "#ffaf7b", 9)),
+    # --- pack 3: quotes (original lines) + festivals
+    ("quote-keep-going", "Keep Going", "quotes", lambda: with_quote(mesh(["#0f2027", "#2c5364", "#00c9a7", "#0b1e3b"], [(.2, .1), (.8, .4), (.3, .85), (.6, .5)]), "Keep going.\nYou're closer\nthan you think.", style="sans")),
+    ("quote-begin-today", "Begin Today", "quotes", lambda: with_quote(linear("#ff9a76", "#7a2a6b", 90), "Begin today.\nPerfect later.", style="serif", size=140)),
+    ("quote-quiet-mind", "Quiet Mind", "quotes", lambda: with_quote(np.zeros((H, W, 3), np.float32), "Quiet mind,\nbig goals.", style="light", size=130, color="#e8e8e8")),
+    ("quote-small-steps", "Small Steps", "quotes", lambda: with_quote(mesh(["#ffd6a5", "#ffadad", "#ffc6ff", "#caffbf"], [(.15, .1), (.85, .25), (.2, .75), (.8, .85)], power=2.2), "Small steps\nstill move you\nforward.", color="#3a1f3d")),
+    ("quote-stay-curious", "Stay Curious", "quotes", lambda: with_quote(mesh(["#3a0ca3", "#7209b7", "#240046", "#4361ee"], [(.85, .1), (.15, .35), (.5, .9), (.5, .5)]), "Stay curious.", style="serif", size=150)),
+    ("quote-be-kind", "Be Kind", "quotes", lambda: with_quote(mesh(["#1b4332", "#52b788", "#081c15", "#2d6a4f"], [(.2, .1), (.8, .35), (.25, .8), (.5, .5)]), "Be kind\nto yourself.", style="light", size=135)),
+    ("quote-dream-big", "Dream Big", "quotes", lambda: with_quote(mesh(["#050a30", "#0a2472", "#1e6091", "#000814"], [(.2, .12), (.85, .3), (.3, .75), (.5, .5)]), "Dream big.\nStart small.", size=128)),
+    ("quote-focus", "Focus", "quotes", lambda: with_quote(np.zeros((H, W, 3), np.float32), "FOCUS", style="sans", size=170, color="#ffffff", y=0.5)),
+    ("diwali-glow", "Diwali Glow", "festival", diwali_glow),
+    ("diya-flame", "Diya Flame", "festival", diya),
+    ("golden-mandala", "Golden Mandala", "festival", mandala),
+    ("holi-colors", "Holi Colors", "festival", holi),
+    ("christmas-snow", "Christmas Snow", "festival", snowfall),
+    ("new-year-fireworks", "New Year Fireworks", "festival", fireworks),
+    ("sky-lanterns", "Sky Lanterns", "festival", lanterns),
+    ("eid-crescent", "Eid Crescent", "festival", crescent),
 ]
 
 
@@ -536,6 +722,10 @@ def tags_for(slug):
         return "space galaxy stars cosmos night"
     if slug.startswith(("mountain", "misty", "pine", "ocean", "pastel-shore")):
         return "nature landscape scenery outdoors"
+    if slug.startswith("quote-"):
+        return "quote quotes motivation text inspiration words"
+    if slug in ("diwali-glow", "diya-flame", "golden-mandala", "holi-colors", "christmas-snow", "new-year-fireworks", "sky-lanterns", "eid-crescent"):
+        return "festival celebration india diwali holi christmas eid new year lights"
     if slug.startswith(("neon-grid", "hex-grid", "low-poly")):
         return "tech geometric pattern futuristic"
     if slug.startswith("amoled") or slug in ("pure-black", "deep-space-black", "charcoal-fade"):

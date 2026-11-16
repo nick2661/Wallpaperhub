@@ -99,6 +99,22 @@ const wallpapers = [
     { id: 356, title: "Hex Grid", category: "technology", tags: "tech geometric pattern futuristic", image: "images/pack/hex-grid.jpg", thumb: "images/pack/thumbs/hex-grid.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
     { id: 357, title: "Low Poly Blue", category: "technology", tags: "tech geometric pattern futuristic", image: "images/pack/low-poly-blue.jpg", thumb: "images/pack/thumbs/low-poly-blue.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
     { id: 358, title: "Low Poly Sunset", category: "technology", tags: "tech geometric pattern futuristic", image: "images/pack/low-poly-sunset.jpg", thumb: "images/pack/thumbs/low-poly-sunset.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 359, title: "Keep Going", category: "quotes", tags: "quote quotes motivation text inspiration words", image: "images/pack/quote-keep-going.jpg", thumb: "images/pack/thumbs/quote-keep-going.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 360, title: "Begin Today", category: "quotes", tags: "quote quotes motivation text inspiration words", image: "images/pack/quote-begin-today.jpg", thumb: "images/pack/thumbs/quote-begin-today.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 361, title: "Quiet Mind", category: "quotes", tags: "quote quotes motivation text inspiration words", image: "images/pack/quote-quiet-mind.jpg", thumb: "images/pack/thumbs/quote-quiet-mind.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 362, title: "Small Steps", category: "quotes", tags: "quote quotes motivation text inspiration words", image: "images/pack/quote-small-steps.jpg", thumb: "images/pack/thumbs/quote-small-steps.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 363, title: "Stay Curious", category: "quotes", tags: "quote quotes motivation text inspiration words", image: "images/pack/quote-stay-curious.jpg", thumb: "images/pack/thumbs/quote-stay-curious.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 364, title: "Be Kind", category: "quotes", tags: "quote quotes motivation text inspiration words", image: "images/pack/quote-be-kind.jpg", thumb: "images/pack/thumbs/quote-be-kind.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 365, title: "Dream Big", category: "quotes", tags: "quote quotes motivation text inspiration words", image: "images/pack/quote-dream-big.jpg", thumb: "images/pack/thumbs/quote-dream-big.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 366, title: "Focus", category: "quotes", tags: "quote quotes motivation text inspiration words", image: "images/pack/quote-focus.jpg", thumb: "images/pack/thumbs/quote-focus.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 367, title: "Diwali Glow", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/diwali-glow.jpg", thumb: "images/pack/thumbs/diwali-glow.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 368, title: "Diya Flame", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/diya-flame.jpg", thumb: "images/pack/thumbs/diya-flame.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 369, title: "Golden Mandala", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/golden-mandala.jpg", thumb: "images/pack/thumbs/golden-mandala.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 370, title: "Holi Colors", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/holi-colors.jpg", thumb: "images/pack/thumbs/holi-colors.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 371, title: "Christmas Snow", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/christmas-snow.jpg", thumb: "images/pack/thumbs/christmas-snow.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 372, title: "New Year Fireworks", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/new-year-fireworks.jpg", thumb: "images/pack/thumbs/new-year-fireworks.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 373, title: "Sky Lanterns", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/sky-lanterns.jpg", thumb: "images/pack/thumbs/sky-lanterns.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 374, title: "Eid Crescent", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/eid-crescent.jpg", thumb: "images/pack/thumbs/eid-crescent.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
 
     // --- LIVE wallpapers: drawn in real time by live.js (no image files needed) ---
     { id: 101, title: "Aurora Borealis", category: "live", type: "live", engine: "aurora", views: 41200, downloads: 9800 },
@@ -231,7 +247,7 @@ document.querySelectorAll('.nav-link').forEach(link => {
 // ===== Search Functionality =====
 const searchKeywords = ['nature', 'abstract', 'technology', 'minimalist', 'dark', 'anime', 'cars', 'space', 'live',
                         'mountain', 'ocean', 'forest', 'city', 'sunset', 'galaxy', 'gradient', 'neon', 'amoled', 'minimal', 'pattern',
-                        'aurora', 'matrix', 'sakura', 'bokeh', 'lava', 'moon', 'earth'];
+                        'quote', 'motivation', 'festival', 'diwali', 'holi', 'christmas', 'aurora', 'matrix', 'sakura', 'bokeh', 'lava', 'moon', 'earth'];
 
 searchInput.addEventListener('input', (e) => {
     const value = e.target.value.toLowerCase().trim();
@@ -283,6 +299,7 @@ document.querySelector('.search-btn').addEventListener('click', () => {
 function setActiveFilter(filter) {
     currentFilter = filter;
     filterBtns.forEach(b => b.classList.toggle('active', b.dataset.filter === filter));
+    categoryCards.forEach(c => c.classList.toggle('active', c.dataset.category === filter));
     const active = document.querySelector('.filter-btn.active');
     if (active && active.scrollIntoView) active.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
 }
@@ -502,8 +519,8 @@ function updateModalPreview() {
     modalVideo.hidden = type !== 'video';
 
     if (type === 'image') {
-        const [pw, ph] = portrait ? [720, 1280] : [1280, 720];
-        modalImage.src = imgUrl(w.image, pw, ph);
+        // whole image (no server-side crop); the visitor can zoom in to frame it
+        modalImage.src = /images\.unsplash\.com/.test(w.image) ? `${w.image.split('?')[0]}?w=1600&auto=format&q=80` : w.image;
         modalImage.alt = w.title;
     } else if (type === 'live') {
         if (!modalPlayer) {
@@ -522,9 +539,77 @@ function updateModalPreview() {
         }
     }
     downloadLabel.textContent = type === 'image' ? 'Download' : 'Download video';
+    const isImg = type === 'image';
+    zoomBar.hidden = !isImg;
+    prevBtn.hidden = nextBtn.hidden = getFiltered().length < 2;
+    resetZoom();
 }
 
-function openWallpaperModal(wallpaper) {
+// ===== Preview zoom / pan =====
+const zoomBar = document.getElementById('zoomBar');
+const zoomLabel = document.getElementById('zoomLabel');
+const prevBtn = document.getElementById('prevWallpaper');
+const nextBtn = document.getElementById('nextWallpaper');
+const ZOOM_MAX = 4;
+let zoom = 1, panX = 0, panY = 0;
+
+function fitSize() {
+    const fw = modalMedia.clientWidth, fh = modalMedia.clientHeight;
+    const nw = modalImage.naturalWidth || fw, nh = modalImage.naturalHeight || fh;
+    const s = Math.min(fw / nw, fh / nh);
+    return { fw, fh, dw: nw * s, dh: nh * s };
+}
+function fillZoom() { const f = fitSize(); return Math.min(ZOOM_MAX, Math.max(f.fw / f.dw, f.fh / f.dh)); }
+function applyZoom() {
+    const f = fitSize();
+    const mx = Math.max(0, (f.dw * zoom - f.fw) / 2), my = Math.max(0, (f.dh * zoom - f.fh) / 2);
+    panX = Math.max(-mx, Math.min(mx, panX));
+    panY = Math.max(-my, Math.min(my, panY));
+    modalImage.style.transform = zoom === 1 && !panX && !panY ? '' : `translate(${panX}px, ${panY}px) scale(${zoom})`;
+    modalMedia.classList.toggle('zoomed', zoom > 1);
+    zoomLabel.textContent = zoom === 1 ? 'Fit' : Math.round(zoom * 100) + '%';
+    document.getElementById('zoomOut').disabled = zoom <= 1;
+    document.getElementById('zoomIn').disabled = zoom >= ZOOM_MAX;
+}
+function setZoom(z) { zoom = Math.max(1, Math.min(ZOOM_MAX, z)); if (zoom === 1) panX = panY = 0; applyZoom(); }
+function resetZoom() { zoom = 1; panX = panY = 0; applyZoom(); }
+document.getElementById('zoomIn').addEventListener('click', (e) => { e.stopPropagation(); setZoom(zoom < 1.5 ? 1.5 : zoom + 0.5); });
+document.getElementById('zoomOut').addEventListener('click', (e) => { e.stopPropagation(); setZoom(zoom - 0.5 < 1.25 ? 1 : zoom - 0.5); });
+zoomLabel.addEventListener('click', (e) => { e.stopPropagation(); resetZoom(); });
+modalMedia.addEventListener('wheel', (e) => {
+    if (typeOf(currentWallpaper) !== 'image') return;
+    e.preventDefault();
+    setZoom(zoom * (e.deltaY < 0 ? 1.15 : 1 / 1.15));
+}, { passive: false });
+modalImage.addEventListener('dblclick', () => { zoom > 1 ? resetZoom() : setZoom(fillZoom() > 1.05 ? fillZoom() : 2); });
+modalImage.addEventListener('load', applyZoom);
+window.addEventListener('resize', () => { if (wallpaperModal.classList.contains('active')) applyZoom(); });
+let drag = null;
+modalMedia.addEventListener('pointerdown', (e) => {
+    if (zoom <= 1 || e.target.closest('button')) return;
+    drag = { x: e.clientX, y: e.clientY, px: panX, py: panY };
+    modalMedia.setPointerCapture(e.pointerId);
+    modalMedia.classList.add('dragging');
+});
+modalMedia.addEventListener('pointermove', (e) => {
+    if (!drag) return;
+    panX = drag.px + (e.clientX - drag.x); panY = drag.py + (e.clientY - drag.y);
+    applyZoom();
+});
+['pointerup', 'pointercancel'].forEach(t => modalMedia.addEventListener(t, () => { drag = null; modalMedia.classList.remove('dragging'); }));
+
+// ===== Previous / next wallpaper =====
+function stepWallpaper(dir) {
+    const list = getFiltered();
+    if (list.length < 2 || !currentWallpaper) return;
+    let i = list.findIndex(w => w.id === currentWallpaper.id);
+    i = (i + dir + list.length) % list.length;
+    openWallpaperModal(list[i], true);
+}
+prevBtn.addEventListener('click', (e) => { e.stopPropagation(); stepWallpaper(-1); });
+nextBtn.addEventListener('click', (e) => { e.stopPropagation(); stepWallpaper(1); });
+
+function openWallpaperModal(wallpaper, keepDevice) {
     stopModalMedia();
     currentWallpaper = wallpaper;
     modalTitle.textContent = wallpaper.title;
@@ -533,7 +618,7 @@ function openWallpaperModal(wallpaper) {
     modalDownloads.textContent = wallpaper.downloads.toLocaleString();
 
     // Default device to match the shape the visitor is browsing in
-    selectedDevice = viewMode === 'phone' ? 'android' : 'desktop';
+    if (!keepDevice) selectedDevice = viewMode === 'phone' ? 'android' : 'desktop';
     deviceBtns.forEach(b => b.classList.toggle('active', b.dataset.device === selectedDevice));
 
     setFavoriteButton();
@@ -557,15 +642,15 @@ modalClose.addEventListener('click', closeWallpaperModal);
 modalOverlay.addEventListener('click', closeWallpaperModal);
 
 // Full screen preview (CSS based, so it also works on iPhone Safari)
-function exitPreview() { modalMedia.classList.remove('fullscreen'); document.body.classList.remove('preview-open'); }
+function exitPreview() { modalMedia.classList.remove('fullscreen'); document.body.classList.remove('preview-open'); requestAnimationFrame(() => typeof applyZoom === 'function' && applyZoom()); }
 previewFsBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     const on = !modalMedia.classList.contains('fullscreen');
     modalMedia.classList.toggle('fullscreen', on);
     document.body.classList.toggle('preview-open', on);
     if (modalPlayer) requestAnimationFrame(() => modalPlayer && modalPlayer.resize());
+    requestAnimationFrame(applyZoom);
 });
-modalMedia.addEventListener('click', () => { if (modalMedia.classList.contains('fullscreen')) { exitPreview(); if (modalPlayer) requestAnimationFrame(() => modalPlayer && modalPlayer.resize()); } });
 
 // ===== Customize (rotate / crop / adjust editor, see editor.js) =====
 customizeBtn.addEventListener('click', () => {
@@ -766,6 +851,10 @@ function showNotification(message, opts = {}) {
 
 // ===== Keyboard Shortcuts =====
 document.addEventListener('keydown', (e) => {
+    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && wallpaperModal.classList.contains('active') && !document.body.classList.contains('editor-open') && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) {
+        stepWallpaper(e.key === 'ArrowLeft' ? -1 : 1);
+        return;
+    }
     if (e.key === 'Escape') {
         if (document.body.classList.contains('editor-open')) return; // the editor closes itself
         if (modalMedia.classList.contains('fullscreen')) { exitPreview(); return; }
