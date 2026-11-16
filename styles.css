@@ -1530,3 +1530,34 @@ body.editor-open { overflow: hidden; }
     .nav-arrow.next { right: 6px; }
     .zoom-bar button { min-width: 40px; height: 36px; }
 }
+
+/* ===== Compact category pills (override earlier card sizes) ===== */
+.categories-section { padding: 36px 16px; }
+.categories-section .section-title { margin-bottom: 24px; }
+.categories-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+.category-card,
+.category-card.featured {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    min-height: 44px;
+    border-radius: 999px;
+    box-shadow: var(--shadow-sm);
+    grid-column: auto;
+}
+.category-card i,
+.category-card.featured i { font-size: 16px; margin: 0; }
+.category-card span { display: inline; font-size: 14px; white-space: nowrap; }
+.category-card:hover:not(.active) { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+@media (max-width: 600px) {
+    .categories-section { padding: 28px 12px; }
+    .categories-grid { gap: 8px; }
+    .category-card, .category-card.featured { padding: 9px 14px; }
+    .category-card span { font-size: 13px; }
+}
