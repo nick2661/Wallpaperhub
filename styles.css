@@ -1462,3 +1462,9 @@ body.editor-open { overflow: hidden; }
     .modal-actions .fav-label { display: none; }
     .modal-actions .customize-btn { padding-inline: 14px; }
 }
+
+/* Comfortable tap targets for footer links on touch screens */
+@media (max-width: 768px) {
+    .footer-section a { display: block; padding: 9px 0; }
+    .footer-bottom a { display: inline-block; padding: 8px 2px; }
+}

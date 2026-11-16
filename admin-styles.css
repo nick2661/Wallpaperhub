@@ -87,6 +87,7 @@
 /* ===== Main Content ===== */
 .admin-main {
     flex: 1;
+    min-width: 0; /* wide tables scroll inside the page instead of stretching it */
     margin-left: 260px;
     display: flex;
     flex-direction: column;

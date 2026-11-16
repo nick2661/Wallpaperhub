@@ -569,8 +569,11 @@ modalMedia.addEventListener('click', () => { if (modalMedia.classList.contains('
 
 // ===== Customize (rotate / crop / adjust editor, see editor.js) =====
 customizeBtn.addEventListener('click', () => {
-    if (currentWallpaper && typeof openEditor === 'function') {
+    if (!currentWallpaper) return;
+    if (typeof openEditor === 'function') {
         openEditor(currentWallpaper, { device: selectedDevice, resolution: selectedResolution });
+    } else {
+        showNotification('Editor did not load. Refresh the page (Ctrl+Shift+R) and try again.');
     }
 });
 
