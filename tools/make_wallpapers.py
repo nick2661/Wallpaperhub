@@ -204,6 +204,260 @@ def waves_pattern(top, bottom, layers, seed):
     return img
 
 
+
+# ------------------------------------------------ pack 2: space, nature, tech
+from PIL import ImageFilter
+
+
+def fbm(seed, octaves=5, base=2, persistence=0.55):
+    """Cloud-like noise 0..1 (several layers of smooth random blobs)."""
+    rng = np.random.default_rng(seed)
+    out = np.zeros((H, W), np.float32)
+    amp, tot = 1.0, 0.0
+    for o in range(octaves):
+        n = base * (2 ** o)
+        g = rng.random((int(n * H / W) + 2, n + 2)).astype(np.float32)
+        im = Image.fromarray(g, mode="F").resize((W, H), Image.BICUBIC)
+        out += amp * np.asarray(im)
+        tot += amp
+        amp *= persistence
+    out /= tot
+    return (out - out.min()) / (out.max() - out.min())
+
+
+def stars(seed, n=900, maxr=2.0):
+    rng = np.random.default_rng(seed)
+    im = Image.new("L", (W * 2, H * 2), 0)
+    d = ImageDraw.Draw(im)
+    for _ in range(n):
+        x, y = rng.uniform(0, W * 2), rng.uniform(0, H * 2)
+        r = 0.7 + (rng.random() ** 4) * maxr * 2
+        b = int(rng.uniform(110, 255))
+        d.ellipse((x - r, y - r, x + r, y + r), fill=b)
+    small = im.resize((W, H), Image.LANCZOS)
+    glow = small.filter(ImageFilter.GaussianBlur(4))
+    return np.clip(np.asarray(small, np.float32) / 255 + np.asarray(glow, np.float32) / 255 * 1.4, 0, 1)
+
+
+def nebula(seed, bg, c1, c2, c3):
+    f1, f2, f3 = fbm(seed, 6, 2), fbm(seed + 1, 5, 3), fbm(seed + 2, 4, 4)
+    mask = smooth(0.38, 0.82, f1)
+    col = hexc(c1) * (1 - f2[..., None]) + hexc(c2) * f2[..., None]
+    hot = smooth(0.62, 0.9, f1 * 0.6 + f3 * 0.5)[..., None]
+    col = col * (1 - hot) + hexc(c3) * hot
+    img = hexc(bg) + mask[..., None] * col * 0.95
+    st = stars(seed + 9)
+    return img + (st * (1 - 0.7 * mask))[..., None] * 255
+
+
+def planet_horizon(seed, atmo, planet, sky="#02030a"):
+    cy = 1.62
+    r = cy - 0.76
+    d = np.sqrt(((NX - 0.5) * W / H) ** 2 + (NY - cy) ** 2)
+    sky_img = linear(sky, "#0a1030", 180)
+    st = stars(seed)[..., None] * 255
+    glow = np.exp(-np.clip(d - r, 0, None) / 0.035)[..., None] * hexc(atmo) * (d >= r)[..., None]
+    wide = np.exp(-np.clip(d - r, 0, None) / 0.16)[..., None] * hexc(atmo) * 0.35 * (d >= r)[..., None]
+    outside = (sky_img + st * (d >= r)[..., None] * 0.9) * 1.0 + glow + wide
+    depth = np.clip((r - d) / 0.10, 0, 1)[..., None]
+    surf = hexc(atmo) * (1 - depth) + hexc(planet) * depth
+    surf *= (0.55 + 0.45 * np.clip((r - d) / 0.5, 0, 1))[..., None] * 0.9 + 0.1
+    return np.where((d < r)[..., None], surf, outside)
+
+
+def eclipse(seed):
+    cx, cy, r = 0.5, 0.42, 0.115
+    d = np.sqrt(((NX - cx) * W / H) ** 2 + (NY - cy) ** 2)
+    corona = np.exp(-((d - r) / 0.022) ** 2) * 1.6 + np.exp(-np.clip(d - r, 0, None) / 0.12) * 0.55
+    corona = corona * (d >= r * 0.985)
+    img = (corona[..., None] * hexc("#ffe2a8"))
+    img = img + stars(seed, 700)[..., None] * 255 * (d > r * 2.6)[..., None] * 0.8
+    return img + linear("#000000", "#050818", 180) * 0.8
+
+
+def moonrise(seed):
+    cx, cy, r = 0.5, 0.64, 0.20
+    d = np.sqrt(((NX - cx) * W / H) ** 2 + (NY - cy) ** 2)
+    sky = linear("#05081c", "#1d2b53", 180, "#7a5c8a")
+    maria = fbm(seed, 4, 2)                      # large dark seas
+    fine = fbm(seed + 5, 6, 6)                   # small surface texture
+    shade = 0.84 + 0.14 * smooth(0.35, 0.75, maria) + 0.08 * (fine - 0.5)
+    shade = shade * (0.70 + 0.30 * smooth(1.0, -0.2, (NX - cx) * 2.4))   # lit from the left
+    body = hexc("#f4efdf") * shade[..., None]
+    st = stars(seed + 3, 800)[..., None] * 255 * (d > r * 1.5)[..., None] * (1 - NY[..., None] * 0.5)
+    return add_disc(sky + st, "#c9d6ff", cx, cy, r, 0.55, 0.09, color_img=body)
+
+
+def add_disc(img, col, cx, cy, r, halo=0.5, spread=0.10, color_img=None):
+    """Sun/moon with a soft glow. Halo is blended with the disc edge, so no dark outline."""
+    d = np.sqrt(((NX - cx) * W / H) ** 2 + (NY - cy) ** 2)
+    disc = smooth(r + 0.0015, r - 0.0015, d)[..., None]
+    glow = (np.exp(-np.clip(d - r, 0, None) / spread) * halo)[..., None] * hexc(col)
+    body = hexc(col) if color_img is None else color_img
+    return (img + glow) * (1 - disc) + body * disc
+
+
+def ridge_line(seed, y0, amp, roughness=1.0):
+    """Mountain outline: height for every x (peaky, ridged noise)."""
+    rng = np.random.default_rng(seed)
+    x = np.linspace(0, 1, W, dtype=np.float32)
+    r = np.zeros(W, np.float32)
+    for o in range(4):
+        f = 1.1 * (1.9 ** o) * roughness
+        r += (1 / (2.4 ** o)) * (1 - np.abs(np.sin(math.tau * f * x * 0.5 + rng.uniform(0, math.tau))))
+    r = (r - r.min()) / (r.max() - r.min())
+    return y0 - amp * r
+
+
+def mountains(seed, sky, layers, sun=None, with_stars=False, y_start=0.50, step=0.085, amp=0.11):
+    img = linear(*sky[:2], 180, *(sky[2:3] or [None])) if len(sky) > 2 else linear(sky[0], sky[1], 180)
+    if with_stars:
+        img = img + stars(seed, 600)[..., None] * 255 * (1 - NY[..., None] * 1.3).clip(0, 1) * 0.8
+    if sun:
+        col, cx, cy, r = sun
+        img = add_disc(img, col, cx, cy, r, 0.5, 0.10)
+    for i, c in enumerate(layers):
+        ridge = ridge_line(seed + i * 7, y_start + i * step, amp * (1 - i * 0.12), 1.0 + i * 0.25)
+        m = smooth(0.0012, -0.0012, NY - ridge[None, :])  # 1 under the ridge
+        m = 1 - m
+        top = y_start + i * step - amp          # same for every column, so no streaks
+        depth = np.clip((NY - top) / 0.30, 0, 1)[..., None]
+        col = hexc(c) * (1 - 0.30 * depth)
+        img = img * (1 - m[..., None]) + col * m[..., None]
+    return img
+
+
+def pines(seed, sky, layers, moon=None):
+    S = 2
+    base = linear(sky[0], sky[1], 180)
+    if moon:
+        col, cx, cy, r = moon
+        base = add_disc(base, col, cx, cy, r, 0.45, 0.09)
+    im = Image.fromarray(np.clip(base, 0, 255).astype(np.uint8), "RGB").resize((W * S, H * S), Image.LANCZOS)
+    d = ImageDraw.Draw(im)
+    rng = np.random.default_rng(seed)
+    for li, c in enumerate(layers):
+        fill = tuple(int(v) for v in hexc(c))
+        ground = int(H * S * (0.84 + li * 0.045))
+        x = -40
+        scale = 1.0 + li * 0.40
+        while x < W * S + 60:
+            th = int(rng.uniform(0.13, 0.19) * H * S * scale)
+            tw = int(th * rng.uniform(0.32, 0.42))
+            for k in range(4):
+                top = ground - th + int(th * 0.20 * k) - int(th * 0.05)
+                bot = ground - th + int(th * 0.20 * (k + 1)) + int(th * 0.20)
+                half = int(tw * (0.35 + 0.22 * k))
+                d.polygon([(x, top), (x - half, bot), (x + half, bot)], fill=fill)
+            d.rectangle((x - 5, ground - int(th * 0.05), x + 5, ground + int(H * 0.06 * S)), fill=fill)
+            x += int(tw * rng.uniform(0.85, 1.25))
+        d.rectangle((0, ground, W * S, H * S), fill=fill)
+    return np.asarray(im.resize((W, H), Image.LANCZOS), np.float32)
+
+
+def ocean(sky, sun_col, sea_top, sea_bot, horizon=0.55, sun_r=0.17):
+    img = linear(sky[0], sky[1], 180, sky[2]) if len(sky) > 2 else linear(sky[0], sky[1], 180)
+    img = add_disc(img, sun_col, 0.5, horizon, sun_r, 0.55, 0.12)
+    sea = linear(sea_top, sea_bot, 180)
+    below = smooth(horizon - 0.001, horizon + 0.001, NY)[..., None]
+    out = img * (1 - below) + sea * below
+    # sun reflection: stripes that get thinner towards the viewer
+    rng = np.random.default_rng(1)
+    for i in range(26):
+        t = i / 26
+        y = horizon + 0.012 + t ** 1.6 * 0.34
+        wdt = (0.20 - 0.14 * t) * (0.7 + 0.3 * rng.random())
+        hgt = 0.0035 + 0.003 * t
+        m = smooth(hgt, hgt * 0.4, np.abs(NY - y)) * smooth(wdt * 0.5 * H / W, wdt * 0.3 * H / W, np.abs(NX - 0.5)) * (0.9 - 0.5 * t)
+        out = out * (1 - m[..., None]) + hexc(sun_col) * m[..., None]
+    return out
+
+
+def neon_grid(sun_top, sun_bot, grid, sky_top, sky_bot, horizon=0.56):
+    S = 2
+    sky = linear(sky_top, sky_bot, 180)
+    sky[int(H * horizon):] = hexc("#0a0220")
+    im = Image.fromarray(np.clip(sky, 0, 255).astype(np.uint8), "RGB").resize((W * S, H * S), Image.LANCZOS)
+    d = ImageDraw.Draw(im)
+    cx, cy, r = W * S // 2, int(H * S * horizon), int(W * S * 0.30)
+    sun = Image.new("RGB", (2 * r, 2 * r))
+    sd = ImageDraw.Draw(sun)
+    for y in range(2 * r):
+        t = y / (2 * r)
+        sd.line((0, y, 2 * r, y), fill=tuple(int(a * (1 - t) + b * t) for a, b in zip(hexc(sun_top), hexc(sun_bot))))
+    mask = Image.new("L", (2 * r, 2 * r), 0)
+    md = ImageDraw.Draw(mask)
+    md.ellipse((0, 0, 2 * r, 2 * r), fill=255)
+    for i in range(8):                       # retro stripes cut into the sun
+        y0 = int(r * (1.05 + i * 0.12)); md.rectangle((0, y0, 2 * r, y0 + int(4 + i * 4) * S // 2), fill=0)
+    im.paste(sun, (cx - r, cy - r - int(r * 0.05)), mask)
+    d.rectangle((0, cy, W * S, H * S), fill=tuple(int(v) for v in hexc("#0a0220")))
+    gc = tuple(int(v) for v in hexc(grid))
+    for i in range(1, 26):                   # horizontal lines (denser near the horizon)
+        y = cy + int((H * S * (1 - horizon)) * (i / 25) ** 2.1)
+        d.line((0, y, W * S, y), fill=gc, width=3 * S // 2)
+    for k in range(-14, 15):                 # lines running to the vanishing point
+        d.line((cx, cy, cx + k * W * S * 0.34, H * S), fill=gc, width=3 * S // 2)
+    d.rectangle((0, cy - 2, W * S, cy + 3), fill=gc)
+    glow = im.filter(ImageFilter.GaussianBlur(14 * S))
+    out = np.asarray(im.resize((W, H), Image.LANCZOS), np.float32) + np.asarray(glow.resize((W, H), Image.LANCZOS), np.float32) * 0.7
+    return out
+
+
+def hex_grid(c1, c2, line, hi, seed=0):
+    S = 2
+    base = linear(c1, c2, 200)
+    im = Image.fromarray(np.clip(base, 0, 255).astype(np.uint8), "RGB").resize((W * S, H * S), Image.LANCZOS).convert("RGBA")
+    over = Image.new("RGBA", im.size, (0, 0, 0, 0))
+    d = ImageDraw.Draw(over)
+    rng = np.random.default_rng(seed)
+    r = 120 * S
+    dx, dy = math.sqrt(3) * r, 1.5 * r
+    lc = tuple(int(v) for v in hexc(line)) + (110,)
+    hc = tuple(int(v) for v in hexc(hi))
+    row = 0
+    y = -r
+    while y < H * S + r:
+        x = -dx + (dx / 2 if row % 2 else 0)
+        while x < W * S + dx:
+            pts = [(x + r * math.cos(math.radians(60 * k - 30)), y + r * math.sin(math.radians(60 * k - 30))) for k in range(6)]
+            if rng.random() < 0.16:
+                d.polygon(pts, fill=hc + (int(rng.uniform(30, 90)),))
+            d.line(pts + [pts[0]], fill=lc, width=3 * S)
+            x += dx
+        y += dy
+        row += 1
+    im = Image.alpha_composite(im, over).convert("RGB")
+    return np.asarray(im.resize((W, H), Image.LANCZOS), np.float32)
+
+
+def low_poly(c1, c2, c3, seed, cols=8, rows=18):
+    S = 2
+    rng = np.random.default_rng(seed)
+    cw, ch = W / cols, H / rows
+    pts = [[(i * cw + (rng.uniform(-.32, .32) * cw if 0 < i < cols else 0),
+             j * ch + (rng.uniform(-.32, .32) * ch if 0 < j < rows else 0)) for i in range(cols + 1)] for j in range(rows + 1)]
+    im = Image.new("RGB", (W * S, H * S))
+    d = ImageDraw.Draw(im)
+    a, b, c = hexc(c1), hexc(c2), hexc(c3)
+
+    def colour(x, y):
+        t = np.clip((y / H) * 0.85 + (x / W) * 0.15, 0, 1)
+        base = (a * (1 - t * 2) + b * (t * 2)) if t < .5 else (b * (1 - (t - .5) * 2) + c * ((t - .5) * 2))
+        return tuple(int(v) for v in np.clip(base * rng.uniform(0.9, 1.1), 0, 255))
+
+    for j in range(rows):
+        for i in range(cols):
+            p1, p2, p3, p4 = pts[j][i], pts[j][i + 1], pts[j + 1][i], pts[j + 1][i + 1]
+            tris = [(p1, p2, p3), (p2, p4, p3)] if (i + j) % 2 else [(p1, p2, p4), (p1, p4, p3)]
+            for tri in tris:
+                cx = sum(p[0] for p in tri) / 3
+                cy = sum(p[1] for p in tri) / 3
+                col = colour(cx, cy)
+                d.polygon([(x * S, y * S) for x, y in tri], fill=col, outline=col)
+    return np.asarray(im.resize((W, H), Image.LANCZOS), np.float32)
+
+
 # ----------------------------------------------------------------- list
 # (slug, title, category, seed, function returning the image)
 DESIGNS = [
@@ -252,11 +506,38 @@ DESIGNS = [
     ("dune-waves", "Dune Waves", "abstract", lambda: waves_pattern("#ffd6a5", "#fdffb6", ["#f4a261", "#e76f51", "#9c4a2f", "#4a1f1a"], 2)),
     ("night-waves", "Night Waves", "abstract", lambda: waves_pattern("#0b132b", "#1c2541", ["#3a506b", "#5bc0be", "#2a9d8f", "#0b132b"], 4)),
     ("pastel-waves", "Pastel Waves", "abstract", lambda: waves_pattern("#fff1e6", "#fde2e4", ["#fad2e1", "#e2ece9", "#bee1e6", "#dfe7fd"], 6)),
+    # --- pack 2: space
+    ("nebula-violet", "Violet Nebula", "space", lambda: nebula(11, "#04010d", "#5b1a9e", "#d7378c", "#ffd3a8")),
+    ("nebula-teal", "Teal Nebula", "space", lambda: nebula(21, "#010a10", "#0b6e8a", "#3a2bb0", "#9ff3e4")),
+    ("planet-horizon", "Planet Horizon", "space", lambda: planet_horizon(5, "#6fb7ff", "#10204a")),
+    ("total-eclipse", "Total Eclipse", "space", lambda: eclipse(8)),
+    ("star-field", "Star Field", "space", lambda: stars(31, 1500)[..., None] * 255 + linear("#000000", "#070b1e", 180)),
+    ("moonrise", "Moonrise", "space", lambda: moonrise(14)),
+    # --- pack 2: nature
+    ("mountain-dawn", "Mountain Dawn", "nature", lambda: mountains(3, ("#ffd9a0", "#ff9e7a", "#f5cfd6"), ["#e4a5a3", "#c5788c", "#8f5a8a", "#4e3a6b", "#2a2547"], ("#fff1c9", .62, .40, .09))),
+    ("mountain-dusk", "Mountain Dusk", "nature", lambda: mountains(6, ("#2b1055", "#d4577b", "#ffb88c"), ["#b3567e", "#8a3f7a", "#5d2f70", "#3a2260", "#1b1238"], ("#ffe8c2", .35, .46, .07))),
+    ("misty-ridges", "Misty Ridges", "nature", lambda: mountains(9, ("#dbe9f4", "#b9d0e3"), ["#b4c9dd", "#93aec8", "#6f8fb0", "#4c6c92", "#2f4a6e"], None, y_start=.46, step=.10)),
+    ("mountain-night", "Mountain Night", "nature", lambda: mountains(13, ("#050b24", "#1a2a5e", "#4a5d9a"), ["#2b3d7a", "#1f2f63", "#16224c", "#0e1738", "#070d24"], ("#f5f1d8", .68, .22, .06), with_stars=True)),
+    ("pine-dusk", "Pine Dusk", "nature", lambda: pines(4, ("#35235e", "#f0907a"), ["#8a4f7a", "#5b3470", "#35204f", "#1b1030"])),
+    ("pine-night", "Pine Night", "nature", lambda: pines(7, ("#06142b", "#164a59"), ["#1c5a63", "#123f4c", "#0b2a38", "#051620"], ("#f3f1d4", .72, .24, .07))),
+    ("ocean-sunset", "Ocean Sunset", "nature", lambda: ocean(("#2a1048", "#e6486a", "#ffb36b"), "#ffe9a8", "#b5456a", "#1a0e3a")),
+    ("pastel-shore", "Pastel Shore", "nature", lambda: ocean(("#b8c6f5", "#f7c6d9", "#ffe5c7"), "#fff3df", "#8fbfe0", "#4b7fb5", sun_r=.14)),
+    # --- pack 2: tech / geometric
+    ("neon-grid", "Neon Grid", "technology", lambda: neon_grid("#ffe94d", "#ff2f92", "#e23dff", "#12012e", "#6a0f7a")),
+    ("hex-grid", "Hex Grid", "technology", lambda: hex_grid("#06122b", "#0b3a5c", "#3fd0ff", "#3fd0ff")),
+    ("low-poly-blue", "Low Poly Blue", "technology", lambda: low_poly("#0b1f4d", "#1d6fd1", "#76d7ff", 4)),
+    ("low-poly-sunset", "Low Poly Sunset", "technology", lambda: low_poly("#3a1c71", "#d76d77", "#ffaf7b", 9)),
 ]
 
 
 def tags_for(slug):
     """Search words so visitors can find wallpapers (search also reads title and category)."""
+    if slug.startswith(("nebula", "planet", "total-eclipse", "star-field", "moonrise")):
+        return "space galaxy stars cosmos night"
+    if slug.startswith(("mountain", "misty", "pine", "ocean", "pastel-shore")):
+        return "nature landscape scenery outdoors"
+    if slug.startswith(("neon-grid", "hex-grid", "low-poly")):
+        return "tech geometric pattern futuristic"
     if slug.startswith("amoled") or slug in ("pure-black", "deep-space-black", "charcoal-fade"):
         t = "amoled black dark oled battery"
     elif slug.startswith("minimal"):
