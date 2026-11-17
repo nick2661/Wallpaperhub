@@ -548,15 +548,13 @@ function updateModalPreview() {
     const portrait = isPortraitDevice(selectedDevice);
     const type = typeOf(w);
     modalMedia.classList.toggle('portrait', portrait);
-    modalMedia.classList.toggle('photo', type === 'image');
     modalImage.hidden = type !== 'image';
     modalCanvas.hidden = type !== 'live';
     modalVideo.hidden = type !== 'video';
 
     if (type === 'image') {
-        // whole image (no server-side crop); the visitor can zoom in to frame it
-        const full = pickSrc(w, portrait);
-        modalImage.src = /images\.unsplash\.com/.test(full) ? `${full.split('?')[0]}?w=1600&auto=format&q=80` : full;
+        const [pw, ph] = portrait ? [720, 1280] : [1280, 720];
+        modalImage.src = imgUrl(pickSrc(w, portrait), pw, ph);
         modalImage.alt = w.title;
     } else if (type === 'live') {
         if (!modalPlayer) {
@@ -576,114 +574,13 @@ function updateModalPreview() {
     }
     downloadLabel.textContent = type === 'image' ? 'Download' : 'Download video';
     const isImg = type === 'image';
-    zoomBar.hidden = !isImg;
-    document.getElementById('framingSelector').hidden = !isImg;
     document.getElementById('originalBtn').hidden = !isImg;
     renderTagsAndRelated(w);
     prevBtn.hidden = nextBtn.hidden = getFiltered().length < 2;
-    resetZoom();
 }
 
-// ===== Preview zoom / pan =====
-const zoomBar = document.getElementById('zoomBar');
-const zoomLabel = document.getElementById('zoomLabel');
 const prevBtn = document.getElementById('prevWallpaper');
 const nextBtn = document.getElementById('nextWallpaper');
-const ZOOM_MAX = 4;
-let zoom = 1, panX = 0, panY = 0;
-
-function fitSize() {
-    const fw = modalMedia.clientWidth, fh = modalMedia.clientHeight;
-    const nw = modalImage.naturalWidth || fw, nh = modalImage.naturalHeight || fh;
-    const s = Math.min(fw / nw, fh / nh);
-    return { fw, fh, dw: nw * s, dh: nh * s };
-}
-function fillZoom() { const f = fitSize(); return Math.min(ZOOM_MAX, Math.max(f.fw / f.dw, f.fh / f.dh)); }
-// Size the frame to the picture's own shape (largest fit inside the available box)
-function sizeFrame() {
-    const m = modalMedia;
-    if (!m.classList.contains('photo')) { m.style.width = m.style.height = ''; return; }
-    const nw = modalImage.naturalWidth, nh = modalImage.naturalHeight;
-    if (m.classList.contains('fullscreen')) { m.style.width = '100vw'; m.style.height = '100dvh'; return; }
-    m.style.width = '100%'; m.style.height = 'var(--media-max-h)';
-    if (!nw || !nh) return;
-    const aw = m.clientWidth, ah = m.clientHeight;
-    const s = Math.min(aw / nw, ah / nh);
-    m.style.width = Math.round(nw * s) + 'px';
-    m.style.height = Math.round(nh * s) + 'px';
-}
-// Dashed box = the part of the picture the chosen device + resolution will download
-let framing = 'fill';       // 'fill' = crop to the device shape, 'fit' = whole picture on a blurred background
-let pannable = false;
-function cropWindow() {
-    if (framing !== 'fill' || !currentWallpaper || typeOf(currentWallpaper) !== 'image' ||
-        modalMedia.classList.contains('fullscreen') || !modalImage.naturalWidth) return null;
-    const [lw, lh] = RESOLUTIONS[selectedResolution] || RESOLUTIONS['4k'];
-    const [tw, th] = isPortraitDevice(selectedDevice) ? [lh, lw] : [lw, lh];
-    const fw = modalMedia.clientWidth, fh = modalMedia.clientHeight, r = tw / th;
-    let gw = fw, gh = fw / r;
-    if (gh > fh) { gh = fh; gw = fh * r; }
-    return { fw, fh, gw, gh, tw, th };
-}
-function updateCropGuide(gb) {
-    const g = document.getElementById('cropGuide');
-    if (!gb || (Math.abs(gb.gw - gb.fw) < 3 && Math.abs(gb.gh - gb.fh) < 3)) { g.hidden = true; return; }   // picture already has this shape
-    g.hidden = false;
-    Object.assign(g.style, { width: gb.gw + 'px', height: gb.gh + 'px', left: (gb.fw - gb.gw) / 2 + 'px', top: (gb.fh - gb.gh) / 2 + 'px' });
-    document.getElementById('cropGuideLabel').textContent = gb.gw < 220 ? 'Download area' : `Download area ${gb.tw}×${gb.th}`;
-}
-// Which part of the picture is inside the dashed box (0..1 of the picture), or null for the default centred crop
-function currentCropRect() {
-    const gb = cropWindow();
-    if (!gb) return null;
-    const u = x => Math.min(1, Math.max(0, (x - gb.fw / 2 - panX) / (gb.fw * zoom) + 0.5));
-    const v = y => Math.min(1, Math.max(0, (y - gb.fh / 2 - panY) / (gb.fh * zoom) + 0.5));
-    const x0 = (gb.fw - gb.gw) / 2, y0 = (gb.fh - gb.gh) / 2;
-    return { u0: u(x0), u1: u(x0 + gb.gw), v0: v(y0), v1: v(y0 + gb.gh) };
-}
-function applyZoom() {
-    sizeFrame();
-    const f = fitSize();
-    const gb = cropWindow();
-    // with a crop box the picture must keep covering it; otherwise just keep it inside the frame
-    const mx = gb ? Math.max(0, (gb.fw * zoom - gb.gw) / 2) : Math.max(0, (f.dw * zoom - f.fw) / 2);
-    const my = gb ? Math.max(0, (gb.fh * zoom - gb.gh) / 2) : Math.max(0, (f.dh * zoom - f.fh) / 2);
-    panX = Math.max(-mx, Math.min(mx, panX));
-    panY = Math.max(-my, Math.min(my, panY));
-    pannable = mx > 0.5 || my > 0.5;
-    modalImage.style.transform = zoom === 1 && !panX && !panY ? '' : `translate(${panX}px, ${panY}px) scale(${zoom})`;
-    modalMedia.classList.toggle('zoomed', pannable);
-    zoomLabel.textContent = zoom === 1 ? '100%' : Math.round(zoom * 100) + '%';
-    updateCropGuide(gb);
-    document.getElementById('zoomOut').disabled = zoom <= 1;
-    document.getElementById('zoomIn').disabled = zoom >= ZOOM_MAX;
-}
-function setZoom(z) { zoom = Math.max(1, Math.min(ZOOM_MAX, z)); if (zoom === 1) panX = panY = 0; applyZoom(); }
-function resetZoom() { zoom = 1; panX = panY = 0; applyZoom(); }
-document.getElementById('zoomIn').addEventListener('click', (e) => { e.stopPropagation(); setZoom(zoom < 1.5 ? 1.5 : zoom + 0.5); });
-document.getElementById('zoomOut').addEventListener('click', (e) => { e.stopPropagation(); setZoom(zoom - 0.5 < 1.25 ? 1 : zoom - 0.5); });
-zoomLabel.addEventListener('click', (e) => { e.stopPropagation(); resetZoom(); });
-modalMedia.addEventListener('wheel', (e) => {
-    if (typeOf(currentWallpaper) !== 'image') return;
-    e.preventDefault();
-    setZoom(zoom * (e.deltaY < 0 ? 1.15 : 1 / 1.15));
-}, { passive: false });
-modalImage.addEventListener('dblclick', () => { zoom > 1 ? resetZoom() : setZoom(fillZoom() > 1.05 ? fillZoom() : 2); });
-modalImage.addEventListener('load', applyZoom);
-window.addEventListener('resize', () => { if (wallpaperModal.classList.contains('active')) applyZoom(); });
-let drag = null;
-modalMedia.addEventListener('pointerdown', (e) => {
-    if (!pannable || e.target.closest('button')) return;
-    drag = { x: e.clientX, y: e.clientY, px: panX, py: panY };
-    modalMedia.setPointerCapture(e.pointerId);
-    modalMedia.classList.add('dragging');
-});
-modalMedia.addEventListener('pointermove', (e) => {
-    if (!drag) return;
-    panX = drag.px + (e.clientX - drag.x); panY = drag.py + (e.clientY - drag.y);
-    applyZoom();
-});
-['pointerup', 'pointercancel'].forEach(t => modalMedia.addEventListener(t, () => { drag = null; modalMedia.classList.remove('dragging'); }));
 
 // ===== Previous / next wallpaper =====
 function stepWallpaper(dir) {
@@ -732,14 +629,13 @@ modalClose.addEventListener('click', closeWallpaperModal);
 modalOverlay.addEventListener('click', closeWallpaperModal);
 
 // Full screen preview (CSS based, so it also works on iPhone Safari)
-function exitPreview() { modalMedia.classList.remove('fullscreen'); document.body.classList.remove('preview-open'); requestAnimationFrame(() => typeof applyZoom === 'function' && applyZoom()); }
+function exitPreview() { modalMedia.classList.remove('fullscreen'); document.body.classList.remove('preview-open'); }
 previewFsBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     const on = !modalMedia.classList.contains('fullscreen');
     modalMedia.classList.toggle('fullscreen', on);
     document.body.classList.toggle('preview-open', on);
     if (modalPlayer) requestAnimationFrame(() => modalPlayer && modalPlayer.resize());
-    requestAnimationFrame(applyZoom);
 });
 
 // ===== Customize (rotate / crop / adjust editor, see editor.js) =====
@@ -821,13 +717,10 @@ async function downloadWallpaper(wallpaper, quick) {
         const url = type === 'video' ? wallpaper.video : imgUrl(wallpaper.image, w, h);
         showNotification('Download started!');
         const own = !/images\.unsplash\.com/.test(wallpaper.image);
-        const custom = !quick && type === 'image' && (framing === 'fit' || currentCropRect());
-        if (type === 'image' && (own || custom)) {
-            // Crop/resize to the chosen device + resolution in the browser (own images always; stock photos when framed by hand)
+        if (type === 'image' && own) {
+            // Our own images: crop/resize to the chosen device + resolution in the browser
             try {
-                const srcFull = pickSrc(wallpaper, h > w);
-                const source = own ? srcFull : `${srcFull.split('?')[0]}?w=${Math.min(4000, Math.max(w, h))}&auto=format&q=90`;
-                const out = await renderLocalImage(source, w, h, quick ? {} : { mode: framing, rect: framing === 'fill' ? currentCropRect() : null });
+                const out = await renderLocalImage(pickSrc(wallpaper, h > w), w, h);
                 saveBlob(out.blob, `${slug(wallpaper.title)}_${out.w}x${out.h}.jpg`);
                 bumpDownloads(wallpaper);
                 return;
@@ -1026,19 +919,6 @@ function openFromHash() {
 }
 window.addEventListener('load', openFromHash);
 window.addEventListener('hashchange', openFromHash);
-
-
-// ===== Framing: fill the screen (crop) or show the whole picture =====
-document.querySelectorAll('.framing-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        framing = btn.dataset.framing;
-        document.querySelectorAll('.framing-btn').forEach(b => b.classList.toggle('active', b === btn));
-        document.getElementById('framingHint').textContent = framing === 'fill'
-            ? 'Drag the picture and use + / − to choose what is inside the dashed box.'
-            : 'The whole picture is kept; the empty sides are filled with a soft blur of the same picture.';
-        resetZoom();
-    });
-});
 
 
 // ===== Tags, related wallpapers, original file (like Wallhaven / 4K Wallpapers detail pages) =====

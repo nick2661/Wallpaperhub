@@ -750,7 +750,7 @@ img {
 }
 /* photos show whole (no cropping); visitor can zoom and drag */
 .modal-image {
-    object-fit: contain;
+    object-fit: cover;
     transform-origin: center center;
     will-change: transform;
     user-select: none;
@@ -1662,3 +1662,7 @@ body.preview-open .preview-wrap .nav-arrow { position: fixed; z-index: 3600; }
     background: linear-gradient(transparent, rgba(0, 0, 0, .7)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .original-link[hidden] { display: none; }
+
+/* back to the plain device-shaped preview */
+.modal-media.photo { margin: 0; max-width: none; }
+.modal-media { --media-max-h: initial; }
