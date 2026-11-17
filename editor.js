@@ -210,7 +210,7 @@
         $('#edLockChk').addEventListener('change', e => { lockOn = e.target.checked; change(); });
         $('#edAspects').addEventListener('click', e => {
             const b = e.target.closest('[data-aspect]'); if (!b) return;
-            aspectId = b.dataset.aspect; syncControls(); layout();
+            aspectId = b.dataset.aspect; syncControls(); layout(); reloadForAspect();
         });
         $('#edPresets').addEventListener('click', e => {
             const b = e.target.closest('[data-preset]'); if (!b) return;
@@ -311,6 +311,17 @@
         });
     }
 
+    // use the 16:9 original for landscape frames and the tall one for portrait frames
+    const srcFor = () => (wallpaper.wide && ratio() >= 1) ? wallpaper.wide : wallpaper.image;
+    let loadedSrc = null;
+    function reloadForAspect() {
+        if (!wallpaper.wide || !img) return;
+        const want = srcFor();
+        if (want === loadedSrc) return;
+        loadedSrc = want;
+        loadImage(imgFull(want, 3000)).then(i => { if (!root || srcFor() !== want) return; img = i; layout(); }).catch(() => {});
+    }
+
     window.openEditor = function (w, o) {
         if (root) return;
         wallpaper = w; opts = o || {};
@@ -325,7 +336,8 @@
         document.body.classList.add('editor-open');
         syncControls(); layout();
         $('#edClose').focus();
-        loadImage(imgFull(w.image, 3000)).then(i => {
+        loadedSrc = srcFor();
+        loadImage(imgFull(loadedSrc, 3000)).then(i => {
             if (!root) return;
             img = i; $('#edLoading').hidden = true; layout();
         }).catch(() => {

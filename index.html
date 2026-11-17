@@ -12,7 +12,7 @@
     <meta name="description" content="Download high-quality wallpapers for Android, Windows, iOS, and all devices. HD, 4K, and 8K resolutions available.">
     <meta name="keywords" content="wallpapers, HD wallpapers, 4K wallpapers, 8K wallpapers, mobile wallpapers, desktop backgrounds">
     <title>WallpaperHub - Premium HD Wallpapers for All Devices</title>
-    <link rel="stylesheet" href="styles.css?v=20261120">
+    <link rel="stylesheet" href="styles.css?v=20261122">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -115,6 +115,10 @@
                     <i class="fas fa-fire"></i>
                     <span>Festival</span>
                 </div>
+                <div class="category-card" data-category="favorites">
+                    <i class="fas fa-heart"></i>
+                    <span>Favorites</span>
+                </div>
             </div>
         </div>
     </section>
@@ -133,6 +137,13 @@
     </section>
 
     <!-- Wallpaper Gallery -->
+    <section class="featured-section" id="featured" hidden>
+        <div class="container">
+            <h2 class="featured-title"><i class="fas fa-star"></i> Featured</h2>
+            <div class="featured-row" id="featuredRow"></div>
+        </div>
+    </section>
+
     <section class="gallery-section" id="popular">
         <div class="container">
             <h2 class="section-title">Popular Wallpapers</h2>
@@ -260,6 +271,9 @@
                         <button class="favorite-btn" id="favoriteBtn" aria-label="Add to favorites">
                             <i class="far fa-heart"></i><span class="fav-label"> Favorite</span>
                         </button>
+                        <button class="favorite-btn" id="shareBtn" aria-label="Share this wallpaper">
+                            <i class="fas fa-share-nodes"></i><span class="fav-label"> Share</span>
+                        </button>
                         <button class="customize-btn" id="customizeBtn" aria-label="Customize: rotate, crop and adjust">
                             <i class="fas fa-sliders"></i><span> Customize</span>
                         </button>
@@ -291,8 +305,8 @@
         </div>
     </div>
 
-    <script src="live.js?v=20261120"></script>
-    <script src="editor.js?v=20261120"></script>
-    <script src="script.js?v=20261120"></script>
+    <script src="live.js?v=20261122"></script>
+    <script src="editor.js?v=20261122"></script>
+    <script src="script.js?v=20261122"></script>
 </body>
 </html>

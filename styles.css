@@ -1561,3 +1561,24 @@ body.editor-open { overflow: hidden; }
     .category-card, .category-card.featured { padding: 9px 14px; }
     .category-card span { font-size: 13px; }
 }
+
+/* ===== Featured row ===== */
+.featured-section { padding: 10px 16px 0; }
+.featured-section[hidden] { display: none; }
+.featured-title { font-size: 20px; margin: 0 0 12px; color: var(--text-primary); }
+.featured-title i { color: #f59e0b; margin-right: 6px; }
+.featured-row {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding: 4px 2px 14px;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+}
+.featured-row .wallpaper-card { flex: 0 0 auto; scroll-snap-align: start; width: 280px; aspect-ratio: 16 / 9; }
+.featured-row.portrait .wallpaper-card { width: 150px; aspect-ratio: 9 / 16; }
+@media (max-width: 600px) {
+    .featured-row .wallpaper-card { width: 240px; }
+    .featured-row.portrait .wallpaper-card { width: 130px; }
+}

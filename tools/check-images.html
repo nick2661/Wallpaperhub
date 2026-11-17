@@ -1,0 +1,23 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Wallpaper image check</title>
+<style>body{font:15px system-ui;padding:20px;max-width:760px;margin:auto}.ok{color:#15803d}.bad{color:#b91c1c;font-weight:600}</style>
+<h2>Wallpaper image check</h2>
+<p>Open this page through your local server (e.g. <code>http://localhost:8000/tools/check-images.html</code>). It tries to load every wallpaper image and lists the ones that fail.</p>
+<p id="sum">Checking…</p><ul id="out"></ul>
+<script>
+(async () => {
+  const src = await (await fetch('../script.js')).text();
+  const m = src.match(/(?:const|let)\s+wallpapers\s*=\s*(\[[\s\S]*?\n\]);/);
+  const list = (m ? new Function('return ' + m[1])() : []).filter(w => w.image);
+  let bad = 0, done = 0;
+  await Promise.all(list.map(w => new Promise(res => {
+    const im = new Image();
+    const fix = u => u.startsWith('http') || u.startsWith('/') ? u : '../' + u;
+    im.onload = () => { done++; res(); };
+    im.onerror = () => { bad++; done++; const li = document.createElement('li'); li.className = 'bad'; li.textContent = `#${w.id} ${w.title} — ${w.image}`; out.appendChild(li); res(); };
+    im.src = fix(w.image);
+  })));
+  sum.innerHTML = `<b>${list.length}</b> images checked, <span class="${bad ? 'bad' : 'ok'}">${bad} broken</span>.`;
+})();
+</script>

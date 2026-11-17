@@ -21,7 +21,6 @@ const wallpapers = [
     { id: 19, title: "Cyberpunk City", category: "technology", image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800", views: 27890, downloads: 6780 },
     { id: 20, title: "Pastel Gradient", category: "minimalist", image: "https://images.unsplash.com/photo-1557682268-e3955ed5d83f?w=800", views: 19230, downloads: 4560 },
     { id: 21, title: "Starry Night", category: "dark", image: "https://images.unsplash.com/photo-1444080748397-f442aa95c3e5?w=800", views: 23450, downloads: 5670 },
-    { id: 22, title: "Anime Sunset", category: "anime", image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800", views: 28900, downloads: 6890 },
     { id: 23, title: "Racing Car", category: "cars", image: "https://images.unsplash.com/photo-1525609004556-c46c7d6cf023?w=800", views: 30120, downloads: 7340 },
     { id: 24, title: "Planet Earth", category: "space", image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800", views: 25340, downloads: 6120 },
     // --- More photos (ids 25+). Unsplash photo IDs: if one ever 404s the card hides itself automatically. ---
@@ -41,80 +40,87 @@ const wallpapers = [
     { id: 38, title: "Code Editor", category: "technology", image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800", views: 17700, downloads: 3900 },
 
     // --- ORIGINAL phone wallpapers (made by tools/make_wallpapers.py, yours to use commercially) ---
-    { id: 301, title: "Aurora Mesh", category: "abstract", tags: "gradient blur colorful smooth", image: "images/pack/aurora-mesh.jpg", thumb: "images/pack/thumbs/aurora-mesh.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 302, title: "Sunset Haze", category: "abstract", tags: "gradient blur colorful smooth", image: "images/pack/sunset-haze.jpg", thumb: "images/pack/thumbs/sunset-haze.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 303, title: "Ocean Drift", category: "abstract", tags: "nature landscape scenery outdoors", image: "images/pack/ocean-drift.jpg", thumb: "images/pack/thumbs/ocean-drift.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 304, title: "Peach Cloud", category: "abstract", tags: "gradient blur colorful smooth", image: "images/pack/peach-cloud.jpg", thumb: "images/pack/thumbs/peach-cloud.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 305, title: "Violet Dream", category: "abstract", tags: "gradient blur colorful smooth", image: "images/pack/violet-dream.jpg", thumb: "images/pack/thumbs/violet-dream.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 306, title: "Forest Mist", category: "abstract", tags: "gradient blur colorful smooth", image: "images/pack/forest-mist.jpg", thumb: "images/pack/thumbs/forest-mist.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 307, title: "Rose Gold", category: "abstract", tags: "gradient blur colorful smooth", image: "images/pack/rose-gold.jpg", thumb: "images/pack/thumbs/rose-gold.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 308, title: "Midnight Blue", category: "abstract", tags: "gradient blur colorful smooth", image: "images/pack/midnight-blue.jpg", thumb: "images/pack/thumbs/midnight-blue.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 309, title: "Lemon Fizz", category: "abstract", tags: "gradient blur colorful smooth", image: "images/pack/lemon-fizz.jpg", thumb: "images/pack/thumbs/lemon-fizz.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 310, title: "Candy Sky", category: "abstract", tags: "gradient blur colorful smooth", image: "images/pack/candy-sky.jpg", thumb: "images/pack/thumbs/candy-sky.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 311, title: "Lava Flow", category: "abstract", tags: "gradient blur colorful smooth", image: "images/pack/lava-flow.jpg", thumb: "images/pack/thumbs/lava-flow.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 312, title: "Blue Hour", category: "abstract", tags: "gradient blur colorful smooth", image: "images/pack/blue-hour.jpg", thumb: "images/pack/thumbs/blue-hour.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 313, title: "Mint Fade", category: "abstract", tags: "gradient blur colorful smooth", image: "images/pack/mint-fade.jpg", thumb: "images/pack/thumbs/mint-fade.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 314, title: "Twilight", category: "abstract", tags: "gradient blur colorful smooth", image: "images/pack/twilight.jpg", thumb: "images/pack/thumbs/twilight.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 315, title: "AMOLED Blue Glow", category: "dark", tags: "amoled black dark oled battery", image: "images/pack/amoled-blue-glow.jpg", thumb: "images/pack/thumbs/amoled-blue-glow.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 316, title: "AMOLED Red Glow", category: "dark", tags: "amoled black dark oled battery", image: "images/pack/amoled-red-glow.jpg", thumb: "images/pack/thumbs/amoled-red-glow.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 317, title: "AMOLED Green Ring", category: "dark", tags: "amoled black dark oled battery", image: "images/pack/amoled-green-ring.jpg", thumb: "images/pack/thumbs/amoled-green-ring.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 318, title: "AMOLED Violet Orb", category: "dark", tags: "amoled black dark oled battery", image: "images/pack/amoled-violet-orb.jpg", thumb: "images/pack/thumbs/amoled-violet-orb.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 319, title: "AMOLED Gold Orb", category: "dark", tags: "amoled black dark oled battery", image: "images/pack/amoled-gold-orb.jpg", thumb: "images/pack/thumbs/amoled-gold-orb.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 320, title: "AMOLED Cyan Lines", category: "dark", tags: "amoled black dark oled battery", image: "images/pack/amoled-cyan-lines.jpg", thumb: "images/pack/thumbs/amoled-cyan-lines.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 321, title: "AMOLED Pink Lines", category: "dark", tags: "amoled black dark oled battery", image: "images/pack/amoled-pink-lines.jpg", thumb: "images/pack/thumbs/amoled-pink-lines.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 322, title: "Pure Black", category: "dark", tags: "amoled black dark oled battery", image: "images/pack/pure-black.jpg", thumb: "images/pack/thumbs/pure-black.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 323, title: "Deep Space Black", category: "dark", tags: "amoled black dark oled battery", image: "images/pack/deep-space-black.jpg", thumb: "images/pack/thumbs/deep-space-black.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 324, title: "Charcoal Fade", category: "dark", tags: "amoled black dark oled battery", image: "images/pack/charcoal-fade.jpg", thumb: "images/pack/thumbs/charcoal-fade.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 325, title: "Minimal Sun", category: "minimalist", tags: "minimal simple flat clean", image: "images/pack/minimal-sun.jpg", thumb: "images/pack/thumbs/minimal-sun.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 326, title: "Minimal Horizon", category: "minimalist", tags: "minimal simple flat clean", image: "images/pack/minimal-horizon.jpg", thumb: "images/pack/thumbs/minimal-horizon.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 327, title: "Minimal Arch", category: "minimalist", tags: "minimal simple flat clean", image: "images/pack/minimal-arch.jpg", thumb: "images/pack/thumbs/minimal-arch.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 328, title: "Minimal Stripes", category: "minimalist", tags: "minimal simple flat clean", image: "images/pack/minimal-stripes.jpg", thumb: "images/pack/thumbs/minimal-stripes.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 329, title: "Minimal Moon", category: "minimalist", tags: "minimal simple flat clean", image: "images/pack/minimal-moon.jpg", thumb: "images/pack/thumbs/minimal-moon.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 330, title: "Minimal Dots", category: "minimalist", tags: "minimal simple flat clean", image: "images/pack/minimal-dots.jpg", thumb: "images/pack/thumbs/minimal-dots.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 331, title: "Minimal Split", category: "minimalist", tags: "minimal simple flat clean", image: "images/pack/minimal-split.jpg", thumb: "images/pack/thumbs/minimal-split.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 332, title: "Minimal Rings", category: "minimalist", tags: "minimal simple flat clean", image: "images/pack/minimal-rings.jpg", thumb: "images/pack/thumbs/minimal-rings.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 333, title: "Topo Night", category: "abstract", tags: "pattern lines waves", image: "images/pack/topo-night.jpg", thumb: "images/pack/thumbs/topo-night.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 334, title: "Topo Sand", category: "abstract", tags: "pattern lines waves", image: "images/pack/topo-sand.jpg", thumb: "images/pack/thumbs/topo-sand.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 335, title: "Topo Violet", category: "abstract", tags: "pattern lines waves", image: "images/pack/topo-violet.jpg", thumb: "images/pack/thumbs/topo-violet.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 336, title: "Ripple Blue", category: "abstract", tags: "pattern lines waves", image: "images/pack/ripple-blue.jpg", thumb: "images/pack/thumbs/ripple-blue.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 337, title: "Ripple Sunset", category: "abstract", tags: "pattern lines waves", image: "images/pack/ripple-sunset.jpg", thumb: "images/pack/thumbs/ripple-sunset.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 338, title: "Dune Waves", category: "abstract", tags: "pattern lines waves", image: "images/pack/dune-waves.jpg", thumb: "images/pack/thumbs/dune-waves.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 339, title: "Night Waves", category: "abstract", tags: "pattern lines waves", image: "images/pack/night-waves.jpg", thumb: "images/pack/thumbs/night-waves.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 340, title: "Pastel Waves", category: "abstract", tags: "pattern lines waves", image: "images/pack/pastel-waves.jpg", thumb: "images/pack/thumbs/pastel-waves.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 341, title: "Violet Nebula", category: "space", tags: "space galaxy stars cosmos night", image: "images/pack/nebula-violet.jpg", thumb: "images/pack/thumbs/nebula-violet.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 342, title: "Teal Nebula", category: "space", tags: "space galaxy stars cosmos night", image: "images/pack/nebula-teal.jpg", thumb: "images/pack/thumbs/nebula-teal.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 343, title: "Planet Horizon", category: "space", tags: "space galaxy stars cosmos night", image: "images/pack/planet-horizon.jpg", thumb: "images/pack/thumbs/planet-horizon.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 344, title: "Total Eclipse", category: "space", tags: "space galaxy stars cosmos night", image: "images/pack/total-eclipse.jpg", thumb: "images/pack/thumbs/total-eclipse.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 345, title: "Star Field", category: "space", tags: "space galaxy stars cosmos night", image: "images/pack/star-field.jpg", thumb: "images/pack/thumbs/star-field.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 346, title: "Moonrise", category: "space", tags: "space galaxy stars cosmos night", image: "images/pack/moonrise.jpg", thumb: "images/pack/thumbs/moonrise.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 347, title: "Mountain Dawn", category: "nature", tags: "nature landscape scenery outdoors", image: "images/pack/mountain-dawn.jpg", thumb: "images/pack/thumbs/mountain-dawn.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 348, title: "Mountain Dusk", category: "nature", tags: "nature landscape scenery outdoors", image: "images/pack/mountain-dusk.jpg", thumb: "images/pack/thumbs/mountain-dusk.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 349, title: "Misty Ridges", category: "nature", tags: "nature landscape scenery outdoors", image: "images/pack/misty-ridges.jpg", thumb: "images/pack/thumbs/misty-ridges.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 350, title: "Mountain Night", category: "nature", tags: "nature landscape scenery outdoors", image: "images/pack/mountain-night.jpg", thumb: "images/pack/thumbs/mountain-night.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 351, title: "Pine Dusk", category: "nature", tags: "nature landscape scenery outdoors", image: "images/pack/pine-dusk.jpg", thumb: "images/pack/thumbs/pine-dusk.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 352, title: "Pine Night", category: "nature", tags: "nature landscape scenery outdoors", image: "images/pack/pine-night.jpg", thumb: "images/pack/thumbs/pine-night.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 353, title: "Ocean Sunset", category: "nature", tags: "nature landscape scenery outdoors", image: "images/pack/ocean-sunset.jpg", thumb: "images/pack/thumbs/ocean-sunset.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 354, title: "Pastel Shore", category: "nature", tags: "nature landscape scenery outdoors", image: "images/pack/pastel-shore.jpg", thumb: "images/pack/thumbs/pastel-shore.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 355, title: "Neon Grid", category: "technology", tags: "tech geometric pattern futuristic", image: "images/pack/neon-grid.jpg", thumb: "images/pack/thumbs/neon-grid.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 356, title: "Hex Grid", category: "technology", tags: "tech geometric pattern futuristic", image: "images/pack/hex-grid.jpg", thumb: "images/pack/thumbs/hex-grid.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 357, title: "Low Poly Blue", category: "technology", tags: "tech geometric pattern futuristic", image: "images/pack/low-poly-blue.jpg", thumb: "images/pack/thumbs/low-poly-blue.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 358, title: "Low Poly Sunset", category: "technology", tags: "tech geometric pattern futuristic", image: "images/pack/low-poly-sunset.jpg", thumb: "images/pack/thumbs/low-poly-sunset.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 359, title: "Keep Going", category: "quotes", tags: "quote quotes motivation text inspiration words", image: "images/pack/quote-keep-going.jpg", thumb: "images/pack/thumbs/quote-keep-going.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 360, title: "Begin Today", category: "quotes", tags: "quote quotes motivation text inspiration words", image: "images/pack/quote-begin-today.jpg", thumb: "images/pack/thumbs/quote-begin-today.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 361, title: "Quiet Mind", category: "quotes", tags: "quote quotes motivation text inspiration words", image: "images/pack/quote-quiet-mind.jpg", thumb: "images/pack/thumbs/quote-quiet-mind.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 362, title: "Small Steps", category: "quotes", tags: "quote quotes motivation text inspiration words", image: "images/pack/quote-small-steps.jpg", thumb: "images/pack/thumbs/quote-small-steps.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 363, title: "Stay Curious", category: "quotes", tags: "quote quotes motivation text inspiration words", image: "images/pack/quote-stay-curious.jpg", thumb: "images/pack/thumbs/quote-stay-curious.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 364, title: "Be Kind", category: "quotes", tags: "quote quotes motivation text inspiration words", image: "images/pack/quote-be-kind.jpg", thumb: "images/pack/thumbs/quote-be-kind.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 365, title: "Dream Big", category: "quotes", tags: "quote quotes motivation text inspiration words", image: "images/pack/quote-dream-big.jpg", thumb: "images/pack/thumbs/quote-dream-big.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 366, title: "Focus", category: "quotes", tags: "quote quotes motivation text inspiration words", image: "images/pack/quote-focus.jpg", thumb: "images/pack/thumbs/quote-focus.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 367, title: "Diwali Glow", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/diwali-glow.jpg", thumb: "images/pack/thumbs/diwali-glow.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 368, title: "Diya Flame", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/diya-flame.jpg", thumb: "images/pack/thumbs/diya-flame.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 369, title: "Golden Mandala", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/golden-mandala.jpg", thumb: "images/pack/thumbs/golden-mandala.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 370, title: "Holi Colors", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/holi-colors.jpg", thumb: "images/pack/thumbs/holi-colors.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 371, title: "Christmas Snow", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/christmas-snow.jpg", thumb: "images/pack/thumbs/christmas-snow.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 372, title: "New Year Fireworks", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/new-year-fireworks.jpg", thumb: "images/pack/thumbs/new-year-fireworks.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 373, title: "Sky Lanterns", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/sky-lanterns.jpg", thumb: "images/pack/thumbs/sky-lanterns.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 374, title: "Eid Crescent", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/eid-crescent.jpg", thumb: "images/pack/thumbs/eid-crescent.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 301, title: "Aurora Mesh", category: "abstract", tags: "gradient blur colorful smooth", image: "images/pack/aurora-mesh.jpg", thumb: "images/pack/thumbs/aurora-mesh.jpg", wide: "images/pack/aurora-mesh-wide.jpg", wideThumb: "images/pack/thumbs/aurora-mesh-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 302, title: "Sunset Haze", category: "abstract", tags: "gradient blur colorful smooth", image: "images/pack/sunset-haze.jpg", thumb: "images/pack/thumbs/sunset-haze.jpg", wide: "images/pack/sunset-haze-wide.jpg", wideThumb: "images/pack/thumbs/sunset-haze-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 303, title: "Ocean Drift", category: "abstract", tags: "nature landscape scenery outdoors", image: "images/pack/ocean-drift.jpg", thumb: "images/pack/thumbs/ocean-drift.jpg", wide: "images/pack/ocean-drift-wide.jpg", wideThumb: "images/pack/thumbs/ocean-drift-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 304, title: "Peach Cloud", category: "abstract", tags: "gradient blur colorful smooth", image: "images/pack/peach-cloud.jpg", thumb: "images/pack/thumbs/peach-cloud.jpg", wide: "images/pack/peach-cloud-wide.jpg", wideThumb: "images/pack/thumbs/peach-cloud-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 305, title: "Violet Dream", category: "abstract", tags: "gradient blur colorful smooth", image: "images/pack/violet-dream.jpg", thumb: "images/pack/thumbs/violet-dream.jpg", wide: "images/pack/violet-dream-wide.jpg", wideThumb: "images/pack/thumbs/violet-dream-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 306, title: "Forest Mist", category: "abstract", tags: "gradient blur colorful smooth", image: "images/pack/forest-mist.jpg", thumb: "images/pack/thumbs/forest-mist.jpg", wide: "images/pack/forest-mist-wide.jpg", wideThumb: "images/pack/thumbs/forest-mist-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 307, title: "Rose Gold", category: "abstract", tags: "gradient blur colorful smooth", image: "images/pack/rose-gold.jpg", thumb: "images/pack/thumbs/rose-gold.jpg", wide: "images/pack/rose-gold-wide.jpg", wideThumb: "images/pack/thumbs/rose-gold-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 308, title: "Midnight Blue", category: "abstract", tags: "gradient blur colorful smooth", image: "images/pack/midnight-blue.jpg", thumb: "images/pack/thumbs/midnight-blue.jpg", wide: "images/pack/midnight-blue-wide.jpg", wideThumb: "images/pack/thumbs/midnight-blue-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 309, title: "Lemon Fizz", category: "abstract", tags: "gradient blur colorful smooth", image: "images/pack/lemon-fizz.jpg", thumb: "images/pack/thumbs/lemon-fizz.jpg", wide: "images/pack/lemon-fizz-wide.jpg", wideThumb: "images/pack/thumbs/lemon-fizz-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 310, title: "Candy Sky", category: "abstract", tags: "gradient blur colorful smooth", image: "images/pack/candy-sky.jpg", thumb: "images/pack/thumbs/candy-sky.jpg", wide: "images/pack/candy-sky-wide.jpg", wideThumb: "images/pack/thumbs/candy-sky-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 311, title: "Lava Flow", category: "abstract", tags: "gradient blur colorful smooth", image: "images/pack/lava-flow.jpg", thumb: "images/pack/thumbs/lava-flow.jpg", wide: "images/pack/lava-flow-wide.jpg", wideThumb: "images/pack/thumbs/lava-flow-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 312, title: "Blue Hour", category: "abstract", tags: "gradient blur colorful smooth", image: "images/pack/blue-hour.jpg", thumb: "images/pack/thumbs/blue-hour.jpg", wide: "images/pack/blue-hour-wide.jpg", wideThumb: "images/pack/thumbs/blue-hour-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 313, title: "Mint Fade", category: "abstract", tags: "gradient blur colorful smooth", image: "images/pack/mint-fade.jpg", thumb: "images/pack/thumbs/mint-fade.jpg", wide: "images/pack/mint-fade-wide.jpg", wideThumb: "images/pack/thumbs/mint-fade-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 314, title: "Twilight", category: "abstract", tags: "gradient blur colorful smooth", image: "images/pack/twilight.jpg", thumb: "images/pack/thumbs/twilight.jpg", wide: "images/pack/twilight-wide.jpg", wideThumb: "images/pack/thumbs/twilight-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 315, title: "AMOLED Blue Glow", category: "dark", tags: "amoled black dark oled battery", image: "images/pack/amoled-blue-glow.jpg", thumb: "images/pack/thumbs/amoled-blue-glow.jpg", wide: "images/pack/amoled-blue-glow-wide.jpg", wideThumb: "images/pack/thumbs/amoled-blue-glow-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 316, title: "AMOLED Red Glow", category: "dark", tags: "amoled black dark oled battery", image: "images/pack/amoled-red-glow.jpg", thumb: "images/pack/thumbs/amoled-red-glow.jpg", wide: "images/pack/amoled-red-glow-wide.jpg", wideThumb: "images/pack/thumbs/amoled-red-glow-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 317, title: "AMOLED Green Ring", category: "dark", tags: "amoled black dark oled battery", image: "images/pack/amoled-green-ring.jpg", thumb: "images/pack/thumbs/amoled-green-ring.jpg", wide: "images/pack/amoled-green-ring-wide.jpg", wideThumb: "images/pack/thumbs/amoled-green-ring-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 318, title: "AMOLED Violet Orb", category: "dark", tags: "amoled black dark oled battery", image: "images/pack/amoled-violet-orb.jpg", thumb: "images/pack/thumbs/amoled-violet-orb.jpg", wide: "images/pack/amoled-violet-orb-wide.jpg", wideThumb: "images/pack/thumbs/amoled-violet-orb-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 319, title: "AMOLED Gold Orb", category: "dark", tags: "amoled black dark oled battery", image: "images/pack/amoled-gold-orb.jpg", thumb: "images/pack/thumbs/amoled-gold-orb.jpg", wide: "images/pack/amoled-gold-orb-wide.jpg", wideThumb: "images/pack/thumbs/amoled-gold-orb-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 320, title: "AMOLED Cyan Lines", category: "dark", tags: "amoled black dark oled battery", image: "images/pack/amoled-cyan-lines.jpg", thumb: "images/pack/thumbs/amoled-cyan-lines.jpg", wide: "images/pack/amoled-cyan-lines-wide.jpg", wideThumb: "images/pack/thumbs/amoled-cyan-lines-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 321, title: "AMOLED Pink Lines", category: "dark", tags: "amoled black dark oled battery", image: "images/pack/amoled-pink-lines.jpg", thumb: "images/pack/thumbs/amoled-pink-lines.jpg", wide: "images/pack/amoled-pink-lines-wide.jpg", wideThumb: "images/pack/thumbs/amoled-pink-lines-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 322, title: "Pure Black", category: "dark", tags: "amoled black dark oled battery", image: "images/pack/pure-black.jpg", thumb: "images/pack/thumbs/pure-black.jpg", wide: "images/pack/pure-black-wide.jpg", wideThumb: "images/pack/thumbs/pure-black-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 323, title: "Deep Space Black", category: "dark", tags: "amoled black dark oled battery", image: "images/pack/deep-space-black.jpg", thumb: "images/pack/thumbs/deep-space-black.jpg", wide: "images/pack/deep-space-black-wide.jpg", wideThumb: "images/pack/thumbs/deep-space-black-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 324, title: "Charcoal Fade", category: "dark", tags: "amoled black dark oled battery", image: "images/pack/charcoal-fade.jpg", thumb: "images/pack/thumbs/charcoal-fade.jpg", wide: "images/pack/charcoal-fade-wide.jpg", wideThumb: "images/pack/thumbs/charcoal-fade-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 325, title: "Minimal Sun", category: "minimalist", tags: "minimal simple flat clean", image: "images/pack/minimal-sun.jpg", thumb: "images/pack/thumbs/minimal-sun.jpg", wide: "images/pack/minimal-sun-wide.jpg", wideThumb: "images/pack/thumbs/minimal-sun-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 326, title: "Minimal Horizon", category: "minimalist", tags: "minimal simple flat clean", image: "images/pack/minimal-horizon.jpg", thumb: "images/pack/thumbs/minimal-horizon.jpg", wide: "images/pack/minimal-horizon-wide.jpg", wideThumb: "images/pack/thumbs/minimal-horizon-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 327, title: "Minimal Arch", category: "minimalist", tags: "minimal simple flat clean", image: "images/pack/minimal-arch.jpg", thumb: "images/pack/thumbs/minimal-arch.jpg", wide: "images/pack/minimal-arch-wide.jpg", wideThumb: "images/pack/thumbs/minimal-arch-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 328, title: "Minimal Stripes", category: "minimalist", tags: "minimal simple flat clean", image: "images/pack/minimal-stripes.jpg", thumb: "images/pack/thumbs/minimal-stripes.jpg", wide: "images/pack/minimal-stripes-wide.jpg", wideThumb: "images/pack/thumbs/minimal-stripes-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 329, title: "Minimal Moon", category: "minimalist", tags: "minimal simple flat clean", image: "images/pack/minimal-moon.jpg", thumb: "images/pack/thumbs/minimal-moon.jpg", wide: "images/pack/minimal-moon-wide.jpg", wideThumb: "images/pack/thumbs/minimal-moon-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 330, title: "Minimal Dots", category: "minimalist", tags: "minimal simple flat clean", image: "images/pack/minimal-dots.jpg", thumb: "images/pack/thumbs/minimal-dots.jpg", wide: "images/pack/minimal-dots-wide.jpg", wideThumb: "images/pack/thumbs/minimal-dots-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 331, title: "Minimal Split", category: "minimalist", tags: "minimal simple flat clean", image: "images/pack/minimal-split.jpg", thumb: "images/pack/thumbs/minimal-split.jpg", wide: "images/pack/minimal-split-wide.jpg", wideThumb: "images/pack/thumbs/minimal-split-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 332, title: "Minimal Rings", category: "minimalist", tags: "minimal simple flat clean", image: "images/pack/minimal-rings.jpg", thumb: "images/pack/thumbs/minimal-rings.jpg", wide: "images/pack/minimal-rings-wide.jpg", wideThumb: "images/pack/thumbs/minimal-rings-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 333, title: "Topo Night", category: "abstract", tags: "pattern lines waves", image: "images/pack/topo-night.jpg", thumb: "images/pack/thumbs/topo-night.jpg", wide: "images/pack/topo-night-wide.jpg", wideThumb: "images/pack/thumbs/topo-night-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 334, title: "Topo Sand", category: "abstract", tags: "pattern lines waves", image: "images/pack/topo-sand.jpg", thumb: "images/pack/thumbs/topo-sand.jpg", wide: "images/pack/topo-sand-wide.jpg", wideThumb: "images/pack/thumbs/topo-sand-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 335, title: "Topo Violet", category: "abstract", tags: "pattern lines waves", image: "images/pack/topo-violet.jpg", thumb: "images/pack/thumbs/topo-violet.jpg", wide: "images/pack/topo-violet-wide.jpg", wideThumb: "images/pack/thumbs/topo-violet-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 336, title: "Ripple Blue", category: "abstract", tags: "pattern lines waves", image: "images/pack/ripple-blue.jpg", thumb: "images/pack/thumbs/ripple-blue.jpg", wide: "images/pack/ripple-blue-wide.jpg", wideThumb: "images/pack/thumbs/ripple-blue-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 337, title: "Ripple Sunset", category: "abstract", tags: "pattern lines waves", image: "images/pack/ripple-sunset.jpg", thumb: "images/pack/thumbs/ripple-sunset.jpg", wide: "images/pack/ripple-sunset-wide.jpg", wideThumb: "images/pack/thumbs/ripple-sunset-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 338, title: "Dune Waves", category: "abstract", tags: "pattern lines waves", image: "images/pack/dune-waves.jpg", thumb: "images/pack/thumbs/dune-waves.jpg", wide: "images/pack/dune-waves-wide.jpg", wideThumb: "images/pack/thumbs/dune-waves-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 339, title: "Night Waves", category: "abstract", tags: "pattern lines waves", image: "images/pack/night-waves.jpg", thumb: "images/pack/thumbs/night-waves.jpg", wide: "images/pack/night-waves-wide.jpg", wideThumb: "images/pack/thumbs/night-waves-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 340, title: "Pastel Waves", category: "abstract", tags: "pattern lines waves", image: "images/pack/pastel-waves.jpg", thumb: "images/pack/thumbs/pastel-waves.jpg", wide: "images/pack/pastel-waves-wide.jpg", wideThumb: "images/pack/thumbs/pastel-waves-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 341, title: "Violet Nebula", category: "space", tags: "space galaxy stars cosmos night", image: "images/pack/nebula-violet.jpg", thumb: "images/pack/thumbs/nebula-violet.jpg", wide: "images/pack/nebula-violet-wide.jpg", wideThumb: "images/pack/thumbs/nebula-violet-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 342, title: "Teal Nebula", category: "space", tags: "space galaxy stars cosmos night", image: "images/pack/nebula-teal.jpg", thumb: "images/pack/thumbs/nebula-teal.jpg", wide: "images/pack/nebula-teal-wide.jpg", wideThumb: "images/pack/thumbs/nebula-teal-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 343, title: "Planet Horizon", category: "space", tags: "space galaxy stars cosmos night", image: "images/pack/planet-horizon.jpg", thumb: "images/pack/thumbs/planet-horizon.jpg", wide: "images/pack/planet-horizon-wide.jpg", wideThumb: "images/pack/thumbs/planet-horizon-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 344, title: "Total Eclipse", category: "space", tags: "space galaxy stars cosmos night", image: "images/pack/total-eclipse.jpg", thumb: "images/pack/thumbs/total-eclipse.jpg", wide: "images/pack/total-eclipse-wide.jpg", wideThumb: "images/pack/thumbs/total-eclipse-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 345, title: "Star Field", category: "space", tags: "space galaxy stars cosmos night", image: "images/pack/star-field.jpg", thumb: "images/pack/thumbs/star-field.jpg", wide: "images/pack/star-field-wide.jpg", wideThumb: "images/pack/thumbs/star-field-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 346, title: "Moonrise", category: "space", tags: "space galaxy stars cosmos night", image: "images/pack/moonrise.jpg", thumb: "images/pack/thumbs/moonrise.jpg", wide: "images/pack/moonrise-wide.jpg", wideThumb: "images/pack/thumbs/moonrise-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 347, title: "Mountain Dawn", category: "nature", tags: "nature landscape scenery outdoors", image: "images/pack/mountain-dawn.jpg", thumb: "images/pack/thumbs/mountain-dawn.jpg", wide: "images/pack/mountain-dawn-wide.jpg", wideThumb: "images/pack/thumbs/mountain-dawn-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 348, title: "Mountain Dusk", category: "nature", tags: "nature landscape scenery outdoors", image: "images/pack/mountain-dusk.jpg", thumb: "images/pack/thumbs/mountain-dusk.jpg", wide: "images/pack/mountain-dusk-wide.jpg", wideThumb: "images/pack/thumbs/mountain-dusk-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 349, title: "Misty Ridges", category: "nature", tags: "nature landscape scenery outdoors", image: "images/pack/misty-ridges.jpg", thumb: "images/pack/thumbs/misty-ridges.jpg", wide: "images/pack/misty-ridges-wide.jpg", wideThumb: "images/pack/thumbs/misty-ridges-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 350, title: "Mountain Night", category: "nature", tags: "nature landscape scenery outdoors", image: "images/pack/mountain-night.jpg", thumb: "images/pack/thumbs/mountain-night.jpg", wide: "images/pack/mountain-night-wide.jpg", wideThumb: "images/pack/thumbs/mountain-night-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 351, title: "Pine Dusk", category: "nature", tags: "nature landscape scenery outdoors", image: "images/pack/pine-dusk.jpg", thumb: "images/pack/thumbs/pine-dusk.jpg", wide: "images/pack/pine-dusk-wide.jpg", wideThumb: "images/pack/thumbs/pine-dusk-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 352, title: "Pine Night", category: "nature", tags: "nature landscape scenery outdoors", image: "images/pack/pine-night.jpg", thumb: "images/pack/thumbs/pine-night.jpg", wide: "images/pack/pine-night-wide.jpg", wideThumb: "images/pack/thumbs/pine-night-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 353, title: "Ocean Sunset", category: "nature", tags: "nature landscape scenery outdoors", image: "images/pack/ocean-sunset.jpg", thumb: "images/pack/thumbs/ocean-sunset.jpg", wide: "images/pack/ocean-sunset-wide.jpg", wideThumb: "images/pack/thumbs/ocean-sunset-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 354, title: "Pastel Shore", category: "nature", tags: "nature landscape scenery outdoors", image: "images/pack/pastel-shore.jpg", thumb: "images/pack/thumbs/pastel-shore.jpg", wide: "images/pack/pastel-shore-wide.jpg", wideThumb: "images/pack/thumbs/pastel-shore-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 355, title: "Neon Grid", category: "technology", tags: "tech geometric pattern futuristic", image: "images/pack/neon-grid.jpg", thumb: "images/pack/thumbs/neon-grid.jpg", wide: "images/pack/neon-grid-wide.jpg", wideThumb: "images/pack/thumbs/neon-grid-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 356, title: "Hex Grid", category: "technology", tags: "tech geometric pattern futuristic", image: "images/pack/hex-grid.jpg", thumb: "images/pack/thumbs/hex-grid.jpg", wide: "images/pack/hex-grid-wide.jpg", wideThumb: "images/pack/thumbs/hex-grid-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 357, title: "Low Poly Blue", category: "technology", tags: "tech geometric pattern futuristic", image: "images/pack/low-poly-blue.jpg", thumb: "images/pack/thumbs/low-poly-blue.jpg", wide: "images/pack/low-poly-blue-wide.jpg", wideThumb: "images/pack/thumbs/low-poly-blue-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 358, title: "Low Poly Sunset", category: "technology", tags: "tech geometric pattern futuristic", image: "images/pack/low-poly-sunset.jpg", thumb: "images/pack/thumbs/low-poly-sunset.jpg", wide: "images/pack/low-poly-sunset-wide.jpg", wideThumb: "images/pack/thumbs/low-poly-sunset-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 359, title: "Keep Going", category: "quotes", tags: "quote quotes motivation text inspiration words", image: "images/pack/quote-keep-going.jpg", thumb: "images/pack/thumbs/quote-keep-going.jpg", wide: "images/pack/quote-keep-going-wide.jpg", wideThumb: "images/pack/thumbs/quote-keep-going-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 360, title: "Begin Today", category: "quotes", tags: "quote quotes motivation text inspiration words", image: "images/pack/quote-begin-today.jpg", thumb: "images/pack/thumbs/quote-begin-today.jpg", wide: "images/pack/quote-begin-today-wide.jpg", wideThumb: "images/pack/thumbs/quote-begin-today-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 361, title: "Quiet Mind", category: "quotes", tags: "quote quotes motivation text inspiration words", image: "images/pack/quote-quiet-mind.jpg", thumb: "images/pack/thumbs/quote-quiet-mind.jpg", wide: "images/pack/quote-quiet-mind-wide.jpg", wideThumb: "images/pack/thumbs/quote-quiet-mind-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 362, title: "Small Steps", category: "quotes", tags: "quote quotes motivation text inspiration words", image: "images/pack/quote-small-steps.jpg", thumb: "images/pack/thumbs/quote-small-steps.jpg", wide: "images/pack/quote-small-steps-wide.jpg", wideThumb: "images/pack/thumbs/quote-small-steps-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 363, title: "Stay Curious", category: "quotes", tags: "quote quotes motivation text inspiration words", image: "images/pack/quote-stay-curious.jpg", thumb: "images/pack/thumbs/quote-stay-curious.jpg", wide: "images/pack/quote-stay-curious-wide.jpg", wideThumb: "images/pack/thumbs/quote-stay-curious-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 364, title: "Be Kind", category: "quotes", tags: "quote quotes motivation text inspiration words", image: "images/pack/quote-be-kind.jpg", thumb: "images/pack/thumbs/quote-be-kind.jpg", wide: "images/pack/quote-be-kind-wide.jpg", wideThumb: "images/pack/thumbs/quote-be-kind-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 365, title: "Dream Big", category: "quotes", tags: "quote quotes motivation text inspiration words", image: "images/pack/quote-dream-big.jpg", thumb: "images/pack/thumbs/quote-dream-big.jpg", wide: "images/pack/quote-dream-big-wide.jpg", wideThumb: "images/pack/thumbs/quote-dream-big-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 366, title: "Focus", category: "quotes", tags: "quote quotes motivation text inspiration words", image: "images/pack/quote-focus.jpg", thumb: "images/pack/thumbs/quote-focus.jpg", wide: "images/pack/quote-focus-wide.jpg", wideThumb: "images/pack/thumbs/quote-focus-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 367, title: "Diwali Glow", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/diwali-glow.jpg", thumb: "images/pack/thumbs/diwali-glow.jpg", wide: "images/pack/diwali-glow-wide.jpg", wideThumb: "images/pack/thumbs/diwali-glow-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 368, title: "Diya Flame", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/diya-flame.jpg", thumb: "images/pack/thumbs/diya-flame.jpg", wide: "images/pack/diya-flame-wide.jpg", wideThumb: "images/pack/thumbs/diya-flame-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 369, title: "Golden Mandala", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/golden-mandala.jpg", thumb: "images/pack/thumbs/golden-mandala.jpg", wide: "images/pack/golden-mandala-wide.jpg", wideThumb: "images/pack/thumbs/golden-mandala-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 370, title: "Holi Colors", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/holi-colors.jpg", thumb: "images/pack/thumbs/holi-colors.jpg", wide: "images/pack/holi-colors-wide.jpg", wideThumb: "images/pack/thumbs/holi-colors-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 371, title: "Christmas Snow", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/christmas-snow.jpg", thumb: "images/pack/thumbs/christmas-snow.jpg", wide: "images/pack/christmas-snow-wide.jpg", wideThumb: "images/pack/thumbs/christmas-snow-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 372, title: "New Year Fireworks", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/new-year-fireworks.jpg", thumb: "images/pack/thumbs/new-year-fireworks.jpg", wide: "images/pack/new-year-fireworks-wide.jpg", wideThumb: "images/pack/thumbs/new-year-fireworks-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 373, title: "Sky Lanterns", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/sky-lanterns.jpg", thumb: "images/pack/thumbs/sky-lanterns.jpg", wide: "images/pack/sky-lanterns-wide.jpg", wideThumb: "images/pack/thumbs/sky-lanterns-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 374, title: "Eid Crescent", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/eid-crescent.jpg", thumb: "images/pack/thumbs/eid-crescent.jpg", wide: "images/pack/eid-crescent-wide.jpg", wideThumb: "images/pack/thumbs/eid-crescent-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 375, title: "Anime Sunset City", category: "anime", tags: "anime manga illustration sky japan", image: "images/pack/anime-sunset-city.jpg", thumb: "images/pack/thumbs/anime-sunset-city.jpg", wide: "images/pack/anime-sunset-city-wide.jpg", wideThumb: "images/pack/thumbs/anime-sunset-city-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 376, title: "Torii Night", category: "anime", tags: "anime manga illustration sky japan", image: "images/pack/anime-torii-night.jpg", thumb: "images/pack/thumbs/anime-torii-night.jpg", wide: "images/pack/anime-torii-night-wide.jpg", wideThumb: "images/pack/thumbs/anime-torii-night-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 377, title: "Sakura Sky", category: "anime", tags: "anime manga illustration sky japan", image: "images/pack/anime-sakura-sky.jpg", thumb: "images/pack/thumbs/anime-sakura-sky.jpg", wide: "images/pack/anime-sakura-sky-wide.jpg", wideThumb: "images/pack/thumbs/anime-sakura-sky-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 378, title: "Neon Highway", category: "cars", tags: "car cars vehicle road drive speed night", image: "images/pack/car-neon-highway.jpg", thumb: "images/pack/thumbs/car-neon-highway.jpg", wide: "images/pack/car-neon-highway-wide.jpg", wideThumb: "images/pack/thumbs/car-neon-highway-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 379, title: "Taillight Bokeh", category: "cars", tags: "car cars vehicle road drive speed night", image: "images/pack/car-taillight-bokeh.jpg", thumb: "images/pack/thumbs/car-taillight-bokeh.jpg", wide: "images/pack/car-taillight-bokeh-wide.jpg", wideThumb: "images/pack/thumbs/car-taillight-bokeh-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 380, title: "Speed Streaks", category: "cars", tags: "car cars vehicle road drive speed night", image: "images/pack/car-speed-streaks.jpg", thumb: "images/pack/thumbs/car-speed-streaks.jpg", wide: "images/pack/car-speed-streaks-wide.jpg", wideThumb: "images/pack/thumbs/car-speed-streaks-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 381, title: "Dusk Coupe", category: "cars", tags: "car cars vehicle road drive speed night", image: "images/pack/car-dusk-coupe.jpg", thumb: "images/pack/thumbs/car-dusk-coupe.jpg", wide: "images/pack/car-dusk-coupe-wide.jpg", wideThumb: "images/pack/thumbs/car-dusk-coupe-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
 
     // --- LIVE wallpapers: drawn in real time by live.js (no image files needed) ---
     { id: 101, title: "Aurora Borealis", category: "live", type: "live", engine: "aurora", views: 41200, downloads: 9800 },
@@ -188,6 +194,9 @@ const userModalClose = document.getElementById('userModalClose');
 const RESOLUTIONS = { hd: [1920, 1080], '2k': [2560, 1440], '4k': [3840, 2160], '8k': [7680, 4320] };
 const isPortraitDevice = d => d === 'android' || d === 'ios';
 const typeOf = w => w.type || 'image';
+// our own pack ships a 16:9 version too; use it for landscape screens
+const pickSrc = (w, portrait) => (!portrait && w.wide) ? w.wide : w.image;
+const pickThumb = (w, portrait) => (!portrait && w.wideThumb) ? w.wideThumb : w.thumb;
 
 // Unsplash lets us ask for an exact crop/size, so thumbnails are small and downloads are real resolutions.
 function imgUrl(url, w, h) {
@@ -382,7 +391,7 @@ function createWallpaperCard(wallpaper) {
     } else if (type === 'video') {
         media = `<video class="card-video" src="${wallpaper.video}" ${wallpaper.poster ? `poster="${wallpaper.poster}"` : ''} muted loop playsinline preload="metadata"></video>`;
     } else {
-        const src = wallpaper.thumb || (portrait ? imgUrl(wallpaper.image, 480, 853) : imgUrl(wallpaper.image, 800, 450));
+        const src = pickThumb(wallpaper, portrait) || (portrait ? imgUrl(wallpaper.image, 480, 853) : imgUrl(wallpaper.image, 800, 450));
         media = `<img src="${src}" alt="${wallpaper.title}" loading="lazy" decoding="async">`;
     }
 
@@ -443,10 +452,24 @@ function createWallpaperCard(wallpaper) {
 // ===== Load Wallpapers =====
 function getFiltered() {
     return wallpapers.filter(w =>
-        (currentFilter === 'all' || w.category === currentFilter) &&
+        (currentFilter === 'all' || (currentFilter === 'favorites' ? favorites.includes(w.id) : w.category === currentFilter)) &&
         (!currentQuery || w.title.toLowerCase().includes(currentQuery) || w.category.toLowerCase().includes(currentQuery) || (w.tags || '').includes(currentQuery) ||
             (w.type === 'live' && currentQuery === 'live'))
     );
+}
+
+// ===== Featured shelf (hand-picked; shown on "All" without a search) =====
+const FEATURED_IDS = [104, 101, 375, 376, 378, 381, 353, 343, 311, 344, 108, 102];
+function renderFeatured() {
+    const sec = document.getElementById('featured'), row = document.getElementById('featuredRow');
+    if (!sec || !row) return;
+    const show = currentFilter === 'all' && !currentQuery;
+    sec.hidden = !show;
+    row.innerHTML = '';
+    if (!show) return;
+    row.classList.toggle('portrait', viewMode === 'phone');
+    FEATURED_IDS.map(id => wallpapers.find(w => w.id === id)).filter(Boolean)
+        .forEach(w => row.appendChild(createWallpaperCard(w)));
 }
 
 function loadWallpapers() {
@@ -457,10 +480,13 @@ function loadWallpapers() {
     disposeCards();
     wallpaperGrid.classList.toggle('portrait', viewMode === 'phone');
     wallpaperGrid.innerHTML = '';
+    renderFeatured();
     toDisplay.forEach(wallpaper => wallpaperGrid.appendChild(createWallpaperCard(wallpaper)));
 
     if (filtered.length === 0) {
-        wallpaperGrid.innerHTML = '<p class="empty-state">No wallpapers found. Try another word or category.</p>';
+        wallpaperGrid.innerHTML = currentFilter === 'favorites' && !currentQuery
+            ? '<p class="empty-state">No favorites yet. Tap the heart on any wallpaper to save it here.</p>'
+            : '<p class="empty-state">No wallpapers found. Try another word or category.</p>';
     }
     loadMoreBtn.style.display = end >= filtered.length ? 'none' : 'block';
     resultCount.textContent = `${filtered.length} wallpaper${filtered.length === 1 ? '' : 's'}`;
@@ -520,7 +546,8 @@ function updateModalPreview() {
 
     if (type === 'image') {
         // whole image (no server-side crop); the visitor can zoom in to frame it
-        modalImage.src = /images\.unsplash\.com/.test(w.image) ? `${w.image.split('?')[0]}?w=1600&auto=format&q=80` : w.image;
+        const full = pickSrc(w, portrait);
+        modalImage.src = /images\.unsplash\.com/.test(full) ? `${full.split('?')[0]}?w=1600&auto=format&q=80` : full;
         modalImage.alt = w.title;
     } else if (type === 'live') {
         if (!modalPlayer) {
@@ -634,6 +661,7 @@ function openWallpaperModal(wallpaper, keepDevice) {
 function closeWallpaperModal() {
     exitPreview();
     wallpaperModal.classList.remove('active');
+    if (/^#w=/.test(location.hash)) history.replaceState(null, '', location.pathname + location.search);
     document.body.classList.remove('modal-open');
     stopModalMedia();
 }
@@ -732,7 +760,7 @@ async function downloadWallpaper(wallpaper, quick) {
         if (type === 'image' && !/images\.unsplash\.com/.test(wallpaper.image)) {
             // Our own images: crop/resize to the chosen device + resolution in the browser
             try {
-                const out = await renderLocalImage(wallpaper.image, w, h);
+                const out = await renderLocalImage(pickSrc(wallpaper, h > w), w, h);
                 saveBlob(out.blob, `${slug(wallpaper.title)}_${out.w}x${out.h}.jpg`);
                 bumpDownloads(wallpaper);
                 return;
@@ -780,6 +808,7 @@ function toggleFavorite(id) {
     const index = favorites.indexOf(id);
     if (index > -1) favorites.splice(index, 1); else favorites.push(id);
     safeSet('favorites', JSON.stringify(favorites));
+    if (currentFilter === 'favorites') loadWallpapers();
 }
 
 function setFavoriteButton() {
@@ -885,3 +914,29 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 initTheme();
 viewBtns.forEach(b => b.classList.toggle('active', b.dataset.view === viewMode));
 loadWallpapers();
+
+
+// ===== Share + deep link (#w=ID) =====
+const shareBtn = document.getElementById('shareBtn');
+function shareUrl(w) { return `${location.origin}${location.pathname}#w=${w.id}`; }
+shareBtn.addEventListener('click', async () => {
+    if (!currentWallpaper) return;
+    const data = { title: `${currentWallpaper.title} wallpaper`, text: `Check out this wallpaper: ${currentWallpaper.title}`, url: shareUrl(currentWallpaper) };
+    try {
+        if (navigator.share) { await navigator.share(data); return; }
+    } catch (e) { if (e && e.name === 'AbortError') return; }
+    try {
+        await navigator.clipboard.writeText(data.url);
+        showNotification('Link copied!');
+    } catch (e) {
+        window.prompt('Copy this link:', data.url);
+    }
+});
+function openFromHash() {
+    const m = /^#w=(\d+)$/.exec(location.hash);
+    if (!m) return;
+    const w = wallpapers.find(x => x.id === +m[1]);
+    if (w) openWallpaperModal(w);
+}
+window.addEventListener('load', openFromHash);
+window.addEventListener('hashchange', openFromHash);

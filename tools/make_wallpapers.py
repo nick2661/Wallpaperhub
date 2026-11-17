@@ -516,7 +516,7 @@ def q_over(base_fn, **kw):
 
 
 def diwali_glow():
-    base = linear("#2a0505", "#8a2a05", 90, c3="#1a0303")
+    base = linear("#2a0505", "#8a2a05", 0, c3="#1a0303")
     g = glow_dots(5, 70, ["#ffb347", "#ffd27a", "#ff8c1a"], 6, 26, 7, 0.9, (0.05, 0.95))
     g2 = glow_dots(6, 14, ["#ffcf70", "#ffa930"], 40, 90, 30, 0.8, (0.1, 0.9))
     return screen(screen(base, g), g2)
@@ -573,7 +573,7 @@ def holi():
 
 
 def snowfall():
-    base = linear("#0b2a3a", "#16543f", 90, c3="#081a24")
+    base = linear("#0b2a3a", "#16543f", 0, c3="#081a24")
     s1 = glow_dots(21, 260, ["#ffffff"], 3, 9, 1.5, 0.9)
     s2 = glow_dots(22, 40, ["#ffffff"], 12, 26, 9, 0.7)
     return screen(base, s1 * 0.9 + s2)
@@ -581,7 +581,7 @@ def snowfall():
 
 def fireworks():
     rng = np.random.default_rng(31)
-    base = linear("#050818", "#140a30", 90)
+    base = linear("#050818", "#140a30", 0)
     layer = Image.new("RGB", (W, H), (0, 0, 0))
     d = ImageDraw.Draw(layer)
     cols = ["#ff5d8f", "#ffd166", "#6ee7ff", "#b48cff", "#7dffb3"]
@@ -599,7 +599,7 @@ def fireworks():
 
 
 def lanterns():
-    base = linear("#0a1233", "#4a1d5a", 90, c3="#e0653a")
+    base = linear("#0a1233", "#4a1d5a", 0, c3="#e0653a")
     rng = np.random.default_rng(41)
     layer = Image.new("RGB", (W, H), (0, 0, 0))
     d = ImageDraw.Draw(layer)
@@ -627,6 +627,198 @@ def crescent():
     st = stars(8, 260, 1.8)[..., None] * 255
     return screen(base, st)
 
+
+
+# ---------------------------------------------------------------- pack 4: anime-style skies + cars
+def _poly_mask(points, scale=2, blur=0.0):
+    """Anti-aliased polygon mask (points in pixels)."""
+    im = Image.new("L", (W * scale, H * scale), 0)
+    ImageDraw.Draw(im).polygon([(x * scale, y * scale) for x, y in points], fill=255)
+    im = im.resize((W, H), Image.LANCZOS)
+    if blur:
+        im = im.filter(ImageFilter.GaussianBlur(blur))
+    return np.asarray(im, np.float32)[..., None] / 255
+
+
+def _skyline(seed, base_y, min_h, max_h, color, win=None, layers=1):
+    rng = np.random.default_rng(seed)
+    img = Image.new("RGBA", (W * 2, H * 2), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    x = -20
+    col = tuple(int(v) for v in hexc(color)) + (255,)
+    while x < W:
+        bw = rng.integers(int(W * 0.04), int(W * 0.10))
+        bh = rng.uniform(min_h, max_h) * H
+        top = base_y * H - bh
+        d.rectangle([x * 2, top * 2, (x + bw) * 2, H * 2], fill=col)
+        if rng.random() < 0.35:
+            d.rectangle([(x + bw * 0.45) * 2, (top - bh * 0.12) * 2, (x + bw * 0.55) * 2, top * 2], fill=col)
+        if win:
+            wc = tuple(int(v) for v in hexc(win)) + (230,)
+            for yy in np.arange(top + 30, base_y * H, 34):
+                for xx in np.arange(x + 14, x + bw - 14, 26):
+                    if rng.random() < 0.18:
+                        d.rectangle([xx * 2, yy * 2, (xx + 9) * 2, (yy + 14) * 2], fill=wc)
+        x += bw + rng.integers(0, 6)
+    small = img.resize((W, H), Image.LANCZOS)
+    a = np.asarray(small, np.float32)
+    return a[..., :3], a[..., 3:4] / 255
+
+
+def anime_sunset():
+    base = linear("#3a2a7a", "#ff9a8b", 0, c3="#ffd6a5")
+    base = mesh(["#2b2d7a", "#ff7e8b", "#ffd29a"], [(.5, .0), (.4, .7), (.5, .62)], power=1.6)
+    sun_y = 0.60
+    base = add_disc(base, "#fff2c9", 0.5, sun_y, 0.11, halo=0.55, spread=0.18)
+    c = fbm(7, 5, 3, 0.55)
+    cl = smooth(0.52, 0.72, c) * (1 - smooth(0.62, 0.9, NY))
+    cl = cl * (1 - np.exp(-(((NX - 0.5) * W / H) ** 2 + (NY - sun_y) ** 2) / 0.012))
+    lit = np.clip(1.0 - np.abs(NY - sun_y) * 2.2, 0, 1)[..., None]
+    ccol = hexc("#ff9fa8") * (1 - lit) + hexc("#ffe2b8") * lit
+    base = base * (1 - cl[..., None] * 0.85) + ccol * cl[..., None] * 0.85
+    rgb, a = _skyline(5, 1.0, 0.05, 0.16, "#150c2e", win="#ffd27a")
+    far, fa = _skyline(9, 0.93, 0.04, 0.10, "#4a2a62")
+    base = base * (1 - fa) + far * fa
+    return base * (1 - a) + rgb * a
+
+
+def anime_starry_torii():
+    base = linear("#050a2a", "#2d3a8c", 0, c3="#e07aa0")
+    base = screen(base, stars(12, 700, 1.7)[..., None] * 255 * (1 - smooth(0.4, 0.8, NY))[..., None])
+    base = add_disc(base, "#fff4d6", 0.72, 0.18, 0.05, halo=0.3, spread=0.035)
+    # hills
+    ridge = 0.80 + 0.05 * np.sin(NX * 5.2 + 1.0) + 0.02 * np.sin(NX * 13 + 2)
+    hill = smooth(0.003, -0.003, ridge - NY)[..., None]
+    base = base * (1 - hill) + hexc("#0a0d22") * hill
+    # torii gate
+    u = min(W, H) * 0.30
+    cx = 0.5 * W
+    gy = float(np.interp(0.5, [0, 1], [1, 1]) * 0) + (0.80 + 0.05 * np.sin(0.5 * 5.2 + 1.0) + 0.02 * np.sin(0.5 * 13 + 2)) * H
+    gate = (
+        [(cx - u * .95, gy - u * 1.75), (cx + u * .95, gy - u * 1.75), (cx + u * 1.1, gy - u * 1.9), (cx - u * 1.1, gy - u * 1.9)],
+        [(cx - u * .75, gy - u * 1.45), (cx + u * .75, gy - u * 1.45), (cx + u * .75, gy - u * 1.33), (cx - u * .75, gy - u * 1.33)],
+        [(cx - u * .62, gy + u * .1), (cx - u * .50, gy + u * .1), (cx - u * .50, gy - u * 1.75), (cx - u * .62, gy - u * 1.75)],
+        [(cx + u * .50, gy + u * .1), (cx + u * .62, gy + u * .1), (cx + u * .62, gy - u * 1.75), (cx + u * .50, gy - u * 1.75)],
+    )
+    m = np.zeros((H, W, 1), np.float32)
+    for poly in gate:
+        m = np.maximum(m, _poly_mask(poly))
+    base = base * (1 - m) + hexc("#d83a3a") * m * 0.0 + hexc("#06081a") * m
+    # warm rim from the horizon behind the gate
+    return base
+
+
+def anime_sakura():
+    base = mesh(["#8ec5fc", "#e0c3fc", "#ffd1e8"], [(.5, .0), (.2, .55), (.7, .95)], power=1.8)
+    c = fbm(21, 5, 3, 0.55)
+    cl = smooth(0.55, 0.74, c)[..., None]
+    base = base * (1 - cl * 0.8) + hexc("#ffffff") * cl * 0.8
+    rng = np.random.default_rng(23)
+    layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(layer)
+    for _ in range(170):
+        x, y = rng.uniform(0, W), rng.uniform(0, H)
+        r = rng.uniform(7, 22) * (1 + 0.6 * rng.random())
+        ang = rng.uniform(0, 180)
+        p = Image.new("RGBA", (int(r * 4), int(r * 4)), (0, 0, 0, 0))
+        ImageDraw.Draw(p).ellipse([r * 0.9, r * 1.4, r * 3.1, r * 2.6], fill=(255, int(rng.uniform(170, 205)), int(rng.uniform(205, 225)), int(rng.uniform(170, 240))))
+        p = p.rotate(ang, resample=Image.BICUBIC)
+        layer.alpha_composite(p, (int(x - r * 2), int(y - r * 2))) if 0 <= x - r * 2 < W - r * 4 and 0 <= y - r * 2 < H - r * 4 else None
+    layer = layer.filter(ImageFilter.GaussianBlur(0.8))
+    a = np.asarray(layer, np.float32)
+    return base * (1 - a[..., 3:4] / 255) + a[..., :3] * a[..., 3:4] / 255
+
+
+def car_neon_highway():
+    base = linear("#10002b", "#ff4d8d", 0, c3="#ffb36b")
+    vy, vx = 0.50, 0.5
+    # skyline glow at the horizon
+    rgb, a = _skyline(3, vy, 0.02, 0.07, "#12002e", win="#ff9ad0")
+    base = base * (1 - a) + rgb * a
+    ground = (NY > vy)[..., None]
+    road = np.zeros((H, W, 1), np.float32)
+    t = np.clip((NY - vy) / (1 - vy), 1e-4, 1)
+    half = 0.04 + 0.62 * t
+    inside = (np.abs(NX - vx) < half) & (NY > vy)
+    base = np.where(ground, hexc("#07030f"), base)
+    base = np.where(inside[..., None], hexc("#14091f") * (0.6 + 0.8 * t[..., None]), base)
+    # edge lines and centre dashes
+    for off, col, wd in [(-1, "#ff4fa3", 0.012), (1, "#37e6ff", 0.012)]:
+        e = np.abs(NX - (vx + off * half)) / np.maximum(half, 1e-3) < wd * 2.2
+        e &= NY > vy
+        base = np.where(e[..., None], base * 0.2 + hexc(col) * 0.9, base)
+    depth = 1.0 / np.maximum(t, 1e-3)
+    dash = ((depth * 0.35) % 1.0) < 0.5
+    cen = (np.abs(NX - vx) < (0.004 + 0.012 * t)) & dash & (NY > vy + 0.01)
+    base = np.where(cen[..., None], hexc("#ffe9a8"), base)
+    # tail lights ahead
+    for dx in (-0.05, 0.05):
+        base = add_disc(base, "#ff2d3d", vx + dx, vy + 0.19, 0.012, halo=0.8, spread=0.05)
+    return base
+
+
+def car_bokeh():
+    base = linear("#05060f", "#1a0a1a", 0)
+    g = glow_dots(51, 60, ["#ff2a3a", "#ff6a2a", "#ffd9a0", "#ff2a6a"], 18, 70, 9, 0.85, (0.35, 0.95))
+    g2 = glow_dots(52, 20, ["#ffffff", "#ffe3b0"], 10, 34, 6, 0.8, (0.45, 0.9))
+    g3 = glow_dots(53, 8, ["#ff2a3a", "#ff7a3a"], 90, 170, 40, 0.7, (0.5, 0.95))
+    return screen(screen(screen(base, g), g2), g3)
+
+
+def car_speed():
+    rng = np.random.default_rng(61)
+    base = mesh(["#02030a", "#0a1a4a", "#02030a"], [(.5, .5), (.5, .5), (.1, .1)], power=2.0)
+    layer = Image.new("RGB", (W, H), (0, 0, 0))
+    d = ImageDraw.Draw(layer)
+    cx, cy = W / 2, H * 0.5
+    cols = ["#6ee7ff", "#ffffff", "#7aa7ff", "#ff6ad5"]
+    for _ in range(260):
+        a = rng.uniform(0, math.tau)
+        r0 = rng.uniform(0.04, 0.5) * max(W, H)
+        r1 = r0 + rng.uniform(0.08, 0.35) * max(W, H)
+        c = hexc(cols[rng.integers(len(cols))]) * rng.uniform(0.35, 1)
+        d.line([cx + math.cos(a) * r0, cy + math.sin(a) * r0, cx + math.cos(a) * r1, cy + math.sin(a) * r1], fill=tuple(int(v) for v in c), width=int(rng.integers(2, 6)))
+    layer = layer.filter(ImageFilter.GaussianBlur(1.4))
+    arr = np.asarray(layer, np.float32)
+    glow = np.asarray(layer.filter(ImageFilter.GaussianBlur(18)), np.float32)
+    out = screen(screen(base, arr), glow * 1.2)
+    return add_disc(out, "#bfe9ff", 0.5, 0.5, 0.012, halo=0.6, spread=0.07)
+
+
+def car_silhouette():
+    base = mesh(["#2b1055", "#ff6a5a", "#ffc28a"], [(.5, .0), (.5, .62), (.5, .52)], power=1.7)
+    base = add_disc(base, "#fff0c4", 0.5, 0.52, 0.10, halo=0.5, spread=0.16)
+    hy = 0.62
+    ground = (NY > hy)[..., None]
+    base = np.where(ground, hexc("#0c0714") * (0.6 + 0.4 * (1 - (NY - hy)[..., None] / (1 - hy))), base)
+    carw = min(0.92 * W, 1.05 * H)
+    x0 = W / 2 - carw / 2
+    gy = (hy + 0.07) * H
+    pts = [(0.02, .09), (0.02, .19), (0.12, .24), (0.27, .26), (0.36, .35), (0.50, .385), (0.62, .37),
+           (0.72, .27), (0.90, .23), (0.98, .17), (0.98, .09)]
+    poly = [(x0 + x * carw, gy - y * carw) for x, y in pts]
+    m = _poly_mask(poly)
+    for wx in (0.22, 0.78):
+        wr = 0.085 * carw
+        yy, xx = YY - (gy - 0.09 * carw + 0), XX - (x0 + wx * carw)
+        m = np.maximum(m, smooth(wr + 1.5, wr - 1.5, np.sqrt(xx * xx + yy * yy))[..., None])
+    base = base * (1 - m) + hexc("#05030a") * m
+    # rim light along the roofline + wheel rings
+    rim = Image.new("L", (W, H), 0)
+    dr = ImageDraw.Draw(rim)
+    dr.line(poly[3:9], fill=255, width=max(2, int(carw * 0.004)))
+    rim = np.asarray(rim.filter(ImageFilter.GaussianBlur(1.2)), np.float32)[..., None] / 255
+    base = base + rim * hexc("#ffb88a") * 0.9 * m
+    for wx in (0.22, 0.78):
+        wr = 0.085 * carw
+        yy, xx = YY - (gy - 0.09 * carw), XX - (x0 + wx * carw)
+        ring = smooth(2.5, 0, np.abs(np.sqrt(xx * xx + yy * yy) - wr * 0.62))[..., None]
+        base = base + ring * hexc("#3a3550") * 0.9
+    base = add_disc(base, "#fff1cf", (x0 + 0.97 * carw) / W, (gy - 0.17 * carw) / H, 0.006, halo=0.7, spread=0.05)
+    base = add_disc(base, "#ff2d3d", (x0 + 0.03 * carw) / W, (gy - 0.18 * carw) / H, 0.006, halo=0.7, spread=0.05)
+    # soft reflection glow on the ground
+    refl = np.exp(-((YY - (gy + 0.01 * H)) / (0.03 * H)) ** 2) * np.exp(-((XX - W / 2) / (0.45 * carw)) ** 2)
+    return base + refl[..., None] * hexc("#ff9a6a") * 0.18
 
 
 DESIGNS = [
@@ -698,7 +890,7 @@ DESIGNS = [
     ("low-poly-sunset", "Low Poly Sunset", "technology", lambda: low_poly("#3a1c71", "#d76d77", "#ffaf7b", 9)),
     # --- pack 3: quotes (original lines) + festivals
     ("quote-keep-going", "Keep Going", "quotes", lambda: with_quote(mesh(["#0f2027", "#2c5364", "#00c9a7", "#0b1e3b"], [(.2, .1), (.8, .4), (.3, .85), (.6, .5)]), "Keep going.\nYou're closer\nthan you think.", style="sans")),
-    ("quote-begin-today", "Begin Today", "quotes", lambda: with_quote(linear("#ff9a76", "#7a2a6b", 90), "Begin today.\nPerfect later.", style="serif", size=140)),
+    ("quote-begin-today", "Begin Today", "quotes", lambda: with_quote(linear("#ff9a76", "#7a2a6b", 0), "Begin today.\nPerfect later.", style="serif", size=140)),
     ("quote-quiet-mind", "Quiet Mind", "quotes", lambda: with_quote(np.zeros((H, W, 3), np.float32), "Quiet mind,\nbig goals.", style="light", size=130, color="#e8e8e8")),
     ("quote-small-steps", "Small Steps", "quotes", lambda: with_quote(mesh(["#ffd6a5", "#ffadad", "#ffc6ff", "#caffbf"], [(.15, .1), (.85, .25), (.2, .75), (.8, .85)], power=2.2), "Small steps\nstill move you\nforward.", color="#3a1f3d")),
     ("quote-stay-curious", "Stay Curious", "quotes", lambda: with_quote(mesh(["#3a0ca3", "#7209b7", "#240046", "#4361ee"], [(.85, .1), (.15, .35), (.5, .9), (.5, .5)]), "Stay curious.", style="serif", size=150)),
@@ -713,6 +905,14 @@ DESIGNS = [
     ("new-year-fireworks", "New Year Fireworks", "festival", fireworks),
     ("sky-lanterns", "Sky Lanterns", "festival", lanterns),
     ("eid-crescent", "Eid Crescent", "festival", crescent),
+    # --- pack 4: anime-style skies + cars
+    ("anime-sunset-city", "Anime Sunset City", "anime", anime_sunset),
+    ("anime-torii-night", "Torii Night", "anime", anime_starry_torii),
+    ("anime-sakura-sky", "Sakura Sky", "anime", anime_sakura),
+    ("car-neon-highway", "Neon Highway", "cars", car_neon_highway),
+    ("car-taillight-bokeh", "Taillight Bokeh", "cars", car_bokeh),
+    ("car-speed-streaks", "Speed Streaks", "cars", car_speed),
+    ("car-dusk-coupe", "Dusk Coupe", "cars", car_silhouette),
 ]
 
 
@@ -722,6 +922,10 @@ def tags_for(slug):
         return "space galaxy stars cosmos night"
     if slug.startswith(("mountain", "misty", "pine", "ocean", "pastel-shore")):
         return "nature landscape scenery outdoors"
+    if slug.startswith("anime-"):
+        return "anime manga illustration sky japan"
+    if slug.startswith("car-"):
+        return "car cars vehicle road drive speed night"
     if slug.startswith("quote-"):
         return "quote quotes motivation text inspiration words"
     if slug in ("diwali-glow", "diya-flame", "golden-mandala", "holi-colors", "christmas-snow", "new-year-fireworks", "sky-lanterns", "eid-crescent"):
@@ -739,7 +943,33 @@ def tags_for(slug):
     return t
 
 
+def set_size(w, h):
+    """Re-point the module-level canvas size (designs read these globals at call time)."""
+    global W, H, YY, XX, NX, NY
+    W, H = w, h
+    YY, XX = np.mgrid[0:H, 0:W].astype(np.float32)
+    NX, NY = XX / W, YY / H
+
+
+def main_wide(only):
+    """Landscape (16:9) versions for desktop screens: <slug>-wide.jpg + small thumbs."""
+    set_size(1920, 1080)
+    os.makedirs(os.path.join(OUT, "thumbs"), exist_ok=True)
+    out = {}
+    for i, (slug, title, cat, fn) in enumerate(DESIGNS):
+        if only and slug not in only:
+            continue
+        im = Image.fromarray(finish(fn(), seed=i), "RGB")
+        im.save(os.path.join(OUT, slug + "-wide.jpg"), "JPEG", quality=84, optimize=True, progressive=True)
+        im.resize((480, 270), Image.LANCZOS).save(os.path.join(OUT, "thumbs", slug + "-wide.jpg"), "JPEG", quality=78, optimize=True)
+        out[slug] = 301 + i
+        print(f"{slug:22s} wide {os.path.getsize(os.path.join(OUT, slug + '-wide.jpg')) // 1024:5d} KB")
+    print("wide done:", len(out))
+
+
 def main():
+    if "--wide" in sys.argv:
+        return main_wide(set(a for a in sys.argv[1:] if not a.startswith("--")))
     only = set(sys.argv[1:])
     os.makedirs(os.path.join(OUT, "thumbs"), exist_ok=True)
     lines = []
@@ -754,7 +984,8 @@ def main():
         print(f"{slug:22s} {size:5d} KB")
         tags = tags_for(slug)
         lines.append(f'    {{ id: {301 + i}, title: "{title}", category: "{cat}", tags: "{tags}", image: "images/pack/{slug}.jpg", '
-                     f'thumb: "images/pack/thumbs/{slug}.jpg", width: {W}, height: {H}, views: 0, downloads: 0 }},')
+                     f'thumb: "images/pack/thumbs/{slug}.jpg", wide: "images/pack/{slug}-wide.jpg", wideThumb: "images/pack/thumbs/{slug}-wide.jpg", '
+                     f'width: {W}, height: {H}, views: 0, downloads: 0 }},')
     with open(os.path.join(OUT, "entries.js"), "w", encoding="utf-8") as f:
         f.write("// Paste these lines inside the wallpapers array in script.js\n" + "\n".join(lines) + "\n")
     print("done:", len(lines), "wallpapers")
