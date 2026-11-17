@@ -601,6 +601,23 @@ function sizeFrame() {
     m.style.width = Math.round(nw * s) + 'px';
     m.style.height = Math.round(nh * s) + 'px';
 }
+// Dashed box = the part of the picture the chosen device + resolution will download
+function updateCropGuide() {
+    const g = document.getElementById('cropGuide');
+    const ok = currentWallpaper && typeOf(currentWallpaper) === 'image' && zoom === 1 &&
+        !modalMedia.classList.contains('fullscreen') && modalImage.naturalWidth;
+    if (!ok) { g.hidden = true; return; }
+    const [lw, lh] = RESOLUTIONS[selectedResolution] || RESOLUTIONS['4k'];
+    const [tw, th] = isPortraitDevice(selectedDevice) ? [lh, lw] : [lw, lh];
+    const fw = modalMedia.clientWidth, fh = modalMedia.clientHeight;
+    const r = tw / th;
+    let gw = fw, gh = fw / r;
+    if (gh > fh) { gh = fh; gw = fh * r; }
+    if (Math.abs(gw - fw) < 3 && Math.abs(gh - fh) < 3) { g.hidden = true; return; }   // picture already has this shape
+    g.hidden = false;
+    Object.assign(g.style, { width: gw + 'px', height: gh + 'px', left: (fw - gw) / 2 + 'px', top: (fh - gh) / 2 + 'px' });
+    document.getElementById('cropGuideLabel').textContent = `Download area ${tw}×${th}`;
+}
 function applyZoom() {
     sizeFrame();
     const f = fitSize();
@@ -610,6 +627,7 @@ function applyZoom() {
     modalImage.style.transform = zoom === 1 && !panX && !panY ? '' : `translate(${panX}px, ${panY}px) scale(${zoom})`;
     modalMedia.classList.toggle('zoomed', zoom > 1);
     zoomLabel.textContent = zoom === 1 ? 'Fit' : Math.round(zoom * 100) + '%';
+    updateCropGuide();
     document.getElementById('zoomOut').disabled = zoom <= 1;
     document.getElementById('zoomIn').disabled = zoom >= ZOOM_MAX;
 }

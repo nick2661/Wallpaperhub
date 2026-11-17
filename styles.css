@@ -1595,3 +1595,26 @@ body.editor-open { overflow: hidden; }
 .preview-wrap .nav-arrow.prev { left: 4px; }
 .preview-wrap .nav-arrow.next { right: 4px; }
 body.preview-open .preview-wrap .nav-arrow { position: fixed; z-index: 3600; }
+
+/* Shows which part of the picture the chosen device + resolution will download */
+.crop-guide {
+    position: absolute;
+    pointer-events: none;
+    border: 2px dashed rgba(255, 255, 255, 0.95);
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.45);
+    border-radius: 4px;
+    z-index: 2;
+}
+.crop-guide span {
+    position: absolute;
+    left: 50%;
+    top: 6px;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.65);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    white-space: nowrap;
+}
