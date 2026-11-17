@@ -1633,3 +1633,32 @@ body.preview-open .preview-wrap .nav-arrow { position: fixed; z-index: 3600; }
     .framing-selector h4 { font-size: 16px; margin-bottom: 10px; }
     .framing-btn { min-height: 44px; font-size: 14px; padding: 8px; }
 }
+
+/* ===== Detail extras (tags, related, original) ===== */
+.tag-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.tag-chips button {
+    padding: 4px 12px; border-radius: 999px; font-size: 13px; background: var(--bg-secondary);
+    border: 1px solid var(--border-color); color: var(--text-secondary); transition: var(--transition);
+}
+.tag-chips button:hover { border-color: var(--primary-color); color: var(--primary-color); }
+.original-link { align-self: flex-start; font-size: 14px; color: var(--text-secondary); text-decoration: underline; padding: 6px 0; min-height: 36px; }
+.original-link:hover { color: var(--primary-color); }
+.res-badge {
+    display: inline-block; margin-left: 6px; font-size: 10px; font-weight: 700; padding: 1px 6px;
+    border-radius: 8px; background: #16a34a; color: #fff; vertical-align: middle; letter-spacing: .02em;
+}
+.related { grid-column: 1 / -1; }
+.related[hidden] { display: none; }
+.related h4 { font-size: 18px; margin-bottom: 12px; color: var(--text-primary); }
+.related-row { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; }
+.related-row button {
+    flex: 0 0 auto; width: 150px; aspect-ratio: 16 / 10; border-radius: 10px; overflow: hidden; position: relative;
+    scroll-snap-align: start; background: var(--bg-tertiary, #e5e7eb);
+}
+.related-row.portrait button { width: 90px; aspect-ratio: 9 / 16; }
+.related-row img, .related-row canvas { width: 100%; height: 100%; object-fit: cover; display: block; }
+.related-row span {
+    position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 6px 4px; font-size: 11px; color: #fff; text-align: left;
+    background: linear-gradient(transparent, rgba(0, 0, 0, .7)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.original-link[hidden] { display: none; }

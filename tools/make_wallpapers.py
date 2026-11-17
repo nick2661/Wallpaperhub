@@ -928,8 +928,9 @@ def tags_for(slug):
         return "car cars vehicle road drive speed night"
     if slug.startswith("quote-"):
         return "quote quotes motivation text inspiration words"
-    if slug in ("diwali-glow", "diya-flame", "golden-mandala", "holi-colors", "christmas-snow", "new-year-fireworks", "sky-lanterns", "eid-crescent"):
-        return "festival celebration india diwali holi christmas eid new year lights"
+    FESTIVAL_TAGS = {'diwali-glow': 'festival diwali lights gold celebration india', 'diya-flame': 'festival diwali diya flame lamp india', 'golden-mandala': 'festival mandala gold pattern india diwali', 'holi-colors': 'festival holi colors india celebration', 'christmas-snow': 'festival christmas snow winter celebration', 'new-year-fireworks': 'festival new year fireworks night celebration', 'sky-lanterns': 'festival lanterns night sky celebration', 'eid-crescent': 'festival eid crescent moon night celebration'}
+    if slug in FESTIVAL_TAGS:
+        return FESTIVAL_TAGS[slug]
     if slug.startswith(("neon-grid", "hex-grid", "low-poly")):
         return "tech geometric pattern futuristic"
     if slug.startswith("amoled") or slug in ("pure-black", "deep-space-black", "charcoal-fade"):

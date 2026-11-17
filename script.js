@@ -106,14 +106,14 @@ const wallpapers = [
     { id: 364, title: "Be Kind", category: "quotes", tags: "quote quotes motivation text inspiration words", image: "images/pack/quote-be-kind.jpg", thumb: "images/pack/thumbs/quote-be-kind.jpg", wide: "images/pack/quote-be-kind-wide.jpg", wideThumb: "images/pack/thumbs/quote-be-kind-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
     { id: 365, title: "Dream Big", category: "quotes", tags: "quote quotes motivation text inspiration words", image: "images/pack/quote-dream-big.jpg", thumb: "images/pack/thumbs/quote-dream-big.jpg", wide: "images/pack/quote-dream-big-wide.jpg", wideThumb: "images/pack/thumbs/quote-dream-big-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
     { id: 366, title: "Focus", category: "quotes", tags: "quote quotes motivation text inspiration words", image: "images/pack/quote-focus.jpg", thumb: "images/pack/thumbs/quote-focus.jpg", wide: "images/pack/quote-focus-wide.jpg", wideThumb: "images/pack/thumbs/quote-focus-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 367, title: "Diwali Glow", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/diwali-glow.jpg", thumb: "images/pack/thumbs/diwali-glow.jpg", wide: "images/pack/diwali-glow-wide.jpg", wideThumb: "images/pack/thumbs/diwali-glow-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 368, title: "Diya Flame", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/diya-flame.jpg", thumb: "images/pack/thumbs/diya-flame.jpg", wide: "images/pack/diya-flame-wide.jpg", wideThumb: "images/pack/thumbs/diya-flame-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 369, title: "Golden Mandala", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/golden-mandala.jpg", thumb: "images/pack/thumbs/golden-mandala.jpg", wide: "images/pack/golden-mandala-wide.jpg", wideThumb: "images/pack/thumbs/golden-mandala-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 370, title: "Holi Colors", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/holi-colors.jpg", thumb: "images/pack/thumbs/holi-colors.jpg", wide: "images/pack/holi-colors-wide.jpg", wideThumb: "images/pack/thumbs/holi-colors-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 371, title: "Christmas Snow", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/christmas-snow.jpg", thumb: "images/pack/thumbs/christmas-snow.jpg", wide: "images/pack/christmas-snow-wide.jpg", wideThumb: "images/pack/thumbs/christmas-snow-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 372, title: "New Year Fireworks", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/new-year-fireworks.jpg", thumb: "images/pack/thumbs/new-year-fireworks.jpg", wide: "images/pack/new-year-fireworks-wide.jpg", wideThumb: "images/pack/thumbs/new-year-fireworks-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 373, title: "Sky Lanterns", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/sky-lanterns.jpg", thumb: "images/pack/thumbs/sky-lanterns.jpg", wide: "images/pack/sky-lanterns-wide.jpg", wideThumb: "images/pack/thumbs/sky-lanterns-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
-    { id: 374, title: "Eid Crescent", category: "festival", tags: "festival celebration india diwali holi christmas eid new year lights", image: "images/pack/eid-crescent.jpg", thumb: "images/pack/thumbs/eid-crescent.jpg", wide: "images/pack/eid-crescent-wide.jpg", wideThumb: "images/pack/thumbs/eid-crescent-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 367, title: "Diwali Glow", category: "festival", tags: "festival diwali lights gold celebration india", image: "images/pack/diwali-glow.jpg", thumb: "images/pack/thumbs/diwali-glow.jpg", wide: "images/pack/diwali-glow-wide.jpg", wideThumb: "images/pack/thumbs/diwali-glow-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 368, title: "Diya Flame", category: "festival", tags: "festival diwali diya flame lamp india", image: "images/pack/diya-flame.jpg", thumb: "images/pack/thumbs/diya-flame.jpg", wide: "images/pack/diya-flame-wide.jpg", wideThumb: "images/pack/thumbs/diya-flame-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 369, title: "Golden Mandala", category: "festival", tags: "festival mandala gold pattern india diwali", image: "images/pack/golden-mandala.jpg", thumb: "images/pack/thumbs/golden-mandala.jpg", wide: "images/pack/golden-mandala-wide.jpg", wideThumb: "images/pack/thumbs/golden-mandala-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 370, title: "Holi Colors", category: "festival", tags: "festival holi colors india celebration", image: "images/pack/holi-colors.jpg", thumb: "images/pack/thumbs/holi-colors.jpg", wide: "images/pack/holi-colors-wide.jpg", wideThumb: "images/pack/thumbs/holi-colors-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 371, title: "Christmas Snow", category: "festival", tags: "festival christmas snow winter celebration", image: "images/pack/christmas-snow.jpg", thumb: "images/pack/thumbs/christmas-snow.jpg", wide: "images/pack/christmas-snow-wide.jpg", wideThumb: "images/pack/thumbs/christmas-snow-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 372, title: "New Year Fireworks", category: "festival", tags: "festival new year fireworks night celebration", image: "images/pack/new-year-fireworks.jpg", thumb: "images/pack/thumbs/new-year-fireworks.jpg", wide: "images/pack/new-year-fireworks-wide.jpg", wideThumb: "images/pack/thumbs/new-year-fireworks-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 373, title: "Sky Lanterns", category: "festival", tags: "festival lanterns night sky celebration", image: "images/pack/sky-lanterns.jpg", thumb: "images/pack/thumbs/sky-lanterns.jpg", wide: "images/pack/sky-lanterns-wide.jpg", wideThumb: "images/pack/thumbs/sky-lanterns-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
+    { id: 374, title: "Eid Crescent", category: "festival", tags: "festival eid crescent moon night celebration", image: "images/pack/eid-crescent.jpg", thumb: "images/pack/thumbs/eid-crescent.jpg", wide: "images/pack/eid-crescent-wide.jpg", wideThumb: "images/pack/thumbs/eid-crescent-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
     { id: 375, title: "Anime Sunset City", category: "anime", tags: "anime manga illustration sky japan", image: "images/pack/anime-sunset-city.jpg", thumb: "images/pack/thumbs/anime-sunset-city.jpg", wide: "images/pack/anime-sunset-city-wide.jpg", wideThumb: "images/pack/thumbs/anime-sunset-city-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
     { id: 376, title: "Torii Night", category: "anime", tags: "anime manga illustration sky japan", image: "images/pack/anime-torii-night.jpg", thumb: "images/pack/thumbs/anime-torii-night.jpg", wide: "images/pack/anime-torii-night-wide.jpg", wideThumb: "images/pack/thumbs/anime-torii-night-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
     { id: 377, title: "Sakura Sky", category: "anime", tags: "anime manga illustration sky japan", image: "images/pack/anime-sakura-sky.jpg", thumb: "images/pack/thumbs/anime-sakura-sky.jpg", wide: "images/pack/anime-sakura-sky-wide.jpg", wideThumb: "images/pack/thumbs/anime-sakura-sky-wide.jpg", width: 1440, height: 3200, views: 0, downloads: 0 },
@@ -141,6 +141,14 @@ let currentFilter = 'all';
 let currentQuery = '';
 let currentPage = 1;
 const itemsPerPage = 12;
+// Pick the smallest preset that is at least as sharp as the visitor's own screen (like HD Wallpapers / WallpaperStock do)
+function recommendedResolution() {
+    const dpr = window.devicePixelRatio || 1;
+    const long = Math.max(screen.width, screen.height) * dpr;
+    const order = ['hd', '2k', '4k'];
+    for (const k of order) if (Math.max(...RESOLUTIONS[k]) >= long * 0.98) return k;
+    return '4k';
+}
 let selectedResolution = '4k';
 let selectedDevice = 'desktop';
 let favorites = safeJSON(localStorage, 'favorites', []);
@@ -523,7 +531,7 @@ function updateResolutionLabels() {
     resolutionBtns.forEach(btn => {
         const [lw, lh] = RESOLUTIONS[btn.dataset.resolution];
         const [w, h] = portrait ? [lh, lw] : [lw, lh];
-        btn.innerHTML = `<strong>${btn.dataset.resolution.toUpperCase()}</strong><small>${w}×${h}</small>`;
+        btn.innerHTML = `<strong>${btn.dataset.resolution.toUpperCase()}${btn.dataset.resolution === recommendedResolution() ? '<span class="res-badge">Your screen</span>' : ''}</strong><small>${w}×${h}</small>`;
         const unavailable = (live && (btn.dataset.resolution === '4k' || btn.dataset.resolution === '8k')) || video;
         btn.disabled = !!unavailable;
         btn.classList.toggle('disabled', !!unavailable);
@@ -570,6 +578,8 @@ function updateModalPreview() {
     const isImg = type === 'image';
     zoomBar.hidden = !isImg;
     document.getElementById('framingSelector').hidden = !isImg;
+    document.getElementById('originalBtn').hidden = !isImg;
+    renderTagsAndRelated(w);
     prevBtn.hidden = nextBtn.hidden = getFiltered().length < 2;
     resetZoom();
 }
@@ -686,7 +696,9 @@ function stepWallpaper(dir) {
 prevBtn.addEventListener('click', (e) => { e.stopPropagation(); stepWallpaper(-1); });
 nextBtn.addEventListener('click', (e) => { e.stopPropagation(); stepWallpaper(1); });
 
+let resChosenByUser = false;
 function openWallpaperModal(wallpaper, keepDevice) {
+    if (!resChosenByUser) selectedResolution = recommendedResolution();
     stopModalMedia();
     currentWallpaper = wallpaper;
     modalTitle.textContent = wallpaper.title;
@@ -744,6 +756,7 @@ customizeBtn.addEventListener('click', () => {
 resolutionBtns.forEach(btn => {
     btn.addEventListener('click', () => {
         if (btn.disabled) return;
+        resChosenByUser = true;
         resolutionBtns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         selectedResolution = btn.dataset.resolution;
@@ -1025,4 +1038,54 @@ document.querySelectorAll('.framing-btn').forEach(btn => {
             : 'The whole picture is kept; the empty sides are filled with a soft blur of the same picture.';
         resetZoom();
     });
+});
+
+
+// ===== Tags, related wallpapers, original file (like Wallhaven / 4K Wallpapers detail pages) =====
+function renderTagsAndRelated(w) {
+    const chips = document.getElementById('tagChips');
+    chips.innerHTML = '';
+    const words = [...new Set((w.tags || '').split(/\s+/).filter(t => t.length > 2))].slice(0, 6);
+    words.forEach(t => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.textContent = '#' + t;
+        b.addEventListener('click', () => { closeWallpaperModal(); searchInput.value = t; performSearch(t); });
+        chips.appendChild(b);
+    });
+    const wrap = document.getElementById('relatedWrap'), row = document.getElementById('relatedRow');
+    row.innerHTML = '';
+    const portrait = viewMode === 'phone';
+    row.classList.toggle('portrait', portrait);
+    const rel = wallpapers.filter(x => x.id !== w.id && x.category === w.category && typeOf(x) === 'image').slice(0, 10);
+    wrap.hidden = rel.length === 0;
+    rel.forEach(x => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.title = x.title;
+        const im = document.createElement('img');
+        im.loading = 'lazy'; im.alt = x.title;
+        im.src = pickThumb(x, portrait) || imgUrl(x.image, portrait ? 180 : 300, portrait ? 320 : 190);
+        im.onerror = () => b.remove();
+        b.appendChild(im);
+        const s = document.createElement('span'); s.textContent = x.title; b.appendChild(s);
+        b.addEventListener('click', () => { openWallpaperModal(x, true); wallpaperModal.querySelector('.modal-body').scrollTo({ top: 0, behavior: 'smooth' }); });
+        row.appendChild(b);
+    });
+}
+
+document.getElementById('originalBtn').addEventListener('click', async () => {
+    const w = currentWallpaper;
+    if (!w || typeOf(w) !== 'image' || busyDownload) return;
+    const own = !/images\.unsplash\.com/.test(w.image);
+    const url = own ? w.image : `${w.image.split('?')[0]}?auto=format&q=90`;
+    try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('bad');
+        const blob = await res.blob();
+        const ext = (blob.type.split('/')[1] || 'jpg').split(';')[0].split('+')[0].replace('jpeg', 'jpg');
+        saveBlob(blob, `${slug(w.title)}_original.${ext}`);
+        showNotification('Original file saved!');
+        bumpDownloads(w);
+    } catch (e) {
+        window.open(url, '_blank', 'noopener');
+    }
 });
