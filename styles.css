@@ -1618,3 +1618,18 @@ body.preview-open .preview-wrap .nav-arrow { position: fixed; z-index: 3600; }
     border-radius: 10px;
     white-space: nowrap;
 }
+
+/* Framing: fill (crop) vs whole picture */
+.framing-selector h4 { font-size: 18px; margin-bottom: 15px; color: var(--text-primary); }
+.framing-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.framing-btn {
+    padding: 10px 12px; min-height: 48px; display: flex; align-items: center; justify-content: center; gap: 8px;
+    border: 2px solid var(--border-color); border-radius: 10px; background-color: var(--bg-secondary);
+    color: var(--text-primary); font-weight: 500; transition: var(--transition);
+}
+.framing-btn:hover, .framing-btn.active { border-color: var(--primary-color); background-color: var(--primary-color); color: #fff; }
+.framing-hint { margin-top: 10px; font-size: 13px; color: var(--text-secondary); }
+@media (max-width: 600px) {
+    .framing-selector h4 { font-size: 16px; margin-bottom: 10px; }
+    .framing-btn { min-height: 44px; font-size: 14px; padding: 8px; }
+}

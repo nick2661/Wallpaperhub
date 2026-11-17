@@ -569,6 +569,7 @@ function updateModalPreview() {
     downloadLabel.textContent = type === 'image' ? 'Download' : 'Download video';
     const isImg = type === 'image';
     zoomBar.hidden = !isImg;
+    document.getElementById('framingSelector').hidden = !isImg;
     prevBtn.hidden = nextBtn.hidden = getFiltered().length < 2;
     resetZoom();
 }
@@ -602,32 +603,48 @@ function sizeFrame() {
     m.style.height = Math.round(nh * s) + 'px';
 }
 // Dashed box = the part of the picture the chosen device + resolution will download
-function updateCropGuide() {
-    const g = document.getElementById('cropGuide');
-    const ok = currentWallpaper && typeOf(currentWallpaper) === 'image' && zoom === 1 &&
-        !modalMedia.classList.contains('fullscreen') && modalImage.naturalWidth;
-    if (!ok) { g.hidden = true; return; }
+let framing = 'fill';       // 'fill' = crop to the device shape, 'fit' = whole picture on a blurred background
+let pannable = false;
+function cropWindow() {
+    if (framing !== 'fill' || !currentWallpaper || typeOf(currentWallpaper) !== 'image' ||
+        modalMedia.classList.contains('fullscreen') || !modalImage.naturalWidth) return null;
     const [lw, lh] = RESOLUTIONS[selectedResolution] || RESOLUTIONS['4k'];
     const [tw, th] = isPortraitDevice(selectedDevice) ? [lh, lw] : [lw, lh];
-    const fw = modalMedia.clientWidth, fh = modalMedia.clientHeight;
-    const r = tw / th;
+    const fw = modalMedia.clientWidth, fh = modalMedia.clientHeight, r = tw / th;
     let gw = fw, gh = fw / r;
     if (gh > fh) { gh = fh; gw = fh * r; }
-    if (Math.abs(gw - fw) < 3 && Math.abs(gh - fh) < 3) { g.hidden = true; return; }   // picture already has this shape
+    return { fw, fh, gw, gh, tw, th };
+}
+function updateCropGuide(gb) {
+    const g = document.getElementById('cropGuide');
+    if (!gb || (Math.abs(gb.gw - gb.fw) < 3 && Math.abs(gb.gh - gb.fh) < 3)) { g.hidden = true; return; }   // picture already has this shape
     g.hidden = false;
-    Object.assign(g.style, { width: gw + 'px', height: gh + 'px', left: (fw - gw) / 2 + 'px', top: (fh - gh) / 2 + 'px' });
-    document.getElementById('cropGuideLabel').textContent = `Download area ${tw}×${th}`;
+    Object.assign(g.style, { width: gb.gw + 'px', height: gb.gh + 'px', left: (gb.fw - gb.gw) / 2 + 'px', top: (gb.fh - gb.gh) / 2 + 'px' });
+    document.getElementById('cropGuideLabel').textContent = gb.gw < 220 ? 'Download area' : `Download area ${gb.tw}×${gb.th}`;
+}
+// Which part of the picture is inside the dashed box (0..1 of the picture), or null for the default centred crop
+function currentCropRect() {
+    const gb = cropWindow();
+    if (!gb) return null;
+    const u = x => Math.min(1, Math.max(0, (x - gb.fw / 2 - panX) / (gb.fw * zoom) + 0.5));
+    const v = y => Math.min(1, Math.max(0, (y - gb.fh / 2 - panY) / (gb.fh * zoom) + 0.5));
+    const x0 = (gb.fw - gb.gw) / 2, y0 = (gb.fh - gb.gh) / 2;
+    return { u0: u(x0), u1: u(x0 + gb.gw), v0: v(y0), v1: v(y0 + gb.gh) };
 }
 function applyZoom() {
     sizeFrame();
     const f = fitSize();
-    const mx = Math.max(0, (f.dw * zoom - f.fw) / 2), my = Math.max(0, (f.dh * zoom - f.fh) / 2);
+    const gb = cropWindow();
+    // with a crop box the picture must keep covering it; otherwise just keep it inside the frame
+    const mx = gb ? Math.max(0, (gb.fw * zoom - gb.gw) / 2) : Math.max(0, (f.dw * zoom - f.fw) / 2);
+    const my = gb ? Math.max(0, (gb.fh * zoom - gb.gh) / 2) : Math.max(0, (f.dh * zoom - f.fh) / 2);
     panX = Math.max(-mx, Math.min(mx, panX));
     panY = Math.max(-my, Math.min(my, panY));
+    pannable = mx > 0.5 || my > 0.5;
     modalImage.style.transform = zoom === 1 && !panX && !panY ? '' : `translate(${panX}px, ${panY}px) scale(${zoom})`;
-    modalMedia.classList.toggle('zoomed', zoom > 1);
-    zoomLabel.textContent = zoom === 1 ? 'Fit' : Math.round(zoom * 100) + '%';
-    updateCropGuide();
+    modalMedia.classList.toggle('zoomed', pannable);
+    zoomLabel.textContent = zoom === 1 ? '100%' : Math.round(zoom * 100) + '%';
+    updateCropGuide(gb);
     document.getElementById('zoomOut').disabled = zoom <= 1;
     document.getElementById('zoomIn').disabled = zoom >= ZOOM_MAX;
 }
@@ -646,7 +663,7 @@ modalImage.addEventListener('load', applyZoom);
 window.addEventListener('resize', () => { if (wallpaperModal.classList.contains('active')) applyZoom(); });
 let drag = null;
 modalMedia.addEventListener('pointerdown', (e) => {
-    if (zoom <= 1 || e.target.closest('button')) return;
+    if (!pannable || e.target.closest('button')) return;
     drag = { x: e.clientX, y: e.clientY, px: panX, py: panY };
     modalMedia.setPointerCapture(e.pointerId);
     modalMedia.classList.add('dragging');
@@ -790,10 +807,14 @@ async function downloadWallpaper(wallpaper, quick) {
 
         const url = type === 'video' ? wallpaper.video : imgUrl(wallpaper.image, w, h);
         showNotification('Download started!');
-        if (type === 'image' && !/images\.unsplash\.com/.test(wallpaper.image)) {
-            // Our own images: crop/resize to the chosen device + resolution in the browser
+        const own = !/images\.unsplash\.com/.test(wallpaper.image);
+        const custom = !quick && type === 'image' && (framing === 'fit' || currentCropRect());
+        if (type === 'image' && (own || custom)) {
+            // Crop/resize to the chosen device + resolution in the browser (own images always; stock photos when framed by hand)
             try {
-                const out = await renderLocalImage(pickSrc(wallpaper, h > w), w, h);
+                const srcFull = pickSrc(wallpaper, h > w);
+                const source = own ? srcFull : `${srcFull.split('?')[0]}?w=${Math.min(4000, Math.max(w, h))}&auto=format&q=90`;
+                const out = await renderLocalImage(source, w, h, quick ? {} : { mode: framing, rect: framing === 'fill' ? currentCropRect() : null });
                 saveBlob(out.blob, `${slug(wallpaper.title)}_${out.w}x${out.h}.jpg`);
                 bumpDownloads(wallpaper);
                 return;
@@ -816,15 +837,34 @@ async function downloadWallpaper(wallpaper, quick) {
 }
 
 // Draw one of our own images to an exact size (cover-fit), capped so phones do not run out of memory
-async function renderLocalImage(src, w, h) {
-    const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
+async function renderLocalImage(src, w, h, opts = {}) {
+    const img = await new Promise((res, rej) => { const i = new Image(); i.crossOrigin = 'anonymous'; i.onload = () => res(i); i.onerror = rej; i.src = src; });
     const coarse = window.matchMedia && matchMedia('(pointer: coarse)').matches;
     const maxPx = coarse ? 16e6 : 40e6;
     if (w * h > maxPx) { const k = Math.sqrt(maxPx / (w * h)); w = Math.round(w * k); h = Math.round(h * k); }
     const c = document.createElement('canvas'); c.width = w; c.height = h;
     const g = c.getContext('2d'); g.imageSmoothingQuality = 'high';
-    const s = Math.max(w / img.naturalWidth, h / img.naturalHeight);
-    g.drawImage(img, (w - img.naturalWidth * s) / 2, (h - img.naturalHeight * s) / 2, img.naturalWidth * s, img.naturalHeight * s);
+    const nw = img.naturalWidth, nh = img.naturalHeight;
+    const cover = (sx, sy, sw, sh) => g.drawImage(img, sx, sy, sw, sh, 0, 0, w, h);
+    if (opts.mode === 'fit') {
+        // soft blurred copy of the picture behind the whole picture
+        const t = document.createElement('canvas'); t.width = Math.max(8, Math.round(w / 48)); t.height = Math.max(8, Math.round(h / 48));
+        const tg = t.getContext('2d'); tg.imageSmoothingQuality = 'high';
+        const k = Math.max(t.width / nw, t.height / nh);
+        tg.drawImage(img, (t.width - nw * k) / 2, (t.height - nh * k) / 2, nw * k, nh * k);
+        g.drawImage(t, 0, 0, w, h);
+        g.fillStyle = 'rgba(0,0,0,0.25)'; g.fillRect(0, 0, w, h);
+        const s = Math.min(w / nw, h / nh);
+        g.drawImage(img, (w - nw * s) / 2, (h - nh * s) / 2, nw * s, nh * s);
+    } else if (opts.rect) {
+        const r = opts.rect;
+        cover(r.u0 * nw, r.v0 * nh, Math.max(1, (r.u1 - r.u0) * nw), Math.max(1, (r.v1 - r.v0) * nh));
+    } else {
+        const ar = w / h;
+        let sw = nw, sh = nw / ar;
+        if (sh > nh) { sh = nh; sw = nh * ar; }
+        cover((nw - sw) / 2, (nh - sh) / 2, sw, sh);
+    }
     const blob = await new Promise((res, rej) => c.toBlob(b => b ? res(b) : rej(new Error('encode')), 'image/jpeg', 0.92));
     return { blob, w, h };
 }
@@ -973,3 +1013,16 @@ function openFromHash() {
 }
 window.addEventListener('load', openFromHash);
 window.addEventListener('hashchange', openFromHash);
+
+
+// ===== Framing: fill the screen (crop) or show the whole picture =====
+document.querySelectorAll('.framing-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        framing = btn.dataset.framing;
+        document.querySelectorAll('.framing-btn').forEach(b => b.classList.toggle('active', b === btn));
+        document.getElementById('framingHint').textContent = framing === 'fill'
+            ? 'Drag the picture and use + / − to choose what is inside the dashed box.'
+            : 'The whole picture is kept; the empty sides are filled with a soft blur of the same picture.';
+        resetZoom();
+    });
+});

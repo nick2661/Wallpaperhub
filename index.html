@@ -12,7 +12,7 @@
     <meta name="description" content="Download high-quality wallpapers for Android, Windows, iOS, and all devices. HD, 4K, and 8K resolutions available.">
     <meta name="keywords" content="wallpapers, HD wallpapers, 4K wallpapers, 8K wallpapers, mobile wallpapers, desktop backgrounds">
     <title>WallpaperHub - Premium HD Wallpapers for All Devices</title>
-    <link rel="stylesheet" href="styles.css?v=20261124">
+    <link rel="stylesheet" href="styles.css?v=20261125">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -270,6 +270,14 @@
                         </div>
                         <p class="live-note" id="liveNote" hidden>Live wallpapers download as a 10-second looping video (HD or 2K).</p>
                     </div>
+                    <div class="framing-selector" id="framingSelector">
+                        <h4>Framing</h4>
+                        <div class="framing-options" role="group" aria-label="Framing">
+                            <button class="framing-btn active" data-framing="fill"><i class="fas fa-crop-simple"></i> Fill screen</button>
+                            <button class="framing-btn" data-framing="fit"><i class="fas fa-expand"></i> Whole picture</button>
+                        </div>
+                        <p class="framing-hint" id="framingHint">Drag the picture and use + / − to choose what is inside the dashed box.</p>
+                    </div>
                     <div class="modal-actions">
                         <button class="favorite-btn" id="favoriteBtn" aria-label="Add to favorites">
                             <i class="far fa-heart"></i><span class="fav-label"> Favorite</span>
@@ -308,8 +316,8 @@
         </div>
     </div>
 
-    <script src="live.js?v=20261124"></script>
-    <script src="editor.js?v=20261124"></script>
-    <script src="script.js?v=20261124"></script>
+    <script src="live.js?v=20261125"></script>
+    <script src="editor.js?v=20261125"></script>
+    <script src="script.js?v=20261125"></script>
 </body>
 </html>
