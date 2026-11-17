@@ -12,7 +12,7 @@
     <meta name="description" content="Download high-quality wallpapers for Android, Windows, iOS, and all devices. HD, 4K, and 8K resolutions available.">
     <meta name="keywords" content="wallpapers, HD wallpapers, 4K wallpapers, 8K wallpapers, mobile wallpapers, desktop backgrounds">
     <title>WallpaperHub - Premium HD Wallpapers for All Devices</title>
-    <link rel="stylesheet" href="styles.css?v=20261127">
+    <link rel="stylesheet" href="styles.css?v=20261129">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -48,16 +48,22 @@
     <!-- Hero Section -->
     <section class="hero" id="home">
         <div class="hero-content">
-            <h1 class="hero-title">Discover Premium Wallpapers</h1>
-            <p class="hero-subtitle">High-quality wallpapers for all your devices in HD, 4K, and 8K</p>
+            <h1 class="hero-title">Wallpapers that fit <span>every screen</span></h1>
+            <p class="hero-subtitle">One picture, five screen sizes: phone, tablet, laptop, desktop and ultrawide. Free to download.</p>
             
             <!-- Search Bar -->
             <div class="search-container">
-                <input type="text" class="search-input" id="searchInput" placeholder="Search wallpapers...">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search wallpapers, colors, moods…">
                 <button class="search-btn" aria-label="Search">
                     <i class="fas fa-search"></i>
                 </button>
                 <div class="search-suggestions" id="searchSuggestions"></div>
+            </div>
+            <div class="hero-chips" id="heroChips"></div>
+            <div class="hero-stats">
+                <span><b id="statCount">0</b> wallpapers</span>
+                <span><b>5</b> screen sizes each</span>
+                <span><b>Free</b> to download</span>
             </div>
         </div>
     </section>
@@ -139,7 +145,17 @@
     <!-- Wallpaper Gallery -->
     <section class="featured-section" id="featured" hidden>
         <div class="container">
-            <h2 class="featured-title"><i class="fas fa-star"></i> Featured</h2>
+            <div class="featured-head">
+                <div>
+                    <h2 class="featured-title"><i class="fas fa-fire"></i> Trending now</h2>
+                    <p>See what's popular</p>
+                </div>
+                <div class="featured-controls">
+                    <a href="#popular">See more <i class="fas fa-chevron-right"></i></a>
+                    <button type="button" id="featPrev" aria-label="Scroll left"><i class="fas fa-chevron-left"></i></button>
+                    <button type="button" id="featNext" aria-label="Scroll right"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
             <div class="featured-row" id="featuredRow"></div>
         </div>
     </section>
@@ -213,61 +229,61 @@
     <!-- Wallpaper Modal -->
     <div class="modal" id="wallpaperModal">
         <div class="modal-overlay" id="modalOverlay"></div>
-        <div class="modal-content">
-            <button class="modal-close" id="modalClose">
+        <div class="modal-content set-modal">
+            <button class="modal-close" id="modalClose" aria-label="Close">
                 <i class="fas fa-times"></i>
             </button>
-            <div class="modal-body">
-                <div class="preview-wrap">
-                <div class="modal-media" id="modalMedia">
-                    <img src="" alt="Wallpaper" class="modal-image" id="modalImage">
-                    <canvas class="modal-canvas" id="modalCanvas" hidden></canvas>
-                    <video class="modal-video" id="modalVideo" muted loop playsinline hidden></video>
-                    <button class="preview-fs-btn" id="previewFsBtn" aria-label="Full screen preview"><i class="fas fa-expand"></i></button>
-</div>
+            <div class="set-body">
+                <header class="set-head">
+                    <h3 class="modal-title" id="modalTitle">Wallpaper Title</h3>
+                    <p class="set-sub"><span class="modal-category" id="modalCategory">Category</span> · Phone, tablet, laptop, desktop and ultrawide</p>
+                </header>
+
+                <div class="set-stage" id="setStage">
+                    <div class="stage-bg" id="stageBg"></div>
+                    <div class="preview-wrap">
+                        <div class="modal-media" id="modalMedia">
+                            <img src="" alt="Wallpaper" class="modal-image" id="modalImage">
+                            <canvas class="modal-canvas" id="modalCanvas" hidden></canvas>
+                            <video class="modal-video" id="modalVideo" muted loop playsinline hidden></video>
+                            <button class="preview-fs-btn" id="previewFsBtn" aria-label="Full screen preview"><i class="fas fa-expand"></i></button>
+                        </div>
+                    </div>
                     <button class="nav-arrow prev" id="prevWallpaper" aria-label="Previous wallpaper"><i class="fas fa-chevron-left"></i></button>
                     <button class="nav-arrow next" id="nextWallpaper" aria-label="Next wallpaper"><i class="fas fa-chevron-right"></i></button>
                 </div>
-                <div class="modal-info">
-                    <div>
-                        <h3 class="modal-title" id="modalTitle">Wallpaper Title</h3>
-                        <p class="modal-category" id="modalCategory">Category</p>
-                        <div class="tag-chips" id="tagChips"></div>
-                    </div>
-                    <div class="modal-stats">
-                        <span><i class="fas fa-eye"></i> <span id="modalViews">0</span> views</span>
-                        <span><i class="fas fa-download"></i> <span id="modalDownloads">0</span> downloads</span>
-                    </div>
-                    <div class="device-selector">
-                        <h4>Select Device</h4>
-                        <div class="device-options">
-                            <button class="device-btn" data-device="android">
-                                <i class="fab fa-android"></i> Android
-                            </button>
-                            <button class="device-btn" data-device="ios">
-                                <i class="fab fa-apple"></i> iOS
-                            </button>
-                            <button class="device-btn" data-device="windows">
-                                <i class="fab fa-windows"></i> Windows
-                            </button>
-                            <button class="device-btn" data-device="desktop">
-                                <i class="fas fa-desktop"></i> Desktop
-                            </button>
-                        </div>
-                    </div>
+
+                <div class="shape-row" id="shapeRow" role="group" aria-label="Screen size">
+                    <button class="device-btn" data-device="phone"><span class="shape-thumb"></span><span class="shape-label">Phone</span></button>
+                    <button class="device-btn" data-device="tablet"><span class="shape-thumb"></span><span class="shape-label">Tablet</span></button>
+                    <button class="device-btn" data-device="laptop"><span class="shape-thumb"></span><span class="shape-label">Laptop</span></button>
+                    <button class="device-btn" data-device="desktop"><span class="shape-thumb"></span><span class="shape-label">Desktop</span></button>
+                    <button class="device-btn" data-device="ultrawide"><span class="shape-thumb"></span><span class="shape-label">Ultrawide</span></button>
+                </div>
+
+                <div class="set-line">
+                    <p class="set-downloading">Downloading the <b id="shapeName">Desktop</b> version</p>
                     <div class="resolution-selector">
-                        <h4>Select Resolution</h4>
-                        <div class="resolution-options">
+                        <div class="resolution-options" role="group" aria-label="Quality">
                             <button class="resolution-btn" data-resolution="hd"></button>
                             <button class="resolution-btn" data-resolution="2k"></button>
                             <button class="resolution-btn" data-resolution="4k"></button>
                             <button class="resolution-btn" data-resolution="8k"></button>
                         </div>
-                        <p class="live-note" id="liveNote" hidden>Live wallpapers download as a 10-second looping video (HD or 2K).</p>
                     </div>
+                </div>
+                <p class="live-note" id="liveNote" hidden>Live wallpapers download as a 10-second looping video (HD or 2K).</p>
+
+                <div class="set-foot">
+                    <dl class="set-stats">
+                        <div><dt>Resolution</dt><dd id="statRes">-</dd></div>
+                        <div><dt>Detail</dt><dd id="statMp">-</dd></div>
+                        <div><dt>In this set</dt><dd>5 screens</dd></div>
+                        <div><dt>Downloads</dt><dd id="modalDownloads">0</dd></div>
+                    </dl>
                     <div class="modal-actions">
-                        <button class="favorite-btn" id="favoriteBtn" aria-label="Add to favorites">
-                            <i class="far fa-heart"></i><span class="fav-label"> Favorite</span>
+                        <button class="favorite-btn" id="favoriteBtn" aria-label="Like this wallpaper">
+                            <i class="far fa-heart"></i><span class="fav-label"> Like</span><span class="like-count" id="likeCount">0</span>
                         </button>
                         <button class="favorite-btn" id="shareBtn" aria-label="Share this wallpaper">
                             <i class="fas fa-share-nodes"></i><span class="fav-label"> Share</span>
@@ -279,8 +295,11 @@
                             <i class="fas fa-download"></i> <span id="downloadLabel">Download</span>
                         </button>
                     </div>
-                    <button class="original-link" id="originalBtn" type="button"><i class="fas fa-file-image"></i> Download original file (untouched)</button>
                 </div>
+
+                <div class="tag-chips" id="tagChips"></div>
+                <button class="original-link" id="originalBtn" type="button"><i class="fas fa-file-image"></i> Download original file (untouched)</button>
+
                 <div class="related" id="relatedWrap" hidden>
                     <h4>More like this</h4>
                     <div class="related-row" id="relatedRow"></div>
@@ -308,8 +327,8 @@
         </div>
     </div>
 
-    <script src="live.js?v=20261127"></script>
-    <script src="editor.js?v=20261127"></script>
-    <script src="script.js?v=20261127"></script>
+    <script src="live.js?v=20261129"></script>
+    <script src="editor.js?v=20261129"></script>
+    <script src="script.js?v=20261129"></script>
 </body>
 </html>

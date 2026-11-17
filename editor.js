@@ -18,6 +18,7 @@
         { id: 'phone',   label: 'Phone 9:19.5', r: 9 / 19.5 },
         { id: 'phone16', label: 'Phone 9:16',   r: 9 / 16 },
         { id: 'tablet',  label: 'Tablet 3:4',   r: 3 / 4 },
+        { id: 'laptop',  label: 'Laptop 16:10', r: 16 / 10 },
         { id: 'desktop', label: 'Desktop 16:9', r: 16 / 9 },
         { id: 'ultra',   label: 'Ultrawide 21:9', r: 21 / 9 },
         { id: 'square',  label: 'Square 1:1',   r: 1 }
@@ -82,8 +83,7 @@
 
     // Output pixel size for the chosen quality + shape (capped so phones do not run out of memory)
     function outSize() {
-        const long = RESOLUTIONS[resKey][0], r = ratio();
-        let W = r >= 1 ? long : Math.round(long * r), H = r >= 1 ? Math.round(long / r) : long;
+        let [W, H] = sizeForRatio(ratio(), resKey);
         const coarse = window.matchMedia && matchMedia('(pointer: coarse)').matches;
         const maxPx = coarse ? 16e6 : 40e6;
         if (W * H > maxPx) { const k = Math.sqrt(maxPx / (W * H)); W = Math.round(W * k); H = Math.round(H * k); }
@@ -327,7 +327,7 @@
         wallpaper = w; opts = o || {};
         lastFocus = document.activeElement;
         st = Object.assign({}, DEFAULTS);
-        aspectId = (typeof isPortraitDevice === 'function' && isPortraitDevice(opts.device)) ? 'phone' : 'desktop';
+        aspectId = ({ phone: 'phone', tablet: 'tablet', laptop: 'laptop', desktop: 'desktop', ultrawide: 'ultra' })[opts.device] || 'desktop';
         resKey = opts.resolution && RESOLUTIONS[opts.resolution] ? opts.resolution : '4k';
         lockOn = false; img = null;
         build(); bind();

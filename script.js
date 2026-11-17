@@ -184,7 +184,6 @@ const modalVideo = document.getElementById('modalVideo');
 const previewFsBtn = document.getElementById('previewFsBtn');
 const modalTitle = document.getElementById('modalTitle');
 const modalCategory = document.getElementById('modalCategory');
-const modalViews = document.getElementById('modalViews');
 const modalDownloads = document.getElementById('modalDownloads');
 const liveNote = document.getElementById('liveNote');
 const downloadLabel = document.getElementById('downloadLabel');
@@ -200,7 +199,26 @@ const userModalClose = document.getElementById('userModalClose');
 
 // ===== Helpers =====
 const RESOLUTIONS = { hd: [1920, 1080], '2k': [2560, 1440], '4k': [3840, 2160], '8k': [7680, 4320] };
-const isPortraitDevice = d => d === 'android' || d === 'ios';
+// One picture, five screen shapes (like the matched "sets" on popular wallpaper hubs)
+const SHAPES = {
+    phone:     { label: 'Phone',     ar: 9 / 19.5, portrait: true },
+    tablet:    { label: 'Tablet',    ar: 3 / 4,    portrait: true },
+    laptop:    { label: 'Laptop',    ar: 16 / 10 },
+    desktop:   { label: 'Desktop',   ar: 16 / 9 },
+    ultrawide: { label: 'Ultrawide', ar: 21 / 9 }
+};
+const isPortraitDevice = d => !!(SHAPES[d] && SHAPES[d].portrait);
+// Pixel size for a screen ratio at a quality level: landscape = width HD/2K/4K/8K, portrait = width 1080/1440/2160/4320
+function sizeForRatio(r, resKey) {
+    const [L, S] = RESOLUTIONS[resKey] || RESOLUTIONS['4k'];
+    return r >= 1 ? [L, Math.round(L / r)] : [S, Math.round(S / r)];
+}
+const sizeFor = (device, resKey) => sizeForRatio((SHAPES[device] || SHAPES.desktop).ar, resKey);
+function defaultShape() {
+    if (viewMode === 'phone') return 'phone';
+    const r = screen.width / screen.height;
+    return r >= 2.1 ? 'ultrawide' : r >= 1.7 ? 'desktop' : 'laptop';
+}
 const typeOf = w => w.type || 'image';
 // our own pack ships a 16:9 version too; use it for landscape screens
 const pickSrc = (w, portrait) => (!portrait && w.wide) ? w.wide : w.image;
@@ -214,7 +232,7 @@ function imgUrl(url, w, h) {
 
 // ===== Theme Toggle =====
 function initTheme() {
-    const savedTheme = safeGet('theme') || 'light';
+    const savedTheme = safeGet('theme') || 'dark';
     document.documentElement.setAttribute('data-theme', savedTheme);
     updateThemeIcon(savedTheme);
 }
@@ -405,7 +423,7 @@ function createWallpaperCard(wallpaper) {
 
     card.innerHTML = `
         ${media}
-        ${type !== 'image' ? '<span class="live-badge"><i></i>LIVE</span>' : ''}
+        ${type !== 'image' ? '<span class="live-badge"><i></i>LIVE</span>' : '<span class="set-badge">SET</span>'}
         <div class="wallpaper-overlay">
             <div class="wallpaper-title">${wallpaper.title}</div>
             <div class="wallpaper-category">${wallpaper.category}</div>
@@ -525,12 +543,10 @@ function stopModalMedia() {
 }
 
 function updateResolutionLabels() {
-    const portrait = isPortraitDevice(selectedDevice);
     const live = currentWallpaper && typeOf(currentWallpaper) === 'live';
     const video = currentWallpaper && typeOf(currentWallpaper) === 'video';
     resolutionBtns.forEach(btn => {
-        const [lw, lh] = RESOLUTIONS[btn.dataset.resolution];
-        const [w, h] = portrait ? [lh, lw] : [lw, lh];
+        const [w, h] = sizeFor(selectedDevice, btn.dataset.resolution);
         btn.innerHTML = `<strong>${btn.dataset.resolution.toUpperCase()}${btn.dataset.resolution === recommendedResolution() ? '<span class="res-badge">Your screen</span>' : ''}</strong><small>${w}×${h}</small>`;
         const unavailable = (live && (btn.dataset.resolution === '4k' || btn.dataset.resolution === '8k')) || video;
         btn.disabled = !!unavailable;
@@ -541,19 +557,54 @@ function updateResolutionLabels() {
     liveNote.hidden = !live;
     liveNote.textContent = 'Live wallpapers download as a 10-second looping video (HD or 2K).';
     document.querySelector('.resolution-selector').hidden = !!video;
+    updateSetInfo();
+}
+
+// "Downloading the Laptop version", resolution / detail / likes
+function updateSetInfo() {
+    const w = currentWallpaper;
+    if (!w) return;
+    const [tw, th] = sizeFor(selectedDevice, selectedResolution);
+    document.getElementById('shapeName').textContent = SHAPES[selectedDevice].label;
+    document.getElementById('statRes').textContent = `${tw}×${th}`;
+    document.getElementById('statMp').textContent = `${(tw * th / 1e6).toFixed(1)} MP`;
+    document.getElementById('likeCount').textContent = (w.likes || 0) + (favorites.includes(w.id) ? 1 : 0);
+}
+
+// Little preview of the picture in each screen shape + blurred backdrop behind the big preview
+function renderShapeThumbs() {
+    const w = currentWallpaper;
+    const type = typeOf(w);
+    document.querySelectorAll('.shape-row .device-btn').forEach(btn => {
+        const s = SHAPES[btn.dataset.device];
+        const th = btn.querySelector('.shape-thumb');
+        const hgt = parseFloat(getComputedStyle(th).height) || 66;
+        th.style.width = Math.round(hgt * s.ar) + 'px';
+        let src = '';
+        if (type === 'image') src = pickThumb(w, s.portrait) || (/images\.unsplash\.com/.test(w.image) ? `${w.image.split('?')[0]}?w=300&auto=format&q=70` : w.image);
+        th.style.backgroundImage = src ? `url("${src}")` : '';
+    });
+    const bg = document.getElementById('stageBg');
+    if (typeOf(w) === 'image') {
+        const s = pickThumb(w, false) || (/images\.unsplash\.com/.test(w.image) ? `${w.image.split('?')[0]}?w=240&auto=format&q=60` : w.image);
+        bg.style.backgroundImage = `url("${s}")`;
+    } else bg.style.backgroundImage = '';
 }
 
 function updateModalPreview() {
     const w = currentWallpaper;
     const portrait = isPortraitDevice(selectedDevice);
+    const ar = SHAPES[selectedDevice].ar;
     const type = typeOf(w);
     modalMedia.classList.toggle('portrait', portrait);
+    modalMedia.style.setProperty('--ar', ar);
+    document.querySelectorAll('.shape-row .device-btn').forEach(b => b.classList.toggle('active', b.dataset.device === selectedDevice));
     modalImage.hidden = type !== 'image';
     modalCanvas.hidden = type !== 'live';
     modalVideo.hidden = type !== 'video';
 
     if (type === 'image') {
-        const [pw, ph] = portrait ? [720, 1280] : [1280, 720];
+        const [pw, ph] = portrait ? [Math.round(1400 * ar), 1400] : [1400, Math.round(1400 / ar)];
         modalImage.src = imgUrl(pickSrc(w, portrait), pw, ph);
         modalImage.alt = w.title;
     } else if (type === 'live') {
@@ -576,6 +627,8 @@ function updateModalPreview() {
     const isImg = type === 'image';
     document.getElementById('originalBtn').hidden = !isImg;
     renderTagsAndRelated(w);
+    renderShapeThumbs();
+    updateSetInfo();
     prevBtn.hidden = nextBtn.hidden = getFiltered().length < 2;
 }
 
@@ -600,11 +653,10 @@ function openWallpaperModal(wallpaper, keepDevice) {
     currentWallpaper = wallpaper;
     modalTitle.textContent = wallpaper.title;
     modalCategory.textContent = wallpaper.category.charAt(0).toUpperCase() + wallpaper.category.slice(1);
-    modalViews.textContent = wallpaper.views.toLocaleString();
     modalDownloads.textContent = wallpaper.downloads.toLocaleString();
 
     // Default device to match the shape the visitor is browsing in
-    if (!keepDevice) selectedDevice = viewMode === 'phone' ? 'android' : 'desktop';
+    if (!keepDevice) selectedDevice = defaultShape();
     deviceBtns.forEach(b => b.classList.toggle('active', b.dataset.device === selectedDevice));
 
     setFavoriteButton();
@@ -614,7 +666,7 @@ function openWallpaperModal(wallpaper, keepDevice) {
     wallpaperModal.classList.add('active');
     document.body.classList.add('modal-open');
     updateModalPreview();
-    wallpaperModal.querySelector('.modal-body').scrollTop = 0;
+    wallpaperModal.querySelector('.set-body').scrollTop = 0;
 }
 
 function closeWallpaperModal() {
@@ -656,6 +708,7 @@ resolutionBtns.forEach(btn => {
         resolutionBtns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         selectedResolution = btn.dataset.resolution;
+        updateSetInfo();
     });
 });
 
@@ -690,10 +743,9 @@ async function downloadWallpaper(wallpaper, quick) {
     if (busyDownload) { showNotification('Please wait, a download is in progress'); return; }
     const type = typeOf(wallpaper);
     // Quick (card) downloads use the shape the visitor is browsing in; modal uses the chosen device
-    const device = quick ? (viewMode === 'phone' ? 'android' : 'desktop') : selectedDevice;
+    const device = quick ? (viewMode === 'phone' ? 'phone' : 'desktop') : selectedDevice;
     const resKey = quick && type === 'live' ? 'hd' : selectedResolution;
-    const [lw, lh] = RESOLUTIONS[resKey] || RESOLUTIONS['4k'];
-    const [w, h] = isPortraitDevice(device) ? [lh, lw] : [lw, lh];
+    const [w, h] = sizeFor(device, resKey);
     const base = `${slug(wallpaper.title)}_${w}x${h}`;
 
     busyDownload = true;
@@ -794,6 +846,7 @@ function setFavoriteButton() {
     const on = currentWallpaper && favorites.includes(currentWallpaper.id);
     favoriteBtn.classList.toggle('active', !!on);
     favoriteBtn.querySelector('i').className = on ? 'fas fa-heart' : 'far fa-heart';
+    updateSetInfo();
 }
 
 favoriteBtn.addEventListener('click', () => {
@@ -947,7 +1000,7 @@ function renderTagsAndRelated(w) {
         im.onerror = () => b.remove();
         b.appendChild(im);
         const s = document.createElement('span'); s.textContent = x.title; b.appendChild(s);
-        b.addEventListener('click', () => { openWallpaperModal(x, true); wallpaperModal.querySelector('.modal-body').scrollTo({ top: 0, behavior: 'smooth' }); });
+        b.addEventListener('click', () => { openWallpaperModal(x, true); wallpaperModal.querySelector('.set-body').scrollTo({ top: 0, behavior: 'smooth' }); });
         row.appendChild(b);
     });
 }
@@ -969,3 +1022,23 @@ document.getElementById('originalBtn').addEventListener('click', async () => {
         window.open(url, '_blank', 'noopener');
     }
 });
+
+
+// ===== Hero chips, stats, trending arrows =====
+(function initHero() {
+    const chips = document.getElementById('heroChips');
+    const list = ['neon', 'sunset', 'aurora', 'mountain', 'amoled', 'minimal', 'gold', 'ocean', 'city', 'galaxy', 'quote', 'diwali'].map(t => [t, t]);
+    list.forEach(([label, key]) => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.textContent = label;
+        b.addEventListener('click', () => {
+            searchInput.value = key;
+            performSearch(key);
+        });
+        chips.appendChild(b);
+    });
+    document.getElementById('statCount').textContent = wallpapers.length;
+    const row = document.getElementById('featuredRow');
+    document.getElementById('featPrev').addEventListener('click', () => row.scrollBy({ left: -row.clientWidth * 0.8, behavior: 'smooth' }));
+    document.getElementById('featNext').addEventListener('click', () => row.scrollBy({ left: row.clientWidth * 0.8, behavior: 'smooth' }));
+})();
