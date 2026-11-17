@@ -540,6 +540,7 @@ function updateModalPreview() {
     const portrait = isPortraitDevice(selectedDevice);
     const type = typeOf(w);
     modalMedia.classList.toggle('portrait', portrait);
+    modalMedia.classList.toggle('photo', type === 'image');
     modalImage.hidden = type !== 'image';
     modalCanvas.hidden = type !== 'live';
     modalVideo.hidden = type !== 'video';
@@ -587,7 +588,21 @@ function fitSize() {
     return { fw, fh, dw: nw * s, dh: nh * s };
 }
 function fillZoom() { const f = fitSize(); return Math.min(ZOOM_MAX, Math.max(f.fw / f.dw, f.fh / f.dh)); }
+// Size the frame to the picture's own shape (largest fit inside the available box)
+function sizeFrame() {
+    const m = modalMedia;
+    if (!m.classList.contains('photo')) { m.style.width = m.style.height = ''; return; }
+    const nw = modalImage.naturalWidth, nh = modalImage.naturalHeight;
+    if (m.classList.contains('fullscreen')) { m.style.width = '100vw'; m.style.height = '100dvh'; return; }
+    m.style.width = '100%'; m.style.height = 'var(--media-max-h)';
+    if (!nw || !nh) return;
+    const aw = m.clientWidth, ah = m.clientHeight;
+    const s = Math.min(aw / nw, ah / nh);
+    m.style.width = Math.round(nw * s) + 'px';
+    m.style.height = Math.round(nh * s) + 'px';
+}
 function applyZoom() {
+    sizeFrame();
     const f = fitSize();
     const mx = Math.max(0, (f.dw * zoom - f.fw) / 2), my = Math.max(0, (f.dh * zoom - f.fh) / 2);
     panX = Math.max(-mx, Math.min(mx, panX));

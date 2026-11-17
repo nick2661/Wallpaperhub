@@ -1582,3 +1582,16 @@ body.editor-open { overflow: hidden; }
     .featured-row .wallpaper-card { width: 240px; }
     .featured-row.portrait .wallpaper-card { width: 130px; }
 }
+
+/* ===== Photo preview: the frame hugs the picture, so zooming never shows empty bars ===== */
+.modal-media { --media-max-h: min(72vh, 720px); }
+.modal-media.photo { margin: 0 auto; max-width: 100%; background-color: transparent; aspect-ratio: auto; }
+.modal-media.photo.fullscreen { background-color: #000; }
+@media (max-width: 768px) { .modal-media { --media-max-h: min(34vh, 340px); --media-max-h: min(34dvh, 340px); } }
+@media (max-width: 600px) and (max-height: 700px) { .modal-media { --media-max-h: min(28vh, 220px); --media-max-h: min(28dvh, 220px); } }
+
+/* arrows sit at the edges of the preview column, outside the (picture-sized) frame */
+.preview-wrap { position: relative; align-self: start; width: 100%; }
+.preview-wrap .nav-arrow.prev { left: 4px; }
+.preview-wrap .nav-arrow.next { right: 4px; }
+body.preview-open .preview-wrap .nav-arrow { position: fixed; z-index: 3600; }

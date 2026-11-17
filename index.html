@@ -12,7 +12,7 @@
     <meta name="description" content="Download high-quality wallpapers for Android, Windows, iOS, and all devices. HD, 4K, and 8K resolutions available.">
     <meta name="keywords" content="wallpapers, HD wallpapers, 4K wallpapers, 8K wallpapers, mobile wallpapers, desktop backgrounds">
     <title>WallpaperHub - Premium HD Wallpapers for All Devices</title>
-    <link rel="stylesheet" href="styles.css?v=20261122">
+    <link rel="stylesheet" href="styles.css?v=20261123">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -218,18 +218,20 @@
                 <i class="fas fa-times"></i>
             </button>
             <div class="modal-body">
+                <div class="preview-wrap">
                 <div class="modal-media" id="modalMedia">
                     <img src="" alt="Wallpaper" class="modal-image" id="modalImage">
                     <canvas class="modal-canvas" id="modalCanvas" hidden></canvas>
                     <video class="modal-video" id="modalVideo" muted loop playsinline hidden></video>
                     <button class="preview-fs-btn" id="previewFsBtn" aria-label="Full screen preview"><i class="fas fa-expand"></i></button>
-                    <button class="nav-arrow prev" id="prevWallpaper" aria-label="Previous wallpaper"><i class="fas fa-chevron-left"></i></button>
-                    <button class="nav-arrow next" id="nextWallpaper" aria-label="Next wallpaper"><i class="fas fa-chevron-right"></i></button>
                     <div class="zoom-bar" id="zoomBar" role="group" aria-label="Zoom preview">
                         <button id="zoomOut" aria-label="Zoom out"><i class="fas fa-minus"></i></button>
                         <button id="zoomLabel" class="zoom-label" aria-label="Reset zoom">Fit</button>
                         <button id="zoomIn" aria-label="Zoom in"><i class="fas fa-plus"></i></button>
                     </div>
+                </div>
+                    <button class="nav-arrow prev" id="prevWallpaper" aria-label="Previous wallpaper"><i class="fas fa-chevron-left"></i></button>
+                    <button class="nav-arrow next" id="nextWallpaper" aria-label="Next wallpaper"><i class="fas fa-chevron-right"></i></button>
                 </div>
                 <div class="modal-info">
                     <div>
@@ -305,8 +307,8 @@
         </div>
     </div>
 
-    <script src="live.js?v=20261122"></script>
-    <script src="editor.js?v=20261122"></script>
-    <script src="script.js?v=20261122"></script>
+    <script src="live.js?v=20261123"></script>
+    <script src="editor.js?v=20261123"></script>
+    <script src="script.js?v=20261123"></script>
 </body>
 </html>
