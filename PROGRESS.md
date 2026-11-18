@@ -10,6 +10,7 @@ Branch: `mobile-responsive-live-wallpapers` (merge to `main` is done by the owne
 - **Latest**: 10 new original anime-style scenes (ids 382–391): Neon Rain Street, Moon Over Rooftops, Sakura Tunnel, Midnight Star Train, Summer Cloud Sky, Firefly Forest, Fuji Dawn, Snow Village Night, Cyber Alley, Golden Hour Sky.
 - **Anime effect live wallpapers (ids 109–114)**: Neon Rain City, Firefly Forest, Shooting Stars, Summer Clouds, Snow Village, Sky Lanterns (engines `rainCity, fireflies, shootingStars, driftClouds, snowVillage, skyLanterns` in `live.js`). Live filter now shows every `type:'live'` item.
 - **10 more original anime-style scenes (ids 392–401)**: Hidden Village Dusk, Sunset Sea Voyage, Floating Isles, Rooftop at Dusk, Crossing at Sunset, River of Lanterns, Lone Tree Night, Aurora Ice Castle, Twilight Lighthouse, Blossom Bridge (portrait + wide). The earlier ids 382–391 were generated but not listed in `script.js`; they are now.
+- **Original anime characters (ids 402–407)**: Umbrella in the Rain, Rooftop Scarf, Lantern Girl, Moonlit Wanderer, Stargazers, Waiting at the Crossing (silhouette-style, portrait + wide; figure helpers `_draw_figure/_figures` in `tools/make_wallpapers.py`). All original designs, no existing-series characters.
 - Note: famous-series anime characters/art are not reproduced (copyright); all anime content is original anime-style art.
 
 ## Next

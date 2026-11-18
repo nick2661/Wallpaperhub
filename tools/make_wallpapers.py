@@ -1388,6 +1388,163 @@ def anime_blossom_bridge():
     return screen(base, glow_dots(294, 70, ["#ffc0d8", "#ffe0ec"], 4, 10, 1.2, 0.95, region=(0.10, 0.95)))
 
 
+# ---------------------------------------------------------------- pack 7: original anime characters (silhouette style)
+def _draw_figure(d, kind, cx, by, h, wind=1, umbrella=False, lantern=False, reach=False, scarf=False):
+    """Draw one original character into an L-mode ImageDraw at 2x scale.
+    cx = centre x, by = feet y (pixels); h = full height in pixels; wind = +1 hair/scarf blow right, -1 left."""
+    S = 2
+
+    def pt(x, y):
+        return ((cx + x * h) * S, (by - y * h) * S)
+
+    def poly(pts):
+        d.polygon([pt(x, y) for x, y in pts], fill=255)
+
+    def ell(x, y, rx, ry):
+        a, b = pt(x - rx, y + ry), pt(x + rx, y - ry)
+        d.ellipse([a[0], a[1], b[0], b[1]], fill=255)
+
+    def scarf_shape():
+        xs = np.linspace(0, wind * 0.46, 16)
+        top = [(x, 0.815 + 0.022 * math.sin(abs(x) * 26)) for x in xs]
+        bot = [(x, 0.775 + 0.022 * math.sin(abs(x) * 26 + 1.0)) for x in xs[::-1]]
+        poly(top + bot)
+        ell(0, 0.805, 0.055, 0.022)
+
+    if kind == "girl":
+        ell(0, .885, .066, .07)
+        ell(0, .90, .078, .066)
+        poly([(-.075, .88), (.075, .88), (wind * .11 + .04, .62), (wind * .15, .52), (wind * .05 - .06, .63)])
+        poly([(-.016, .84), (.016, .84), (.016, .80), (-.016, .80)])
+        poly([(-.08, .81), (.08, .81), (.06, .58), (-.06, .58)])
+        poly([(-.06, .58), (.06, .58), (.135, .35), (-.135, .35)])
+        for sx in (-1, 1):
+            poly([(sx * .02, .36), (sx * .055, .36), (sx * .05, .03), (sx * .02, .03)])
+            ell(sx * .04, .02, .035, .018)
+        poly([(-.08, .81), (-.055, .81), (-.075, .56), (-.10, .58)])
+        if umbrella:
+            poly([(.055, .81), (.08, .81), (.115, .66), (.09, .64)])
+            poly([(.095, .66), (.105, .66), (.105, .96), (.095, .96)])
+            poly([(.10 + .31 * math.cos(a), .95 + .15 * math.sin(a)) for a in np.linspace(0, math.pi, 32)])
+        elif lantern:
+            poly([(.055, .81), (.08, .81), (.16, .63), (.13, .59)])
+            poly([(.148, .59), (.152, .59), (.152, .63), (.148, .63)])
+            ell(.15, .555, .028, .038)
+        elif reach:
+            poly([(.055, .81), (.085, .81), (.17, 1.0), (.14, 1.03)])
+        else:
+            poly([(.055, .81), (.08, .81), (.10, .56), (.075, .54)])
+        if scarf:
+            scarf_shape()
+    elif kind == "boy":
+        ell(0, .885, .068, .072)
+        for a in (-.05, 0.0, .05):
+            poly([(a - .035, .93), (a + .035, .93), (a + wind * .025, .995)])
+        poly([(-.018, .84), (.018, .84), (.018, .80), (-.018, .80)])
+        poly([(-.095, .81), (.095, .81), (.085, .52), (-.085, .52)])
+        for sx in (-1, 1):
+            poly([(sx * .005, .52), (sx * .085, .52), (sx * .075, .03), (sx * .012, .03)])
+            ell(sx * .045, .02, .042, .018)
+            poly([(sx * .095, .81), (sx * .065, .81), (sx * .08, .52), (sx * .115, .54)])
+        if scarf:
+            scarf_shape()
+    elif kind == "wanderer":
+        ell(0, .86, .17, .028)
+        poly([(-.09, .86), (.09, .86), (0, .99)])
+        poly([(-.09, .83), (.09, .83), (wind * .04 + .19, .02), (wind * .04 - .19, .02)])
+        poly([(wind * .09, .80), (wind * .42, .60), (wind * .35, .44), (wind * .10, .55)])
+        poly([(.10, .46), (.115, .47), (.31, .31), (.295, .295)])
+    else:
+        raise ValueError(kind)
+
+
+def _figures(items):
+    im = Image.new("L", (W * 2, H * 2), 0)
+    d = ImageDraw.Draw(im)
+    for it in items:
+        _draw_figure(d, **it)
+    return np.asarray(im.resize((W, H), Image.LANCZOS), np.float32)[..., None] / 255
+
+
+def _halo(m, color, amount=0.8, blur=6):
+    g = np.asarray(Image.fromarray((m[..., 0] * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(blur)), np.float32)[..., None] / 255
+    return np.clip((g - m) * 2.2, 0, 1) * hexc(color) * amount
+
+
+def char_rain_umbrella():
+    base = anime_rain_neon()
+    m = _figures([dict(kind="girl", cx=0.40 * W, by=0.90 * H, h=0.34 * min(W, H), wind=1, umbrella=True)])
+    base = _paint(base, m, "#08031a")
+    return screen(base, _halo(m, "#ff5bb0", 0.9))
+
+
+def char_rooftop_scarf():
+    base = anime_rooftop_dusk()
+    m = _figures([dict(kind="boy", cx=0.50 * W, by=0.94 * H, h=0.36 * min(W, H), wind=1, scarf=True)])
+    base = _paint(base, m, "#120a26")
+    return screen(base, _halo(m, "#ffb58a", 0.9))
+
+
+def char_sakura_lantern():
+    k = min(W, H)
+    base = anime_sakura()
+    hill = 0.86 + 0.02 * np.sin(NX * 4.0)
+    base = _paint(base, smooth(-0.002, 0.002, NY - hill)[..., None], "#2a1a4a")
+    by = (0.86 + 0.02 * math.sin(0.5 * 4.0)) * H + 6
+    h = 0.34 * k
+    m = _figures([dict(kind="girl", cx=0.5 * W, by=by, h=h, wind=-1, lantern=True)])
+    base = _paint(base, m, "#1a0f33")
+    lx, ly = 0.5 * W + 0.15 * h, by - 0.555 * h
+    d = ((XX - lx) ** 2 + (YY - ly) ** 2) / (0.12 * k) ** 2
+    base = screen(base, (np.exp(-d)[..., None] * 0.9 + np.exp(-d * 10)[..., None] * 0.6) * hexc("#ffb050"))
+    return screen(base, _halo(m, "#ffd6e8", 0.7))
+
+
+def char_wanderer_moon():
+    k = min(W, H)
+    base = mesh(["#050a2a", "#1c2a7a", "#6a4a9a"], [(.5, .0), (.5, .6), (.5, .92)], power=1.6)
+    base = screen(base, stars(301, 650, 1.7)[..., None] * 255 * (1 - smooth(0.3, 0.8, NY))[..., None])
+    base = add_disc(base, "#fff4d6", 0.5, 0.56, 0.14, halo=0.5, spread=0.16)
+    hy = 0.84 + 0.03 * np.sin(NX * 3.0 + 1.0)
+    base = _paint(base, smooth(-0.002, 0.002, NY - hy)[..., None], "#050816")
+    by = (0.84 + 0.03 * math.sin(0.5 * 3.0 + 1.0)) * H + 4
+    m = _figures([dict(kind="wanderer", cx=0.5 * W, by=by, h=0.40 * k, wind=1)])
+    return _paint(base, m, "#03050f")
+
+
+def char_stargazers():
+    k = min(W, H)
+    base = mesh(["#050a2a", "#1c2a7a", "#5a3a8a"], [(.5, .0), (.5, .6), (.5, .92)], power=1.6)
+    band = np.exp(-((NX - 0.25 - 0.5 * NY) / 0.13) ** 2) * (0.5 + 0.9 * fbm(311, 5, 4))
+    base = screen(base, band[..., None] * hexc("#8fa6ff") * 0.5)
+    base = screen(base, stars(312, 750, 1.7)[..., None] * 255 * (1 - smooth(0.4, 0.8, NY))[..., None])
+    hy = 0.86 + 0.025 * np.sin(NX * 3.0 + 2.0)
+    base = _paint(base, smooth(-0.002, 0.002, NY - hy)[..., None], "#050816")
+    by = (0.86 + 0.025 * math.sin(0.5 * 3.0 + 2.0)) * H + 4
+    m = _figures([
+        dict(kind="girl", cx=0.5 * W - 0.07 * k, by=by, h=0.30 * k, wind=1, reach=True),
+        dict(kind="boy", cx=0.5 * W + 0.07 * k, by=by, h=0.33 * k, wind=1),
+    ])
+    base = _paint(base, m, "#03050f")
+    mt = Image.new("L", (W, H), 0)
+    md = ImageDraw.Draw(mt)
+    for sx, sy, ln in [(0.80, 0.12, 0.30), (0.34, 0.22, 0.22)]:
+        x0, y0 = sx * W, sy * H
+        for i in range(40):
+            f0, f1 = i / 40, (i + 1) / 40
+            md.line([(x0 + ln * k * f0 * 0.8, y0 - ln * k * f0 * 0.6), (x0 + ln * k * f1 * 0.8, y0 - ln * k * f1 * 0.6)],
+                    fill=int(255 * (1 - f0) ** 1.5), width=max(2, int(k / 400)))
+    mm = np.asarray(mt.filter(ImageFilter.GaussianBlur(0.8)), np.float32)[..., None] / 255
+    return screen(base, mm * 255 * 0.95)
+
+
+def char_crossing_girl():
+    base = anime_crossing_sunset()
+    m = _figures([dict(kind="girl", cx=0.5 * W, by=0.97 * H, h=0.40 * min(W, H), wind=-1, scarf=True)])
+    base = _paint(base, m, "#0a0618")
+    return screen(base, _halo(m, "#ffb58a", 0.9))
+
+
 DESIGNS = [
     # --- abstract: mesh gradients
     ("aurora-mesh", "Aurora Mesh", "abstract", lambda: mesh(["#0f2027", "#2c5364", "#00c9a7", "#845ec2", "#0b1e3b"], [(.2, .1), (.8, .3), (.3, .75), (.85, .9), (.5, .5)])),
@@ -1502,6 +1659,13 @@ DESIGNS = [
     ("anime-ice-castle", "Aurora Ice Castle", "anime", anime_ice_castle),
     ("anime-lighthouse", "Twilight Lighthouse", "anime", anime_lighthouse),
     ("anime-blossom-bridge", "Blossom Bridge", "anime", anime_blossom_bridge),
+    # --- pack 7: original anime characters (silhouette style)
+    ("char-rain-umbrella", "Umbrella in the Rain", "anime", char_rain_umbrella),
+    ("char-rooftop-scarf", "Rooftop Scarf", "anime", char_rooftop_scarf),
+    ("char-sakura-lantern", "Lantern Girl", "anime", char_sakura_lantern),
+    ("char-wanderer-moon", "Moonlit Wanderer", "anime", char_wanderer_moon),
+    ("char-stargazers", "Stargazers", "anime", char_stargazers),
+    ("char-crossing-girl", "Waiting at the Crossing", "anime", char_crossing_girl),
 ]
 
 
@@ -1513,6 +1677,8 @@ def tags_for(slug):
         return "nature landscape scenery outdoors"
     if slug.startswith("anime-"):
         return "anime manga illustration sky japan"
+    if slug.startswith("char-"):
+        return "anime character girl boy silhouette manga illustration"
     if slug.startswith("car-"):
         return "car cars vehicle road drive speed night"
     if slug.startswith("quote-"):
