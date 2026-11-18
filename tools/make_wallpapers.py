@@ -821,6 +821,265 @@ def car_silhouette():
     return base + refl[..., None] * hexc("#ff9a6a") * 0.18
 
 
+# ---------------------------------------------------------------- pack 5: more anime-style scenes (all original art)
+def _rain(seed, n, color="#cfe3ff", length=0.06, slant=0.18, alpha=0.5):
+    rng = np.random.default_rng(seed)
+    im = Image.new("RGB", (W, H), (0, 0, 0))
+    d = ImageDraw.Draw(im)
+    c = hexc(color)
+    for _ in range(n):
+        x, y = rng.uniform(-0.1 * W, W), rng.uniform(0, H)
+        l = length * H * rng.uniform(0.5, 1.2)
+        v = rng.uniform(0.35, 1.0)
+        d.line([x, y, x + l * slant, y + l], fill=tuple(int(k * v * alpha) for k in c), width=int(rng.integers(1, 4)))
+    return np.asarray(im.filter(ImageFilter.GaussianBlur(0.8)), np.float32)
+
+
+def _mirror_ground(base, y0):
+    """Wet-street reflection: flip what is above y0, blur it, fade it in."""
+    gy = int(y0 * H)
+    out = base.copy()
+    n = H - gy
+    src = base[max(0, gy - n):gy][::-1]
+    if src.shape[0] < n:
+        src = np.concatenate([src, np.repeat(src[-1:], n - src.shape[0], axis=0)])
+    refl = np.asarray(Image.fromarray(np.clip(src, 0, 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(9)), np.float32)
+    fade = np.linspace(0.65, 0.12, n)[:, None, None]
+    ripple = 1 + 0.15 * np.sin(np.arange(n)[:, None, None] * 0.9)
+    out[gy:] = base[gy:] * (1 - fade) + refl * fade * ripple
+    return out
+
+
+def anime_rain_neon():
+    base = mesh(["#0a0420", "#3a1470", "#ff4fa3"], [(.5, .0), (.3, .5), (.6, .84)], power=1.7)
+    base = screen(base, np.exp(-(((NX - .5) * W / H) ** 2 / 0.25 + (NY - .8) ** 2 / 0.03))[..., None] * hexc("#ff5bb0") * 0.45)
+    far, fa = _skyline(14, 0.88, 0.10, 0.34, "#2b1052", win="#ff9ad0")
+    base = base * (1 - fa) + far * fa
+    near, na = _skyline(15, 0.88, 0.05, 0.20, "#0c0520", win="#7ae8ff")
+    base = base * (1 - na) + near * na
+    # neon signs
+    for sx, sy, c in [(.2, .62, "#00e5ff"), (.72, .55, "#ff2d95"), (.45, .7, "#ffe14d"), (.86, .72, "#00e5ff")]:
+        d = ((NX - sx) * W / H) ** 2 * 60 + ((NY - sy) / 1.0) ** 2 * 900
+        base = screen(base, np.exp(-d)[..., None] * hexc(c) * 0.9)
+    base = _mirror_ground(base, 0.88)
+    base = screen(base, _rain(16, 520, "#cfe3ff"))
+    return base * (1 - 0.15 * smooth(0.6, 1.0, NY)[..., None])
+
+
+def anime_moon_rooftops():
+    base = mesh(["#071a3a", "#1f4e8a", "#e9b6a0"], [(.5, .0), (.5, .55), (.5, .95)], power=1.6)
+    base = screen(base, stars(41, 500, 1.6)[..., None] * 255 * (1 - smooth(0.2, 0.6, NY))[..., None])
+    base = add_disc(base, "#fff6dc", 0.5, 0.36, 0.17, halo=0.45, spread=0.2)
+    # rooftops (pitched roofs)
+    rng = np.random.default_rng(42)
+    m = np.zeros((H, W, 1), np.float32)
+    x = -0.05 * W
+    while x < W:
+        bw = rng.uniform(0.18, 0.34) * W
+        top = rng.uniform(0.80, 0.9) * H
+        pk = rng.uniform(0.05, 0.10) * H
+        m = np.maximum(m, _poly_mask([(x, H), (x, top), (x + bw / 2, top - pk), (x + bw, top), (x + bw, H)]))
+        x += bw * rng.uniform(0.8, 1.0)
+    base = base * (1 - m) + hexc("#060a18") * m
+    # power lines
+    lines = Image.new("L", (W * 2, H * 2), 0)
+    d = ImageDraw.Draw(lines)
+    for k, (y0, sag) in enumerate([(0.62, 0.05), (0.66, 0.06), (0.70, 0.05)]):
+        pts = [(xx * 2, (y0 + sag * math.sin(math.pi * xx / W) ** 1) * H * 2 - (0.03 * H * 2)) for xx in np.linspace(-10, W + 10, 80)]
+        d.line(pts, fill=255, width=3)
+    for px in (0.12, 0.88):
+        d.rectangle([px * W * 2 - 8, 0.55 * H * 2, px * W * 2 + 8, H * 2], fill=255)
+        d.rectangle([px * W * 2 - 60, 0.60 * H * 2, px * W * 2 + 60, 0.60 * H * 2 + 10], fill=255)
+    la = np.asarray(lines.resize((W, H), Image.LANCZOS), np.float32)[..., None] / 255
+    return base * (1 - la) + hexc("#040712") * la
+
+
+def anime_sakura_tunnel():
+    base = mesh(["#2a0b3a", "#ff8fb8", "#ffe3ee"], [(.1, .1), (.5, .55), (.5, .5)], power=1.5)
+    r = np.sqrt(((NX - .5) * W / H) ** 2 + (NY - .5) ** 2)
+    base = screen(base, np.exp(-(r / 0.16) ** 2)[..., None] * hexc("#fff5e6") * 0.9)
+    # canopy of blossoms: dense blurred dots toward the edges
+    far = glow_dots(71, 260, ["#ff9fc4", "#ffc2d9", "#ff7aa8"], 18, 60, 10, 0.7)
+    mid = glow_dots(72, 90, ["#ffd1e3", "#ffffff", "#ff9fc4"], 40, 120, 20, 0.7)
+    edge = (smooth(0.18, 0.7, r))[..., None]
+    base = screen(base * (1 - 0.35 * edge), (far + mid) * edge)
+    # falling petals
+    rng = np.random.default_rng(73)
+    layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    for _ in range(140):
+        x, y = rng.uniform(0, W), rng.uniform(0, H)
+        s = rng.uniform(8, 22)
+        p = Image.new("RGBA", (int(s * 4), int(s * 4)), (0, 0, 0, 0))
+        ImageDraw.Draw(p).ellipse([s * 0.8, s * 1.3, s * 3.2, s * 2.7], fill=(255, 215, 230, int(rng.uniform(150, 240))))
+        p = p.rotate(rng.uniform(0, 180), resample=Image.BICUBIC)
+        if 0 <= x < W - s * 4 and 0 <= y < H - s * 4:
+            layer.alpha_composite(p, (int(x), int(y)))
+    a = np.asarray(layer, np.float32)
+    return base * (1 - a[..., 3:4] / 255) + a[..., :3] * a[..., 3:4] / 255
+
+
+def anime_star_train():
+    base = mesh(["#03061f", "#1b2a6b", "#6b4aa0"], [(.5, .0), (.3, .55), (.7, .85)], power=1.7)
+    band = np.exp(-(((NX - .5) * W / H * 0.7 + (NY - .4) * 0.9) ** 2) / 0.012)
+    cloud = fbm(81, 5, 3, 0.6)
+    base = screen(base, (band * (0.25 + 0.6 * cloud))[..., None] * hexc("#9fb4ff") * 0.7)
+    base = screen(base, stars(82, 1400, 1.8)[..., None] * 255)
+    # hills + train
+    ridge = 0.80 + 0.03 * np.sin(NX * 6 + 1) + 0.015 * np.sin(NX * 17)
+    hill = smooth(0.003, -0.003, ridge - NY)[..., None]
+    base = base * (1 - hill) + hexc("#05071a") * hill
+    ty = 0.80 * H
+    cars = []
+    cw = 0.17 * W
+    x = -0.05 * W
+    while x < W:
+        cars.append(_poly_mask([(x, ty - 0.035 * H), (x + cw, ty - 0.035 * H), (x + cw, ty), (x, ty)]))
+        x += cw + 0.01 * W
+    m = np.max(cars, axis=0)
+    base = base * (1 - m) + hexc("#0a0d26") * m
+    # lit windows
+    win = Image.new("L", (W, H), 0)
+    d = ImageDraw.Draw(win)
+    xx = 0.0
+    while xx < W:
+        d.rectangle([xx, ty - 0.028 * H, xx + 0.022 * W, ty - 0.012 * H], fill=255)
+        xx += 0.04 * W
+    win = np.asarray(win.filter(ImageFilter.GaussianBlur(1.2)), np.float32)[..., None] / 255
+    base = base * (1 - win) + hexc("#ffd98a") * win
+    # shooting star
+    st = Image.new("RGB", (W, H), (0, 0, 0))
+    ImageDraw.Draw(st).line([0.25 * W, 0.12 * H, 0.55 * W, 0.2 * H], fill=(255, 255, 255), width=4)
+    st = np.asarray(st.filter(ImageFilter.GaussianBlur(2)), np.float32)
+    return screen(base, st)
+
+
+def anime_summer_clouds():
+    base = linear("#bfe8ff", "#2b8cff", 0)
+    sun = np.exp(-(((NX - .78) * W / H) ** 2 + (NY - .12) ** 2) / 0.04)[..., None]
+    base = screen(base, sun * hexc("#fff3c8") * 0.55)
+    c = fbm(91, 5, 3, 0.58)
+    c2 = fbm(92, 5, 2, 0.6)
+    cl = smooth(0.50, 0.70, c * (0.7 + 0.5 * NY ** 0.5))[..., None]
+    shade = (0.78 + 0.22 * smooth(0.45, 0.75, c2))[..., None]
+    base = base * (1 - cl) + (hexc("#ffffff") * shade * 0.97 + hexc("#8fb2ff") * (1 - shade)) * cl
+    hill = (NY > 0.86 + 0.03 * np.sin(NX * 4 + 2))[..., None]
+    grass = hexc("#3aa85a") * (0.8 + 0.4 * NX[..., None])
+    base = np.where(hill, grass, base)
+    # utility pole
+    u = min(W, H)
+    pole = np.zeros((H, W, 1), np.float32)
+    px = 0.22 * W
+    pole = np.maximum(pole, _poly_mask([(px - 7, H), (px - 7, 0.40 * H), (px + 7, 0.40 * H), (px + 7, H)]))
+    pole = np.maximum(pole, _poly_mask([(px - 0.12 * W, 0.44 * H), (px + 0.12 * W, 0.44 * H), (px + 0.12 * W, 0.45 * H), (px - 0.12 * W, 0.45 * H)]))
+    return base * (1 - pole) + hexc("#10203a") * pole
+
+
+def anime_firefly_forest():
+    base = mesh(["#02130f", "#0f3d33", "#020807"], [(.5, .15), (.5, .55), (.5, 1.0)], power=1.8)
+    rng = np.random.default_rng(101)
+    for layer_i, (col, base_y, hmin, hmax) in enumerate([("#0a2a24", 1.0, 0.18, 0.34), ("#05181a", 1.0, 0.10, 0.26), ("#020a0c", 1.0, 0.05, 0.16)]):
+        m = np.zeros((H, W, 1), np.float32)
+        x = -0.03 * W
+        while x < W:
+            tw = rng.uniform(0.06, 0.12) * W
+            th = rng.uniform(hmin, hmax) * H
+            ytop = base_y * H - th
+            for k in range(4):
+                yy = ytop + th * k / 4
+                ww = tw * (0.35 + 0.22 * k)
+                m = np.maximum(m, _poly_mask([(x + tw / 2 - ww / 2, yy + th * 0.34), (x + tw / 2, yy), (x + tw / 2 + ww / 2, yy + th * 0.34)]))
+            x += tw * rng.uniform(0.55, 0.85)
+        base = base * (1 - m) + hexc(col) * m
+    ff = glow_dots(102, 70, ["#d9ff6a", "#aaff4d", "#fff6a0"], 4, 11, 4, 0.95, (0.35, 0.95))
+    ff2 = glow_dots(103, 40, ["#d9ff6a", "#fff6a0"], 10, 22, 14, 0.7, (0.4, 0.95))
+    return screen(screen(base, ff), ff2)
+
+
+def anime_fuji_dawn():
+    base = mesh(["#2d3a8c", "#ff9aa2", "#ffe3b3"], [(.5, .0), (.5, .5), (.5, .62)], power=1.6)
+    base = add_disc(base, "#fff0c4", 0.5, 0.43, 0.08, halo=0.5, spread=0.14)
+    cx, bot = 0.5 * W, 0.62 * H
+    mw, mh = 0.9 * W, 0.34 * H
+    poly = [(cx - mw / 2, bot), (cx - mw * 0.09, bot - mh), (cx + mw * 0.09, bot - mh), (cx + mw / 2, bot)]
+    m = _poly_mask(poly)
+    grad = linear("#2a2f6b", "#6a5aa8", 0)
+    snow = _poly_mask([(cx - mw * 0.09, bot - mh), (cx + mw * 0.09, bot - mh), (cx + mw * 0.15, bot - mh * 0.78), (cx + mw * 0.07, bot - mh * 0.84), (cx, bot - mh * 0.74), (cx - mw * 0.08, bot - mh * 0.83), (cx - mw * 0.15, bot - mh * 0.78)])
+    base = base * (1 - m) + grad * m
+    base = base * (1 - snow) + hexc("#fff4f0") * snow
+    # far hills + lake
+    hill = (NY > bot / H + 0.0 * NX)[..., None]
+    base = np.where(hill, hexc("#34457f"), base)
+    base = _mirror_ground(np.where(hill, base, base), 0.62)
+    return base
+
+
+def anime_snow_village():
+    base = mesh(["#050c2e", "#1c2f78", "#5b7bd0"], [(.5, .0), (.5, .6), (.5, .9)], power=1.7)
+    base = screen(base, stars(111, 420, 1.5)[..., None] * 255 * (1 - smooth(0.2, 0.55, NY))[..., None])
+    base = add_disc(base, "#f4f8ff", 0.74, 0.17, 0.045, halo=0.4, spread=0.1)
+    gy = 0.84 * H
+    base = np.where((NY > 0.84)[..., None], hexc("#cfe0ff") * (0.55 + 0.35 * (NY[..., None] - 0.84) / 0.16), base)
+    rng = np.random.default_rng(112)
+    x = 0.02 * W
+    wins = Image.new("L", (W, H), 0)
+    wd = ImageDraw.Draw(wins)
+    while x < W * 0.95:
+        bw = rng.uniform(0.14, 0.24) * W
+        bh = rng.uniform(0.07, 0.12) * H
+        roof = rng.uniform(0.04, 0.07) * H
+        m = _poly_mask([(x, gy), (x, gy - bh), (x + bw / 2, gy - bh - roof), (x + bw, gy - bh), (x + bw, gy)])
+        base = base * (1 - m) + hexc("#0b1230") * m
+        cap = _poly_mask([(x - 4, gy - bh + 4), (x + bw / 2, gy - bh - roof - 4), (x + bw + 4, gy - bh + 4), (x + bw, gy - bh + 12), (x + bw / 2, gy - bh - roof + 10), (x, gy - bh + 12)])
+        base = base * (1 - cap * 0.9) + hexc("#f4f8ff") * cap * 0.9
+        for k in range(2):
+            wd.rectangle([x + bw * (0.2 + 0.4 * k), gy - bh * 0.7, x + bw * (0.34 + 0.4 * k), gy - bh * 0.3], fill=255)
+        x += bw + rng.uniform(0.01, 0.05) * W
+    wl = np.asarray(wins.filter(ImageFilter.GaussianBlur(1.0)), np.float32)[..., None] / 255
+    wglow = np.asarray(wins.filter(ImageFilter.GaussianBlur(18)), np.float32)[..., None] / 255
+    base = screen(base, wglow * hexc("#ff9a3c") * 0.8)
+    base = base * (1 - wl) + hexc("#ffd27a") * wl
+    s1 = glow_dots(113, 240, ["#ffffff"], 3, 8, 1.4, 0.95)
+    s2 = glow_dots(114, 40, ["#ffffff"], 10, 22, 8, 0.7)
+    return screen(base, s1 + s2)
+
+
+def anime_cyber_alley():
+    base = mesh(["#050816", "#20106a", "#00c8ff"], [(.5, .0), (.4, .5), (.6, .9)], power=1.8)
+    far, fa = _skyline(121, 1.0, 0.30, 0.62, "#0a0a28", win="#00e5ff")
+    base = base * (1 - fa) + far * fa
+    near, na = _skyline(122, 1.0, 0.12, 0.34, "#05030f", win="#ff2d95")
+    base = base * (1 - na) + near * na
+    for sx, sy, wv, hv, c in [(.15, .5, 14, 380, "#ff2d95"), (.34, .35, 12, 520, "#00e5ff"), (.62, .45, 14, 420, "#b14dff"), (.84, .55, 12, 360, "#00e5ff")]:
+        d = (((NX - sx) * W) / wv) ** 2 + (((NY - sy) * H) / hv) ** 2
+        base = screen(base, np.exp(-d)[..., None] * hexc(c) * 0.95)
+        base = screen(base, np.exp(-d / 40)[..., None] * hexc(c) * 0.28)
+    base = _mirror_ground(base, 0.90)
+    return screen(base, _rain(123, 420, "#9fe9ff", 0.05, 0.1, 0.4))
+
+
+def anime_golden_clouds():
+    base = mesh(["#3b2a7a", "#ff7a59", "#ffd28a"], [(.5, .0), (.5, .62), (.5, .8)], power=1.5)
+    base = add_disc(base, "#fff1c9", 0.5, 0.66, 0.07, halo=0.55, spread=0.2)
+    c = fbm(131, 5, 3, 0.58)
+    cl = smooth(0.52, 0.70, c * (1.15 - 0.6 * NY))[..., None]
+    warm = np.clip(1.0 - np.abs(NY - 0.62) * 2.0, 0, 1)[..., None]
+    ccol = hexc("#8d5a9e") * (1 - warm) + hexc("#ffc29a") * warm
+    base = base * (1 - cl * 0.9) + ccol * cl * 0.9
+    sea = (NY > 0.82)[..., None]
+    base = np.where(sea, hexc("#1b1442") * 0.6 + base * 0.25, base)
+    # flock of birds
+    bi = Image.new("L", (W * 2, H * 2), 0)
+    d = ImageDraw.Draw(bi)
+    rng = np.random.default_rng(132)
+    for _ in range(9):
+        x, y = rng.uniform(0.2, 0.8) * W, rng.uniform(0.25, 0.45) * H
+        s = rng.uniform(14, 28)
+        d.arc([(x - s) * 2, (y - s / 2) * 2, x * 2, (y + s / 2) * 2], 200, 340, fill=255, width=4)
+        d.arc([x * 2, (y - s / 2) * 2, (x + s) * 2, (y + s / 2) * 2], 200, 340, fill=255, width=4)
+    bm = np.asarray(bi.resize((W, H), Image.LANCZOS), np.float32)[..., None] / 255
+    return base * (1 - bm) + hexc("#1a0f2e") * bm
+
+
 DESIGNS = [
     # --- abstract: mesh gradients
     ("aurora-mesh", "Aurora Mesh", "abstract", lambda: mesh(["#0f2027", "#2c5364", "#00c9a7", "#845ec2", "#0b1e3b"], [(.2, .1), (.8, .3), (.3, .75), (.85, .9), (.5, .5)])),
@@ -913,6 +1172,17 @@ DESIGNS = [
     ("car-taillight-bokeh", "Taillight Bokeh", "cars", car_bokeh),
     ("car-speed-streaks", "Speed Streaks", "cars", car_speed),
     ("car-dusk-coupe", "Dusk Coupe", "cars", car_silhouette),
+    # --- pack 5: more anime-style scenes
+    ("anime-rain-neon", "Neon Rain Street", "anime", anime_rain_neon),
+    ("anime-moon-rooftops", "Moon Over Rooftops", "anime", anime_moon_rooftops),
+    ("anime-sakura-tunnel", "Sakura Tunnel", "anime", anime_sakura_tunnel),
+    ("anime-star-train", "Midnight Star Train", "anime", anime_star_train),
+    ("anime-summer-clouds", "Summer Cloud Sky", "anime", anime_summer_clouds),
+    ("anime-firefly-forest", "Firefly Forest", "anime", anime_firefly_forest),
+    ("anime-fuji-dawn", "Fuji Dawn", "anime", anime_fuji_dawn),
+    ("anime-snow-village", "Snow Village Night", "anime", anime_snow_village),
+    ("anime-cyber-alley", "Cyber Alley", "anime", anime_cyber_alley),
+    ("anime-golden-clouds", "Golden Hour Sky", "anime", anime_golden_clouds),
 ]
 
 
