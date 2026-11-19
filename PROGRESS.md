@@ -25,3 +25,11 @@ Branch: `mobile-responsive-live-wallpapers` (merge to `main` is done by the owne
 
 ## Last: deployment
 Exclude `admin.html`, `admin-script.js`, `admin-styles.css`; add SEO/sitemap; domain; backend/admin upload panel.
+
+## Car wallpapers (photos) — ids 408–546
+- 139 free Unsplash car photos added by the owner in `images/pack/cars/`; originals kept in `images/pack/cars/originals/` (4 duplicate files removed).
+- Each photo was identified and tagged by type (supercar, hypercar, muscle, JDM/drift, classic, luxury, roadster, hot hatch, sports, track/tuned, concept, detail) plus make/model tags for search; category `cars`.
+- Made per photo: portrait 1440×3200 (`car-photo-*.jpg`), wide 1920×1080 (`-wide.jpg`), and thumbs in `images/pack/cars/thumbs/`.
+- Photographer credits and type for every id: `images/pack/cars/CREDITS.md`.
+- The 50 generated car illustrations (ids 408–457 plan) were NOT added; the generator work was left out of the commit.
+- Known gap: wide images for ids 301–384 and portraits for ~375–384 are referenced in `script.js` but missing from `images/pack/`; needs regenerating with `tools/make_wallpapers.py`.
