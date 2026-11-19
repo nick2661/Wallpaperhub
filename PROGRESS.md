@@ -33,3 +33,7 @@ Exclude `admin.html`, `admin-script.js`, `admin-styles.css`; add SEO/sitemap; do
 - Photographer credits and type for every id: `images/pack/cars/CREDITS.md`.
 - The 50 generated car illustrations (ids 408–457 plan) were NOT added; the generator work was left out of the commit.
 - Known gap: wide images for ids 301–384 and portraits for ~375–384 are referenced in `script.js` but missing from `images/pack/`; needs regenerating with `tools/make_wallpapers.py`.
+
+## Endless scroll (Load More removed)
+- `Load More` button removed; the gallery loads the next rows automatically as you scroll (IntersectionObserver, `#scrollSentinel`). Batches are whole rows.
+- When everything is loaded, empty slots in the last row are filled with more wallpapers from the same list (`.filler` cards), also after resize or after a broken image is dropped.

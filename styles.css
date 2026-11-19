@@ -497,22 +497,7 @@ img {
     transform: scale(1.1);
 }
 
-.load-more-btn {
-    display: block;
-    margin: 0 auto;
-    padding: 15px 40px;
-    background-color: var(--primary-color);
-    color: white;
-    border-radius: 30px;
-    font-size: 16px;
-    font-weight: 600;
-    transition: var(--transition);
-}
-
-.load-more-btn:hover {
-    background-color: var(--secondary-color);
-    transform: scale(1.05);
-}
+.scroll-sentinel { height: 1px; }
 
 /* ===== Contact Section ===== */
 .contact-section {
@@ -1408,7 +1393,6 @@ img {
     .category-card:hover:not(.active),
     .filter-btn:hover:not(.active),
     .action-btn:hover,
-    .load-more-btn:hover,
     .theme-toggle:hover,
     .user-btn:hover { transform: none; }
 

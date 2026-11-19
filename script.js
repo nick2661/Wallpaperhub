@@ -344,7 +344,7 @@ const viewBtns = document.querySelectorAll('.view-btn');
 const resultCount = document.getElementById('resultCount');
 const categoryCards = document.querySelectorAll('.category-card');
 const wallpaperGrid = document.getElementById('wallpaperGrid');
-const loadMoreBtn = document.getElementById('loadMoreBtn');
+const scrollSentinel = document.getElementById('scrollSentinel');
 const wallpaperModal = document.getElementById('wallpaperModal');
 const modalOverlay = document.getElementById('modalOverlay');
 const modalClose = document.getElementById('modalClose');
@@ -611,7 +611,7 @@ function createWallpaperCard(wallpaper) {
 
     // Broken image (e.g. a removed Unsplash photo): drop the card instead of showing a hole
     const img = card.querySelector('img');
-    if (img) img.addEventListener('error', () => { card.remove(); updateCount(); });
+    if (img) img.addEventListener('error', () => { card.remove(); brokenIds.add(wallpaper.id); updateCount(); });
 
     if (type === 'live' && mediaObserver) {
         const canvas = card.querySelector('canvas');
@@ -669,9 +669,69 @@ function renderFeatured() {
         .forEach(w => row.appendChild(createWallpaperCard(w)));
 }
 
+// ===== Endless scroll (no Load More button) =====
+let renderedCount = 0, allLoaded = false, scrollObserver = null, padTimer;
+const brokenIds = new Set();   // wallpapers whose image failed to load (never used as filler)
+
+function gridCols() {
+    const t = getComputedStyle(wallpaperGrid).gridTemplateColumns;
+    return t && t !== 'none' ? t.split(' ').length : 1;
+}
+// whole rows per batch, so the grid never has a half-empty row while more is still coming
+function pageEnd() {
+    const cols = gridCols();
+    return currentPage * Math.ceil(itemsPerPage / cols) * cols;
+}
+function removeFillers() {
+    wallpaperGrid.querySelectorAll('.wallpaper-card.filler').forEach(el => {
+        const p = livePlayers.get(el);
+        if (p) { p.stop(); livePlayers.delete(el); if (mediaObserver) mediaObserver.unobserve(el); }
+        el.remove();
+    });
+}
+// last row only: fill the empty slots with more wallpapers from this same list
+function padLastRow(filtered) {
+    removeFillers();
+    if (!allLoaded) return;
+    const pool = filtered.filter(w => !brokenIds.has(w.id));
+    const cols = gridCols();
+    const rem = wallpaperGrid.querySelectorAll(':scope > .wallpaper-card').length % cols;
+    if (!rem || pool.length < cols) return;
+    for (let k = 0; k < cols - rem; k++) {
+        const card = createWallpaperCard(pool[(k * 7) % pool.length]);
+        card.classList.add('filler');
+        wallpaperGrid.appendChild(card);
+    }
+}
+function appendMore() {
+    const filtered = getFiltered();
+    const end = pageEnd();
+    removeFillers();
+    filtered.slice(renderedCount, end).forEach(w => wallpaperGrid.appendChild(createWallpaperCard(w)));
+    renderedCount = Math.min(end, filtered.length);
+    allLoaded = renderedCount >= filtered.length;
+    padLastRow(filtered);
+    watchSentinel();
+}
+function watchSentinel() {
+    if (!scrollObserver) return;
+    scrollObserver.disconnect();            // re-observing re-fires if the sentinel is still on screen
+    if (!allLoaded) scrollObserver.observe(scrollSentinel);
+}
+if ('IntersectionObserver' in window) {
+    scrollObserver = new IntersectionObserver(entries => {
+        if (entries.some(e => e.isIntersecting) && !allLoaded) { currentPage++; appendMore(); }
+    }, { rootMargin: '900px 0px' });
+}
+let padResizeTimer;
+window.addEventListener('resize', () => {
+    clearTimeout(padResizeTimer);
+    padResizeTimer = setTimeout(() => padLastRow(getFiltered()), 200);
+});
+
 function loadWallpapers() {
     const filtered = getFiltered();
-    const end = currentPage * itemsPerPage;
+    const end = pageEnd();
     const toDisplay = filtered.slice(0, end);
 
     disposeCards();
@@ -685,22 +745,21 @@ function loadWallpapers() {
             ? '<p class="empty-state">No favorites yet. Tap the heart on any wallpaper to save it here.</p>'
             : '<p class="empty-state">No wallpapers found. Try another word or category.</p>';
     }
-    loadMoreBtn.style.display = end >= filtered.length ? 'none' : 'block';
+    renderedCount = toDisplay.length;
+    allLoaded = renderedCount >= filtered.length;
+    padLastRow(filtered);
+    watchSentinel();
     resultCount.textContent = `${filtered.length} wallpaper${filtered.length === 1 ? '' : 's'}`;
 }
 
 function updateCount() {
     // after a broken image removed its card, keep the visible count honest
-    if (loadMoreBtn.style.display !== 'none') return;
-    const n = wallpaperGrid.querySelectorAll('.wallpaper-card').length;
+    if (!allLoaded) return;
+    clearTimeout(padTimer);
+    padTimer = setTimeout(() => padLastRow(getFiltered()), 120);   // cards removed -> refill the last row
+    const n = wallpaperGrid.querySelectorAll('.wallpaper-card:not(.filler)').length;
     resultCount.textContent = `${n} wallpaper${n === 1 ? '' : 's'}`;
 }
-
-// ===== Load More =====
-loadMoreBtn.addEventListener('click', () => {
-    currentPage++;
-    loadWallpapers();
-});
 
 // ===== Wallpaper Modal =====
 let modalPlayer = null;
