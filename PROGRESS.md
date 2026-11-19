@@ -38,3 +38,4 @@ Exclude `admin.html`, `admin-script.js`, `admin-styles.css`; add SEO/sitemap; do
 - `Load More` button removed; the gallery loads the next rows automatically as you scroll (IntersectionObserver, `#scrollSentinel`). Batches are whole rows.
 - When everything is loaded, empty slots in the last row are filled with more wallpapers from the same list (`.filler` cards), also after resize or after a broken image is dropped.
 - editor.js had been an empty file since commit 99839b2 (Customize showed 'Editor did not load'); rewritten: rotate/flip/zoom/drag, screen shape + quality, brightness/contrast/colour/warmth/blur, lock-screen preview, exact-size download.
+- Editor: added Background blur (BG blur + Focus size sliders, 'Focus point' tool to place the sharp area).
