@@ -1805,3 +1805,4 @@ body.preview-open .preview-wrap .nav-arrow { position: fixed; z-index: 3600; }
         background: var(--bg-secondary); border-top: 1px solid var(--border-color); width: auto;
     }
 }
+.editor[hidden] { display: none; }
