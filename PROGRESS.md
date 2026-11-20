@@ -38,3 +38,8 @@ Exclude `admin.html`, `admin-script.js`, `admin-styles.css`; add SEO/sitemap; do
 - `Load More` button removed; the gallery loads the next rows automatically as you scroll (IntersectionObserver, `#scrollSentinel`). Batches are whole rows.
 - When everything is loaded, empty slots in the last row are filled with more wallpapers from the same list (`.filler` cards), also after resize or after a broken image is dropped.
 - editor.js had been an empty file since commit 99839b2 (Customize showed 'Editor did not load'); rewritten: rotate/flip/zoom/drag, screen shape + quality, brightness/contrast/colour/warmth/blur, lock-screen preview, exact-size download.
+
+## Anime live wallpapers (videos) — ids 547–1035
+- 489 looping anime clips (from wallsflow.com, owner states permission) moved from `anime_wallpapers/` to `images/live/anime/` with clean names, 640px poster frames in `posters/`, credits in `CREDITS.md`.
+- `type: "video"`, category `anime`; they show under both the Live and Anime filters. Titles/tags (series, theme) were derived from file names; cards no longer preload video data when a poster exists.
+- Source clips are mostly 1280×720 H.264; the detail view crops them to the chosen screen shape (cover). No upscaling.
