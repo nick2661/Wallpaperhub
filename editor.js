@@ -4,59 +4,41 @@
 (function () {
     'use strict';
 
-    const DEFAULTS = { rot: 0, flip: false, zoom: 1, px: 0, py: 0, brightness: 100, contrast: 100, saturate: 100, warmth: 0, blur: 0, bgblur: 0, focus: 55, fx: 0.5, fy: 0.5 };
+    const DEFAULTS = { rot: 0, flip: false, zoom: 1, px: 0, py: 0, brightness: 100, contrast: 100, saturate: 100, warmth: 0, blur: 0 };
     const SLIDERS = [
         ['brightness', 'Brightness', 50, 150, '%'],
         ['contrast', 'Contrast', 50, 150, '%'],
         ['saturate', 'Colour', 0, 200, '%'],
         ['warmth', 'Warmth', 0, 60, '%'],
-        ['blur', 'Blur', 0, 20, ''],
-        ['bgblur', 'BG blur', 0, 20, ''],
-        ['focus', 'Focus size', 20, 100, '%']
+        ['blur', 'Blur', 0, 20, '']
     ];
 
     let root, frame, canvas, ctx, loadingEl, lockEl, dlBtn, subEl;
     let img = null, wp = null, shape = 'desktop', res = 'hd', st = null, showLock = false;
-    let fw = 0, fh = 0, busy = false, focusMode = false;
+    let fw = 0, fh = 0, busy = false;
     const FILTER_OK = (() => { try { return 'filter' in document.createElement('canvas').getContext('2d'); } catch (e) { return false; } })();
 
     const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
     const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 
     // ---------- drawing (shared by the preview and the final download) ----------
-    // soft background blur: the centre stays sharp, everything outside the focus circle is blurred
-    // (a focus effect, not subject cut-out; move the focus with the 'Focus point' tool)
-    function mk(W, H) { const c = document.createElement('canvas'); c.width = W; c.height = H; return { c, g: c.getContext('2d') }; }
     function draw(g, W, H) {
-        if (!st.bgblur) { base(g, W, H, st.blur); return; }
-        const B = mk(W, H); base(B.g, W, H, st.blur + st.bgblur * 1.6);
-        const A = mk(W, H); base(A.g, W, H, st.blur);
-        const cx = st.fx * W, cy = st.fy * H, r = Math.max(W, H) * st.focus / 200;
-        const m = A.g; m.globalCompositeOperation = 'destination-in';
-        const gr = m.createRadialGradient(cx, cy, r * 0.55, cx, cy, r);
-        gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
-        m.fillStyle = gr; m.fillRect(0, 0, W, H);
-        g.drawImage(B.c, 0, 0); g.drawImage(A.c, 0, 0);
-    }
-    function base(g, W, H, blur) {
         const odd = st.rot % 2 === 1;
         const rw = odd ? img.naturalHeight : img.naturalWidth, rh = odd ? img.naturalWidth : img.naturalHeight;
-        const k = W / 1000;
-        // blurring pulls in black from outside the picture, so grow it a little to hide the dark edge
-        const grow = 1 + (blur * k * 3) / Math.min(W, H);
         const s = Math.max(W / rw, H / rh) * st.zoom;
         const maxX = Math.max(0, (rw * s - W) / 2), maxY = Math.max(0, (rh * s - H) / 2);
         const ox = clamp(st.px * W, -maxX, maxX), oy = clamp(st.py * H, -maxY, maxY);
         g.save();
         g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
         if (FILTER_OK) {
+            const k = W / 1000;
             g.filter = `brightness(${st.brightness}%) contrast(${st.contrast}%) saturate(${st.saturate}%) sepia(${st.warmth}%)` +
-                (blur ? ` blur(${(blur * k).toFixed(2)}px)` : '');
+                (st.blur ? ` blur(${(st.blur * k).toFixed(2)}px)` : '');
         }
         g.imageSmoothingQuality = 'high';
         g.translate(W / 2 + ox, H / 2 + oy);
         g.rotate(st.rot * Math.PI / 2);
-        g.scale(st.flip ? -s * grow : s * grow, s * grow);
+        g.scale(st.flip ? -s : s, s);
         g.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2);
         g.restore();
         if (!FILTER_OK) softAdjust(g, W, H);
@@ -79,11 +61,6 @@
     function paint() {
         if (!img || !canvas) return;
         draw(ctx, canvas.width, canvas.height);
-        if (focusMode) {   // show where the sharp area is while placing it
-            const W = canvas.width, H = canvas.height, r = Math.max(W, H) * st.focus / 200;
-            ctx.save(); ctx.lineWidth = Math.max(2, W / 240); ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.setLineDash([10, 8]);
-            ctx.beginPath(); ctx.arc(st.fx * W, st.fy * H, r * 0.8, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
-        }
     }
 
     // ---------- layout: fit a frame of the chosen screen shape into the stage ----------
@@ -127,7 +104,7 @@
 
         scroll.appendChild(el('h4', null, 'Transform'));
         const tools = el('div', 'ed-tools');
-        [['rotl', 'fa-rotate-left', 'Rotate left'], ['rotr', 'fa-rotate-right', 'Rotate right'], ['flip', 'fa-left-right', 'Flip'], ['focus', 'fa-bullseye', 'Focus point']].forEach(([id, icon, label]) => {
+        [['rotl', 'fa-rotate-left', 'Rotate left'], ['rotr', 'fa-rotate-right', 'Rotate right'], ['flip', 'fa-left-right', 'Flip']].forEach(([id, icon, label]) => {
             const b = el('button', 'ed-tool', `<i class="fas ${icon}"></i><span>${label}</span>`);
             b.type = 'button'; b.dataset.tool = id; tools.appendChild(b);
         });
@@ -136,11 +113,6 @@
             if (b.dataset.tool === 'rotl') st.rot = (st.rot + 3) % 4;
             if (b.dataset.tool === 'rotr') st.rot = (st.rot + 1) % 4;
             if (b.dataset.tool === 'flip') { st.flip = !st.flip; b.classList.toggle('active', st.flip); }
-            if (b.dataset.tool === 'focus') {
-                focusMode = !focusMode; b.classList.toggle('active', focusMode);
-                if (focusMode && !st.bgblur) { st.bgblur = 8; syncControls(); }
-                paint(); return;
-            }
             st.px = st.py = 0; paint();
         });
         scroll.appendChild(tools);
@@ -181,7 +153,7 @@
 
         const foot = el('div', 'ed-foot');
         const reset = el('button', 'ed-reset', '<i class="fas fa-undo"></i> Reset'); reset.type = 'button';
-        reset.addEventListener('click', () => { st = Object.assign({}, DEFAULTS); focusMode = false; syncControls(); layout(); });
+        reset.addEventListener('click', () => { st = Object.assign({}, DEFAULTS); syncControls(); layout(); });
         dlBtn = el('button', 'ed-download', '<i class="fas fa-download"></i><span>Download</span>'); dlBtn.type = 'button';
         dlBtn.addEventListener('click', download);
         foot.append(reset, dlBtn);
@@ -195,12 +167,10 @@
         canvas.addEventListener('pointerdown', e => {
             canvas.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, [e.clientX, e.clientY]);
             canvas.classList.add('grabbing'); lastDist = 0;
-            if (focusMode) setFocus(e);
         });
         canvas.addEventListener('pointermove', e => {
             if (!ptrs.has(e.pointerId)) return;
             const prev = ptrs.get(e.pointerId); ptrs.set(e.pointerId, [e.clientX, e.clientY]);
-            if (focusMode && ptrs.size === 1) { setFocus(e); return; }
             if (ptrs.size === 1) {
                 st.px += (e.clientX - prev[0]) / fw; st.py += (e.clientY - prev[1]) / fh; paintClamped();
             } else if (ptrs.size === 2) {
@@ -219,10 +189,6 @@
         document.addEventListener('keydown', e => { if (e.key === 'Escape' && root && !root.hidden) closeEditor(); });
     }
 
-    function setFocus(e) {
-        const r = canvas.getBoundingClientRect();
-        st.fx = clamp((e.clientX - r.left) / r.width, 0, 1); st.fy = clamp((e.clientY - r.top) / r.height, 0, 1); paint();
-    }
     // keep the stored pan inside the picture so the next drag does not feel stuck
     function paintClamped() {
         const odd = st.rot % 2 === 1;
@@ -253,7 +219,6 @@
     function syncControls() {
         Object.values(rowInputs).forEach(r => { r.input.value = r.get(); r.show(); });
         root.querySelector('[data-tool="flip"]').classList.toggle('active', st.flip);
-        root.querySelector('[data-tool="focus"]').classList.toggle('active', focusMode);
     }
     function syncInfo() {
         const [w, h] = sizeFor(shape, res);
@@ -303,7 +268,7 @@
         st = Object.assign({}, DEFAULTS);
         shape = SHAPES[opts.device] ? opts.device : 'desktop';
         res = RESOLUTIONS[opts.resolution] ? opts.resolution : 'hd';
-        img = null; focusMode = false; showLock = false; lockEl.hidden = true; root.querySelector('.ed-check input').checked = false;
+        img = null; showLock = false; lockEl.hidden = true; root.querySelector('.ed-check input').checked = false;
         root.hidden = false; document.body.classList.add('editor-open');
         loadingEl.hidden = false; loadingEl.textContent = 'Loading…';
         syncChips(); syncControls(); syncInfo();
