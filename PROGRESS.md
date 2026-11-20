@@ -50,3 +50,4 @@ Exclude `admin.html`, `admin-script.js`, `admin-styles.css`; add SEO/sitemap; do
 - Typo fixing ("lamborgini" -> lamborghini), ranking (title matches and exact words first), closest matches when no wallpaper has every word.
 - UI: live suggestions with counts, keyboard up/down/Enter, recent + popular searches on focus, results update while typing, "N results for ..." line, related-search chips, clear button, friendly empty state with popular chips.
 - Video wallpapers have girl/boy tags by character (guessed from names).
+- The 26 original anime scenes/characters (ids 382–407) are listed last in script.js so the anime video wallpapers show first.
