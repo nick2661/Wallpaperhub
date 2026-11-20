@@ -764,7 +764,7 @@ const wallpapers = [
     { id: 111, title: "Shooting Stars", category: "live", type: "live", engine: "shootingStars", tags: "anime live shooting stars meteor night sky", views: 0, downloads: 0 },
     { id: 112, title: "Summer Clouds", category: "live", type: "live", engine: "driftClouds", tags: "anime live clouds sky summer", views: 0, downloads: 0 },
     { id: 113, title: "Snow Village", category: "live", type: "live", engine: "snowVillage", tags: "anime live snow village winter night", views: 0, downloads: 0 },
-    { id: 114, title: "Sky Lanterns", category: "live", type: "live", engine: "skyLanterns", tags: "anime live lanterns festival night sky", views: 0, downloads: 0 }
+    { id: 114, title: "Sky Lanterns", category: "live", type: "live", engine: "skyLanterns", tags: "anime live lanterns festival night sky", views: 0, downloads: 0 },
 
     // --- VIDEO live wallpapers: drop an .mp4/.webm into /videos and add a line like this:
     // { id: 201, title: "Rainy Window", category: "live", type: "video", video: "videos/rain.mp4", poster: "videos/rain.jpg", views: 0, downloads: 0 },
