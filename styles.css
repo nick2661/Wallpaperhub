@@ -1806,3 +1806,28 @@ body.preview-open .preview-wrap .nav-arrow { position: fixed; z-index: 3600; }
     }
 }
 .editor[hidden] { display: none; }
+
+/* ===== Search: suggestions, result info, related chips ===== */
+.suggestion-head { padding: 10px 22px 4px; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-secondary); }
+.suggestion-item { display: flex; align-items: center; gap: 14px; padding: 12px 22px; }
+.suggestion-item i { width: 16px; text-align: center; color: var(--text-secondary); font-size: 14px; }
+.suggestion-item span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.suggestion-item small { color: var(--text-secondary); font-size: 13px; font-variant-numeric: tabular-nums; }
+.suggestion-item.selected { background-color: var(--bg-secondary); }
+.search-suggestions { z-index: 60; }
+.search-info { max-width: 1200px; margin: 10px auto 0; }
+.si-note { margin: 0 0 8px; font-size: 14px; color: var(--text-secondary); }
+.si-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.si-label { font-size: 13px; color: var(--text-secondary); margin-right: 2px; }
+.si-row button, .empty-chips button {
+    padding: 6px 14px; min-height: 34px; border-radius: 999px; font-size: 14px; background: var(--bg-primary);
+    border: 1px solid var(--border-color); color: var(--text-primary); transition: var(--transition);
+}
+.si-row button:hover, .empty-chips button:hover { border-color: var(--primary-color); color: var(--primary-color); }
+.si-row .si-clear { margin-left: auto; color: var(--text-secondary); }
+.empty-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 14px; }
+.empty-state { grid-column: 1 / -1; text-align: center; padding: 40px 12px; }
+@media (max-width: 600px) {
+    .suggestion-item { padding: 13px 16px; }
+    .si-row .si-clear { margin-left: 0; }
+}

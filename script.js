@@ -939,57 +939,77 @@ document.querySelectorAll('.nav-link').forEach(link => {
     });
 });
 
-// ===== Search Functionality =====
-const searchKeywords = ['nature', 'abstract', 'technology', 'minimalist', 'dark', 'anime', 'cars', 'space', 'live',
-                        'mountain', 'ocean', 'forest', 'city', 'sunset', 'galaxy', 'gradient', 'neon', 'amoled', 'minimal', 'pattern',
-                        'quote', 'motivation', 'festival', 'diwali', 'holi', 'christmas', 'aurora', 'matrix', 'sakura', 'bokeh', 'lava', 'moon', 'earth',
-                        'anime girl', 'anime boy', 'live anime', 'live wallpaper', 'jujutsu kaisen', 'naruto', 'one piece', 'dragon ball', 'demon slayer', 'samurai',
-                        'sports car', 'muscle car', 'supercar', 'lamborghini', 'mustang', 'bmw', 'ferrari', 'porsche', 'rain', 'cozy'];
+// ===== Search Functionality (engine in search.js) =====
+WHSearch.setCorpus(wallpapers);
+const RECENT_KEY = 'recentSearches';
+const getRecent = () => { try { return JSON.parse(safeGet(RECENT_KEY) || '[]'); } catch (e) { return []; } };
+function saveRecent(q) {
+    q = q.trim(); if (!q) return;
+    safeSet(RECENT_KEY, JSON.stringify([q, ...getRecent().filter(x => x !== q)].slice(0, 6)));
+}
+const escapeHtml = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+let sugIndex = -1, searchTimer;
+
+function renderSuggestions(value) {
+    const v = value.trim();
+    let rows;
+    if (!v) {
+        const recent = getRecent();
+        rows = [...recent.map(t => ({ text: t, icon: 'fa-clock-rotate-left' })),
+                ...WHSearch.popular.filter(p => !recent.includes(p)).slice(0, 8).map(t => ({ text: t, icon: 'fa-fire' }))].slice(0, 10);
+    } else {
+        rows = WHSearch.suggest(wallpapers, v, 7).map(r => ({ text: r.text, count: r.count, icon: r.kind === 'fix' ? 'fa-wand-magic-sparkles' : 'fa-magnifying-glass' }));
+    }
+    sugIndex = -1;
+    if (!rows.length) { searchSuggestions.classList.remove('active'); return; }
+    searchSuggestions.innerHTML = (v ? '' : '<div class="suggestion-head">Recent and popular searches</div>') +
+        rows.map(r => `<div class="suggestion-item" role="option" data-q="${escapeHtml(r.text)}"><i class="fas ${r.icon}"></i><span>${escapeHtml(r.text)}</span>${r.count != null ? `<small>${r.count}</small>` : ''}</div>`).join('');
+    searchSuggestions.classList.add('active');
+}
+function moveSuggestion(dir) {
+    const items = [...searchSuggestions.querySelectorAll('.suggestion-item')];
+    if (!items.length) return;
+    sugIndex = (sugIndex + dir + items.length) % items.length;
+    items.forEach((el, i) => el.classList.toggle('selected', i === sugIndex));
+    searchInput.value = items[sugIndex].dataset.q;
+}
+searchSuggestions.addEventListener('mousedown', e => e.preventDefault());   // keep focus in the box
+searchSuggestions.addEventListener('click', e => {
+    const it = e.target.closest('.suggestion-item');
+    if (!it) return;
+    searchInput.value = it.dataset.q;
+    searchSuggestions.classList.remove('active');
+    performSearch(it.dataset.q, { save: true });
+});
 
 searchInput.addEventListener('input', (e) => {
-    const value = e.target.value.toLowerCase().trim();
-
-    if (value.length > 0) {
-        const suggestions = searchKeywords.filter(keyword => keyword.includes(value)).slice(0, 5);
-
-        if (suggestions.length > 0) {
-            searchSuggestions.innerHTML = suggestions.map(suggestion =>
-                `<div class="suggestion-item">${suggestion}</div>`
-            ).join('');
-            searchSuggestions.classList.add('active');
-            searchSuggestions.querySelectorAll('.suggestion-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    searchInput.value = item.textContent;
-                    searchSuggestions.classList.remove('active');
-                    performSearch(item.textContent);
-                });
-            });
-        } else {
-            searchSuggestions.classList.remove('active');
-        }
-    } else {
-        searchSuggestions.classList.remove('active');
-        if (currentQuery) performSearch('');
-    }
+    const value = e.target.value;
+    renderSuggestions(value);
+    clearTimeout(searchTimer);
+    // results update while typing (no jumping around the page)
+    searchTimer = setTimeout(() => performSearch(value, { scroll: false }), 350);
 });
+searchInput.addEventListener('focus', () => renderSuggestions(searchInput.value));
 
 // Close suggestions when clicking outside
 document.addEventListener('click', (e) => {
-    if (!e.target.closest('.search-container')) {
-        searchSuggestions.classList.remove('active');
-    }
+    if (!e.target.closest('.search-container')) searchSuggestions.classList.remove('active');
 });
 
-// Search on Enter key / search button
 searchInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-        performSearch(searchInput.value);
+    if (e.key === 'ArrowDown') { e.preventDefault(); moveSuggestion(1); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); moveSuggestion(-1); }
+    else if (e.key === 'Escape') { searchSuggestions.classList.remove('active'); }
+    else if (e.key === 'Enter') {
+        clearTimeout(searchTimer);
+        performSearch(searchInput.value, { save: true });
         searchSuggestions.classList.remove('active');
         searchInput.blur(); // closes the phone keyboard
     }
 });
 document.querySelector('.search-btn').addEventListener('click', () => {
-    performSearch(searchInput.value);
+    clearTimeout(searchTimer);
+    performSearch(searchInput.value, { save: true });
     searchSuggestions.classList.remove('active');
 });
 
@@ -1001,13 +1021,14 @@ function setActiveFilter(filter) {
     if (active && active.scrollIntoView) active.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
 }
 
-function performSearch(query) {
+function performSearch(query, opts = {}) {
     currentQuery = query.trim().toLowerCase();
     currentFilter = 'all';
     setActiveFilter('all');
     currentPage = 1;
     loadWallpapers();
-    if (currentQuery) document.getElementById('popular').scrollIntoView({ behavior: 'smooth' });
+    if (opts.save && currentQuery) saveRecent(query);
+    if (currentQuery && opts.scroll !== false) document.getElementById('popular').scrollIntoView({ behavior: 'smooth' });
 }
 
 // ===== Filter Functionality =====
@@ -1138,58 +1159,14 @@ function createWallpaperCard(wallpaper) {
 }
 
 // ===== Load Wallpapers =====
-// ===== Smart search: word-by-word, plural-proof, with synonyms =====
-const SEARCH_STOP = new Set('wallpaper wallpapers background backgrounds hd uhd fhd 2k 4k 8k free download for of the a an and in on with to phone mobile pc best new cool image images pic pics picture pictures photo photos'.split(' '));
-const SEARCH_SYN = { animated: 'live', moving: 'live', motion: 'live', video: 'live', videos: 'live', woman: 'girl', women: 'girl', female: 'girl', lady: 'girl', gal: 'girl',
-    man: 'boy', male: 'boy', guy: 'boy', cartoon: 'anime', manga: 'anime', otaku: 'anime', vehicle: 'car', automobile: 'car', auto: 'car', sportscar: 'supercar', bike: 'motorcycle' };
-const SEARCH_PHRASE = { jjk: 'jujutsu kaisen', aot: 'attack on titan', mha: 'my hero academia', ds: 'demon slayer', kny: 'demon slayer', op: 'one piece',
-    dbz: 'dragon ball', dragonball: 'dragon ball', hxh: 'hunter x hunter', jojo: 'jojo', sao: 'sword art online', bnha: 'my hero academia', cs: 'chainsaw man' };
-function stemWord(w) {
-    if (w.length > 3) {
-        if (w.endsWith('ies')) return w.slice(0, -3) + 'y';
-        if (/(ses|xes|ches|shes)$/.test(w)) return w.slice(0, -2);
-        if (w.endsWith('s') && !/(ss|us|is)$/.test(w)) return w.slice(0, -1);
-    }
-    return w;
-}
-function searchWords(text) {
-    return (text || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().split(' ').filter(Boolean).map(stemWord);
-}
-function searchTokens(q) {
-    let words = q.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().split(' ').filter(Boolean);
-    words = words.flatMap(w => SEARCH_PHRASE[w] ? SEARCH_PHRASE[w].split(' ') : [w]);
-    return [...new Set(words.map(stemWord).map(w => SEARCH_SYN[w] || w).filter(w => !SEARCH_STOP.has(w)))];
-}
-function searchIndex(w) {
-    if (!w._sx) {
-        const typeWords = (w.type === 'live' || w.type === 'video') ? 'live animated video' : '';
-        w._sx = {
-            title: searchWords(w.title),
-            all: searchWords([w.title, w.category, w.tags, typeWords].join(' '))
-        };
-    }
-    return w._sx;
-}
-const wordHit = (words, t) => words.some(h => h === t || (t.length >= 4 && h.startsWith(t)));
-function searchScore(w, toks) {
-    const ix = searchIndex(w);
-    let n = 0, score = 0;
-    toks.forEach(t => {
-        if (wordHit(ix.all, t)) { n++; score += wordHit(ix.title, t) ? 3 : 1; }
-    });
-    return { n, score };
-}
+let lastSearch = null;
 function getFiltered() {
     const base = wallpapers.filter(w =>
         currentFilter === 'all' || (currentFilter === 'favorites' ? favorites.includes(w.id) : currentFilter === 'live' ? (w.type === 'live' || w.type === 'video' || w.category === 'live') : w.category === currentFilter)
     );
-    const toks = currentQuery ? searchTokens(currentQuery) : [];
-    if (!toks.length) return base;
-    const scored = base.map(w => [w, searchScore(w, toks)]);
-    let hits = scored.filter(x => x[1].n === toks.length);
-    if (!hits.length) hits = scored.filter(x => x[1].n > 0);   // nothing matches every word: show the closest ones
-    hits.sort((a, b) => b[1].score - a[1].score);
-    return hits.map(x => x[0]);
+    if (!currentQuery) { lastSearch = null; return base; }
+    lastSearch = WHSearch.search(base, currentQuery);   // see search.js
+    return lastSearch.items;
 }
 
 // ===== Featured shelf (hand-picked; shown on "All" without a search) =====
@@ -1280,14 +1257,48 @@ function loadWallpapers() {
     if (filtered.length === 0) {
         wallpaperGrid.innerHTML = currentFilter === 'favorites' && !currentQuery
             ? '<p class="empty-state">No favorites yet. Tap the heart on any wallpaper to save it here.</p>'
-            : '<p class="empty-state">No wallpapers found. Try another word or category.</p>';
+            : `<div class="empty-state"><p>${currentQuery ? `No wallpapers found for <b>“${escapeHtml(currentQuery)}”</b>.` : 'No wallpapers found.'} Check the spelling or try one of these:</p>
+                <div class="empty-chips">${WHSearch.popular.slice(0, 10).map(t => `<button type="button" data-q="${escapeHtml(t)}">${escapeHtml(t)}</button>`).join('')}</div></div>`;
     }
     renderedCount = toDisplay.length;
     allLoaded = renderedCount >= filtered.length;
     padLastRow(filtered);
     watchSentinel();
-    resultCount.textContent = `${filtered.length} wallpaper${filtered.length === 1 ? '' : 's'}`;
+    setCountText(filtered.length);
+    renderSearchInfo(filtered);
 }
+
+function setCountText(n) {
+    resultCount.textContent = currentQuery
+        ? `${n} result${n === 1 ? '' : 's'} for “${currentQuery}”`
+        : `${n} wallpaper${n === 1 ? '' : 's'}`;
+}
+
+// notes under the count: spelling fix, "closest matches", related searches, clear button
+function renderSearchInfo(filtered) {
+    const info = document.getElementById('searchInfo');
+    if (!currentQuery || !lastSearch) { info.hidden = true; info.innerHTML = ''; return; }
+    const s = lastSearch, notes = [];
+    if (s.corrected.length) notes.push(`Showing results for <b>${escapeHtml(s.shown.join(' '))}</b> (you typed “${escapeHtml(currentQuery)}”).`);
+    if (s.mode === 'closest') notes.push('Nothing has all of those words, so these are the closest matches.');
+    if (s.mode === 'related') notes.push('No exact matches, showing related wallpapers.');
+    const rel = WHSearch.related(filtered, s.tokens, 10);
+    const base = s.shown.join(' ');
+    info.innerHTML =
+        (notes.length ? `<p class="si-note">${notes.join(' ')}</p>` : '') +
+        `<div class="si-row">${rel.length ? '<span class="si-label">Related:</span>' + rel.map(t => `<button type="button" data-q="${escapeHtml(base + ' ' + t)}">${escapeHtml(t)}</button>`).join('') : ''}` +
+        `<button type="button" class="si-clear" data-clear="1"><i class="fas fa-xmark"></i> Clear search</button></div>`;
+    info.hidden = false;
+}
+document.getElementById('searchInfo').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.clear) { searchInput.value = ''; performSearch('', { scroll: false }); return; }
+    searchInput.value = b.dataset.q; performSearch(b.dataset.q, { save: true, scroll: false });
+});
+wallpaperGrid.addEventListener('click', e => {
+    const b = e.target.closest('.empty-chips button'); if (!b) return;
+    searchInput.value = b.dataset.q; performSearch(b.dataset.q, { save: true });
+});
 
 function updateCount() {
     // after a broken image removed its card, keep the visible count honest
@@ -1295,7 +1306,7 @@ function updateCount() {
     clearTimeout(padTimer);
     padTimer = setTimeout(() => padLastRow(getFiltered()), 120);   // cards removed -> refill the last row
     const n = wallpaperGrid.querySelectorAll('.wallpaper-card:not(.filler)').length;
-    resultCount.textContent = `${n} wallpaper${n === 1 ? '' : 's'}`;
+    setCountText(n);
 }
 
 // ===== Wallpaper Modal =====

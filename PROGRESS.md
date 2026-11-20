@@ -44,6 +44,9 @@ Exclude `admin.html`, `admin-script.js`, `admin-styles.css`; add SEO/sitemap; do
 - `type: "video"`, category `anime`; they show under both the Live and Anime filters. Titles/tags (series, theme) were derived from file names; cards no longer preload video data when a poster exists.
 - Source clips are mostly 1280×720 H.264; the detail view crops them to the chosen screen shape (cover). No upscaling.
 
-## Smart search
-- Search now works word by word (all words must match; if none match every word, the closest ones show), ignores plurals (girls/girl), filler words (wallpaper, HD, 4k...), and understands synonyms/abbreviations (animated/video -> live, woman -> girl, jjk, aot, dbz, ds...). Results are ranked, title matches first.
-- Video wallpapers got girl/boy tags by character; more search suggestions added.
+## Search (search.js)
+- Word by word (all words must match), plural-proof, ignores filler words (wallpaper, HD, 4k...), synonyms/abbreviations (animated/video -> live, woman -> girl, jjk, aot, dbz, ds, op...).
+- Related words: "tree" also finds forest/woods/pine, "car" finds supercar/mustang..., "sea" finds ocean/beach. Brand/specific words (lamborghini) stay specific; if nothing matches a specific word (dog) it falls back to its family (animals).
+- Typo fixing ("lamborgini" -> lamborghini), ranking (title matches and exact words first), closest matches when no wallpaper has every word.
+- UI: live suggestions with counts, keyboard up/down/Enter, recent + popular searches on focus, results update while typing, "N results for ..." line, related-search chips, clear button, friendly empty state with popular chips.
+- Video wallpapers have girl/boy tags by character (guessed from names).
