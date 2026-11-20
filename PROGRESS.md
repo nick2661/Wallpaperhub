@@ -43,3 +43,7 @@ Exclude `admin.html`, `admin-script.js`, `admin-styles.css`; add SEO/sitemap; do
 - 489 looping anime clips (from wallsflow.com, owner states permission) moved from `anime_wallpapers/` to `images/live/anime/` with clean names, 640px poster frames in `posters/`, credits in `CREDITS.md`.
 - `type: "video"`, category `anime`; they show under both the Live and Anime filters. Titles/tags (series, theme) were derived from file names; cards no longer preload video data when a poster exists.
 - Source clips are mostly 1280×720 H.264; the detail view crops them to the chosen screen shape (cover). No upscaling.
+
+## Smart search
+- Search now works word by word (all words must match; if none match every word, the closest ones show), ignores plurals (girls/girl), filler words (wallpaper, HD, 4k...), and understands synonyms/abbreviations (animated/video -> live, woman -> girl, jjk, aot, dbz, ds...). Results are ranked, title matches first.
+- Video wallpapers got girl/boy tags by character; more search suggestions added.
