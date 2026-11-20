@@ -923,7 +923,9 @@ window.addEventListener('resize', () => { if (window.innerWidth > 768) setMenu(f
 
 // Close mobile menu when clicking a link
 document.querySelectorAll('.nav-link').forEach(link => {
-    link.addEventListener('click', () => setMenu(false));
+    link.addEventListener('click', () => {
+        if (link.tagName === 'A') setMenu(false);
+    });
 });
 
 // ===== Navbar Scroll Effect =====
@@ -1047,6 +1049,9 @@ categoryCards.forEach(card => {
         currentQuery = ''; searchInput.value = '';
         setActiveFilter(card.dataset.category);
         currentPage = 1;
+        const categoryMenu = card.closest('.nav-category-menu');
+        if (categoryMenu) categoryMenu.open = false;
+        if (navLinks.classList.contains('active')) setMenu(false);
         document.getElementById('popular').scrollIntoView({ behavior: 'smooth' });
         loadWallpapers();
     });
@@ -1716,6 +1721,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         const target = document.querySelector(href);
         if (target) {
             e.preventDefault();
+            if (target.matches('.nav-category-menu')) target.open = true;
             target.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     });
