@@ -16,7 +16,7 @@ Branch: `mobile-responsive-live-wallpapers` (merge to `main` is done by the owne
 ## Next
 1. Review the new live wallpapers and the 20 new scenes (382–401) on a real phone; polish Blossom Bridge (canopy looks like bokeh).
 2. More live variants if wanted (effects on top of the anime scenes).
-3. Run `tools/check-images.html` to verify the 14 unverified Unsplash IDs.
+3. Verify the 14 unverified Unsplash photos (ids 25–38): serve the project locally (`python -m http.server 8000`) and open `http://localhost:8000/tools/check-images.html`. The checker had been deleted in 99839b2 and was restored; it now checks only remote images (add `?all` for local ones too). Replace or remove any id it reports. (Id 22 is missing on purpose: it duplicated id 6's photo.)
 
 ## Open questions (needed before backend / earning)
 - Long-term content source (own art vs. stock licence – Unsplash photos need review for monetization)
