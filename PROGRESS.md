@@ -51,3 +51,8 @@ Exclude `admin.html`, `admin-script.js`, `admin-styles.css`; add SEO/sitemap; do
 - UI: live suggestions with counts, keyboard up/down/Enter, recent + popular searches on focus, results update while typing, "N results for ..." line, related-search chips, clear button, friendly empty state with popular chips.
 - Video wallpapers have girl/boy tags by character (guessed from names).
 - The 26 original anime scenes/characters (ids 382–407) are listed last in script.js so the anime video wallpapers show first.
+
+## Fix: Contact (and other nav links) kept loading wallpapers
+- Cause: the Contact section sits below the endless-scroll sentinel, so scrolling to it (or opening `/#contact`) kept adding rows and pushed Contact away; in the worst case the page loaded hundreds of cards in a loop.
+- Fix (`script.js`): endless scroll pauses while a nav link scrolls the page, then snaps to the exact spot; it only loads while the end of the gallery is at/below the top of the screen; opening `/#section` re-aligns once the gallery is built.
+- Tested in headless Chrome (desktop + phone): Contact now lands at the navbar edge with no extra cards loaded; normal endless scroll still works, also after visiting Contact.

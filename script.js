@@ -1237,9 +1237,14 @@ function watchSentinel() {
     scrollObserver.disconnect();            // re-observing re-fires if the sentinel is still on screen
     if (!allLoaded) scrollObserver.observe(scrollSentinel);
 }
+let navScrolling = false, navToken = 0;   // true while a nav link (e.g. Contact) is scrolling the page
 if ('IntersectionObserver' in window) {
     scrollObserver = new IntersectionObserver(entries => {
-        if (entries.some(e => e.isIntersecting) && !allLoaded) { currentPage++; appendMore(); }
+        if (navScrolling || allLoaded) return;   // never grow the page under a nav-link scroll
+        // Load only while the end of the gallery is at or below the top of the screen. If it is above,
+        // the visitor already scrolled past the gallery (to Contact, footer...) and more rows would just push
+        // that section away again.
+        if (entries.some(e => e.isIntersecting && e.boundingClientRect.top > 0)) { currentPage++; appendMore(); }
     }, { rootMargin: '900px 0px' });
 }
 let padResizeTimer;
@@ -1714,6 +1719,18 @@ document.addEventListener('keydown', (e) => {
 });
 
 // ===== Smooth Scroll for Anchor Links =====
+// Resolves once the page has stopped moving (or after ~3 s at most).
+function waitForScrollEnd(done) {
+    let last = -1, still = 0, ticks = 0;
+    (function check() {
+        const y = window.scrollY;
+        still = Math.abs(y - last) < 1 ? still + 1 : 0;
+        last = y;
+        ticks++;
+        if ((ticks > 8 && still >= 6) || ticks > 180) return done();
+        requestAnimationFrame(check);
+    })();
+}
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         const href = this.getAttribute('href');
@@ -1722,7 +1739,19 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         if (target) {
             e.preventDefault();
             if (target.matches('.nav-category-menu')) target.open = true;
+            // Endless scroll would keep adding rows while we pass the gallery, so Contact kept moving away.
+            // Pause it for the trip, then snap to the exact spot and resume.
+            const token = ++navToken;
+            navScrolling = true;
+            if (scrollObserver) scrollObserver.disconnect();
             target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            waitForScrollEnd(() => {
+                if (token !== navToken) return;   // a newer click took over
+                const pad = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+                if (Math.abs(target.getBoundingClientRect().top - pad) > 4) target.scrollIntoView({ behavior: 'instant', block: 'start' });
+                navScrolling = false;
+                watchSentinel();
+            });
         }
     });
 });
@@ -1731,6 +1760,21 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 initTheme();
 viewBtns.forEach(b => b.classList.toggle('active', b.dataset.view === viewMode));
 loadWallpapers();
+
+// Opened straight at a section (e.g. /#contact): the gallery was still empty when the browser first jumped,
+// so the section moved down once the wallpapers were built. Go there again now that the page has its final height.
+(function jumpToHashSection() {
+    if (location.hash.length < 2 || /^#w=/.test(location.hash)) return;
+    let t = null;
+    try { t = document.getElementById(decodeURIComponent(location.hash.slice(1))); } catch (e) { /* bad hash */ }
+    if (!t) return;
+    navScrolling = true;
+    if (scrollObserver) scrollObserver.disconnect();
+    requestAnimationFrame(() => {
+        t.scrollIntoView({ behavior: 'instant', block: 'start' });
+        requestAnimationFrame(() => { navScrolling = false; watchSentinel(); });
+    });
+})();
 
 
 // ===== Share + deep link (#w=ID) =====
