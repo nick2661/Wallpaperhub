@@ -1163,9 +1163,37 @@ function createWallpaperCard(wallpaper) {
     return card;
 }
 
+// ===== Home page: a few picks from every category instead of the whole library =====
+// "All" without a search shows HOME_PER_CATEGORY top wallpapers per category (22 cards), so the page is short
+// and Contact / footer are quickly reachable. Picking a category or searching shows everything (endless scroll).
+const HOME_PER_CATEGORY = 2;
+const HOME_GROUPS = ['live', 'nature', 'abstract', 'technology', 'minimalist', 'dark', 'anime', 'cars', 'space', 'quotes', 'festival'];
+const isHome = () => currentFilter === 'all' && !currentQuery;
+let homeCache = null;
+function homePicks() {
+    if (homeCache) return homeCache;
+    const byViews = list => list.map((w, i) => ({ w, i }))
+        .sort((a, b) => (b.w.views || 0) - (a.w.views || 0) || a.i - b.i).map(x => x.w);
+    const groups = HOME_GROUPS.map(cat => {
+        let ranked = byViews(wallpapers.filter(w => w.category === cat));
+        if (cat === 'anime') {   // one still picture and one moving clip
+            const still = ranked.find(w => w.type !== 'video'), clip = ranked.find(w => w.type === 'video');
+            ranked = [...new Set([still, clip, ...ranked].filter(Boolean))];
+        }
+        return ranked;
+    });
+    // round-robin (first pick of every category, then the second ...) so each row of the grid is varied
+    const pick = n => groups.map(g => g[n]).filter(Boolean);
+    const items = [];
+    for (let n = 0; n < HOME_PER_CATEGORY; n++) items.push(...pick(n));
+    homeCache = { items, reserve: pick(HOME_PER_CATEGORY) };   // reserve: extra cards to complete the last row
+    return homeCache;
+}
+
 // ===== Load Wallpapers =====
 let lastSearch = null;
 function getFiltered() {
+    if (isHome()) { lastSearch = null; return homePicks().items; }
     const base = wallpapers.filter(w =>
         currentFilter === 'all' || (currentFilter === 'favorites' ? favorites.includes(w.id) : currentFilter === 'live' ? (w.type === 'live' || w.type === 'video' || w.category === 'live') : w.category === currentFilter)
     );
@@ -1198,6 +1226,7 @@ function gridCols() {
 }
 // whole rows per batch, so the grid never has a half-empty row while more is still coming
 function pageEnd() {
+    if (isHome()) return Infinity;   // the home picks are few: show them all at once, no endless scroll
     const cols = gridCols();
     return currentPage * Math.ceil(itemsPerPage / cols) * cols;
 }
@@ -1212,7 +1241,8 @@ function removeFillers() {
 function padLastRow(filtered) {
     removeFillers();
     if (!allLoaded) return;
-    const pool = filtered.filter(w => !brokenIds.has(w.id));
+    // on the home page complete the last row with the next-best picks, not with repeats of cards already shown
+    const pool = (isHome() ? homePicks().reserve : filtered).filter(w => !brokenIds.has(w.id));
     const cols = gridCols();
     const rem = wallpaperGrid.querySelectorAll(':scope > .wallpaper-card').length % cols;
     if (!rem || pool.length < cols) return;
@@ -1281,6 +1311,7 @@ function loadWallpapers() {
 function setCountText(n) {
     resultCount.textContent = currentQuery
         ? `${n} result${n === 1 ? '' : 's'} for “${currentQuery}”`
+        : isHome() ? 'Top picks from every category'
         : `${n} wallpaper${n === 1 ? '' : 's'}`;
 }
 

@@ -56,3 +56,8 @@ Exclude `admin.html`, `admin-script.js`, `admin-styles.css`; add SEO/sitemap; do
 - Cause: the Contact section sits below the endless-scroll sentinel, so scrolling to it (or opening `/#contact`) kept adding rows and pushed Contact away; in the worst case the page loaded hundreds of cards in a loop.
 - Fix (`script.js`): endless scroll pauses while a nav link scrolls the page, then snaps to the exact spot; it only loads while the end of the gallery is at/below the top of the screen; opening `/#section` re-aligns once the gallery is built.
 - Tested in headless Chrome (desktop + phone): Contact now lands at the navbar edge with no extra cards loaded; normal endless scroll still works, also after visiting Contact.
+
+## Home page shows top picks only
+- "All" without a search now shows 22 cards: the top 2 per category (live, nature, abstract, technology, minimalist, dark, anime, cars, space, quotes, festival) by views, mixed round-robin; anime gets one still + one video clip. No endless scroll on the home page, so Contact/footer are quick to reach (about 1 s via the Contact link).
+- Choosing a category (or Live / Favorites) or searching still shows everything with endless scroll. Config in `script.js`: `HOME_PER_CATEGORY`, `HOME_GROUPS`, `homePicks()`.
+- The last row on the home page is completed with the next-best picks (`reserve`), not with repeats.
