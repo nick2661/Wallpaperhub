@@ -2,6 +2,28 @@
 
 This guide will help you deploy WallpaperHub to various hosting platforms.
 
+## ⚠️ Step 0: build the clean deploy folder (do this first)
+
+Do **not** upload the whole project folder. It contains the admin files, 375 MB of unused source photos
+(`images/pack/cars/originals`), notes and the wallsflow downloader script. Build a clean copy instead:
+
+```powershell
+py tools/build_deploy.py
+```
+
+This creates `dist/` (about 800 MB) with only what the public site needs, then checks that every image and
+video the site points to is in it. Deploy the **`dist`** folder (drag it into Netlify / Cloudflare Pages, upload
+it to a web host, or publish its contents with GitHub Pages). It is rebuilt from scratch on every run, and it is
+not committed to git (`dist/` is in `.gitignore`). Use `py tools/build_deploy.py --dry-run` to just see the size.
+
+The script only copies an allow-list of files (see `SITE_FILES` at the top of `tools/build_deploy.py`). If you
+add a file the site needs online (for example `robots.txt` and `sitemap.xml` are already on the list, but a new
+page is not), add it there.
+
+> GitHub Pages note: Pages publishes a whole branch or folder, so with the plain "deploy from branch" option the
+> originals and admin files would be published too. Use the `dist` folder (for example in a separate `gh-pages`
+> branch or a GitHub Actions workflow) instead. We can set that up once the host is chosen.
+
 ## 🚀 Quick Deployment Options
 
 ### Option 1: GitHub Pages (Free)

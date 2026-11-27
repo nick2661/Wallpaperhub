@@ -1,0 +1,6 @@
+# Built deploy folder (see tools/build_deploy.py)
+dist/
+
+# Python
+__pycache__/
+*.pyc

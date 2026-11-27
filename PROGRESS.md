@@ -24,7 +24,7 @@ Branch: `mobile-responsive-live-wallpapers` (merge to `main` is done by the owne
 - Final categories, domain name
 
 ## Last: deployment
-Exclude `admin.html`, `admin-script.js`, `admin-styles.css`; add SEO/sitemap; domain; backend/admin upload panel.
+Deploy the `dist/` folder made by `py tools/build_deploy.py` (it already excludes `admin.html`, `admin-script.js`, `admin-styles.css`, `images/pack/cars/originals`, notes, tools and the wallsflow downloader; see DEPLOYMENT.md step 0). Still to do: SEO/sitemap; domain; backend/admin upload panel.
 
 ## Car wallpapers (photos) — ids 408–546
 - 139 free Unsplash car photos added by the owner in `images/pack/cars/`; originals kept in `images/pack/cars/originals/` (4 duplicate files removed).
@@ -69,3 +69,9 @@ Exclude `admin.html`, `admin-script.js`, `admin-styles.css`; add SEO/sitemap; do
 - Preview images are no longer pre-cropped by Unsplash (they keep their own shape so there is something to drag).
 - Tested in headless Chrome (touch + mouse; downloaded files inspected with ffprobe/pixel comparison): 24 checks passed. Not tested on iOS Safari (MediaRecorder cropping needs Safari 14.1+; if unsupported the full clip is downloaded with a message).
 - Not done: the Customize editor does not receive the dragged position yet; it has its own drag/zoom.
+
+## Deploy folder (originals and admin files excluded)
+- `tools/build_deploy.py` builds a clean `dist/` from an allow-list: 796 MB instead of ~1.2 GB (skips `images/pack/cars/originals`, 374 MB, which the site never loads), no admin files, notes, tools or the wallsflow downloader. It checks that all 1,970 image/video paths used by `index.html`/`script.js` exist in the build, never wipes a folder it did not create, and refuses the project root as output. Run `py tools/build_deploy.py --dry-run` to just see sizes.
+- Tested: built folder served in headless Chrome: home, all 11 categories (endless scroll), detail views, original-file download, 404/privacy/terms pages: no failed requests, no page errors.
+- The originals are still in the repo and its git history (the repo/clone stays large); they are just never deployed. Open question: also remove them from the repo, or keep them as source files.
+- Decision still open: list or skip the 50 generated car illustrations (they are in the build for now, ~100 files, unreferenced).
