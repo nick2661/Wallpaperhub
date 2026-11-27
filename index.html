@@ -12,7 +12,7 @@
     <meta name="description" content="Download high-quality wallpapers for Android, Windows, iOS, and all devices. HD, 4K, and 8K resolutions available.">
     <meta name="keywords" content="wallpapers, HD wallpapers, 4K wallpapers, 8K wallpapers, mobile wallpapers, desktop backgrounds">
     <title>WallpaperHub - Premium HD Wallpapers for All Devices</title>
-    <link rel="stylesheet" href="styles.css?v=20261142">
+    <link rel="stylesheet" href="styles.css?v=20261127a">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -246,11 +246,14 @@
                             <canvas class="modal-canvas" id="modalCanvas" hidden></canvas>
                             <video class="modal-video" id="modalVideo" muted loop playsinline hidden></video>
                             <button class="preview-fs-btn" id="previewFsBtn" aria-label="Full screen preview"><i class="fas fa-expand"></i></button>
+                            <span class="drag-pill" id="dragPill" hidden aria-hidden="true"><i class="fas fa-up-down-left-right"></i></span>
+                            <button class="focus-reset" id="focusReset" type="button" hidden aria-label="Centre the picture" title="Centre the picture"><i class="fas fa-crosshairs"></i></button>
                         </div>
                     </div>
                     <button class="nav-arrow prev" id="prevWallpaper" aria-label="Previous wallpaper"><i class="fas fa-chevron-left"></i></button>
                     <button class="nav-arrow next" id="nextWallpaper" aria-label="Next wallpaper"><i class="fas fa-chevron-right"></i></button>
                 </div>
+                <p class="drag-caption" id="dragCaption" hidden><i class="fas fa-hand"></i> <span id="dragCaptionText">Drag the picture to choose which part fits your screen</span></p>
 
                 <div class="shape-row" id="shapeRow" role="group" aria-label="Screen size">
                     <button class="device-btn" data-device="phone"><span class="shape-thumb"></span><span class="shape-label">Phone</span></button>
@@ -326,9 +329,9 @@
         </div>
     </div>
 
-    <script src="live.js?v=20261124a"></script>
-    <script src="editor.js?v=20261124a"></script>
-    <script src="search.js?v=20261124a"></script>
-    <script src="script.js?v=20261124a"></script>
+    <script src="live.js?v=20261127a"></script>
+    <script src="editor.js?v=20261127a"></script>
+    <script src="search.js?v=20261127a"></script>
+    <script src="script.js?v=20261127a"></script>
 </body>
 </html>

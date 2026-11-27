@@ -1955,3 +1955,28 @@ body.preview-open .preview-wrap .nav-arrow { position: fixed; z-index: 3600; }
     .suggestion-item { padding: 13px 16px; }
     .si-row .si-clear { margin-left: 0; }
 }
+
+/* ===== Drag the picture inside the preview to choose which part fits the screen ===== */
+.modal-media.draggable { cursor: grab; }
+.modal-media.draggable.dragging { cursor: grabbing; }
+.modal-media.draggable .modal-image,
+.modal-media.draggable .modal-video { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.drag-pill {
+    position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 3; pointer-events: none;
+    width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    background: rgba(0, 0, 0, .55); color: #fff; font-size: 15px; backdrop-filter: blur(4px);
+    animation: dragNudge 1.6s ease-in-out 3;
+}
+@keyframes dragNudge { 0%, 100% { transform: translateX(-50%); } 25% { transform: translateX(calc(-50% - 7px)); } 75% { transform: translateX(calc(-50% + 7px)); } }
+.modal-media.dragging .drag-pill { display: none; }
+.focus-reset {
+    position: absolute; right: 10px; bottom: 10px; z-index: 3; width: 38px; height: 38px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, .55); color: #fff; font-size: 15px;
+}
+.focus-reset:hover { background: var(--accent-color); }
+.drag-caption {
+    margin: 10px 4px 0; text-align: center; font-size: 14px; color: var(--text-secondary);
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.drag-caption i { color: var(--accent-color); }
+@media (prefers-reduced-motion: reduce) { .drag-pill { animation: none; } }

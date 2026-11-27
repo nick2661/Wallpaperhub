@@ -1383,7 +1383,9 @@ function updateResolutionLabels() {
 function updateSetInfo() {
     const w = currentWallpaper;
     if (!w) return;
-    const [tw, th] = sizeFor(selectedDevice, selectedResolution);
+    let [tw, th] = sizeFor(selectedDevice, selectedResolution);
+    // Video clips are cropped from the source clip, never upscaled: show the real output size
+    if (typeOf(w) === 'video' && modalVideo.videoWidth) [tw, th] = videoCropSize(SHAPES[selectedDevice].ar);
     document.getElementById('shapeName').textContent = SHAPES[selectedDevice].label;
     document.getElementById('statRes').textContent = `${tw}×${th}`;
     document.getElementById('statMp').textContent = `${(tw * th / 1e6).toFixed(1)} MP`;
@@ -1424,8 +1426,10 @@ function updateModalPreview() {
     modalVideo.hidden = type !== 'video';
 
     if (type === 'image') {
-        const [pw, ph] = portrait ? [Math.round(1400 * ar), 1400] : [1400, Math.round(1400 / ar)];
-        modalImage.src = imgUrl(pickSrc(w, portrait), pw, ph);
+        // Not pre-cropped: the picture keeps its own shape and CSS "cover" + object-position shows the part the
+        // visitor chose by dragging (see "Drag to choose the part" below). Unsplash: ask for a wide enough copy.
+        const src = pickSrc(w, portrait);
+        modalImage.src = /images\.unsplash\.com/.test(src) ? `${src.split('?')[0]}?w=${portrait ? 2200 : 1600}&auto=format&q=80` : src;
         modalImage.alt = w.title;
     } else if (type === 'live') {
         if (!modalPlayer) {
@@ -1444,11 +1448,11 @@ function updateModalPreview() {
         }
     }
     downloadLabel.textContent = type === 'image' ? 'Download' : 'Download video';
-    const isImg = type === 'image';
-    document.getElementById('originalBtn').hidden = !isImg;
+    document.getElementById('originalBtn').hidden = type === 'live';   // live wallpapers are generated, there is no original file
     renderTagsAndRelated(w);
     renderShapeThumbs();
     updateSetInfo();
+    applyFocus();
     prevBtn.hidden = nextBtn.hidden = getFiltered().length < 2;
 }
 
@@ -1471,6 +1475,7 @@ function openWallpaperModal(wallpaper, keepDevice) {
     if (!resChosenByUser) selectedResolution = recommendedResolution();
     stopModalMedia();
     currentWallpaper = wallpaper;
+    picFocus = { x: 0.5, y: 0.5 };   // every new wallpaper starts centred
     modalTitle.textContent = wallpaper.title;
     modalCategory.textContent = wallpaper.category.charAt(0).toUpperCase() + wallpaper.category.slice(1);
     modalDownloads.textContent = wallpaper.downloads.toLocaleString();
@@ -1509,6 +1514,90 @@ previewFsBtn.addEventListener('click', (e) => {
     document.body.classList.toggle('preview-open', on);
     if (modalPlayer) requestAnimationFrame(() => modalPlayer && modalPlayer.resize());
 });
+
+// ===== Drag to choose the part of the wallpaper that fits the screen (images and video clips) =====
+// picFocus = where the visible window sits inside the picture: 0 = left/top edge, 0.5 = centre, 1 = right/bottom edge.
+// It is the same rule as CSS object-position, so the preview and the downloaded file show the same part.
+let picFocus = { x: 0.5, y: 0.5 };
+const dragPill = document.getElementById('dragPill');
+const focusReset = document.getElementById('focusReset');
+const dragCaption = document.getElementById('dragCaption');
+const dragCaptionText = document.getElementById('dragCaptionText');
+let dragHintSeen = safeGet('dragHintSeen') === '1';
+let picDrag = null;
+const OVERFLOW_MIN = 2;   // px of hidden picture needed before dragging does anything
+
+function mediaNaturalSize() {
+    const w = currentWallpaper;
+    if (!w) return null;
+    const t = typeOf(w);
+    if (t === 'image' && modalImage.naturalWidth) return [modalImage.naturalWidth, modalImage.naturalHeight];
+    if (t === 'video' && modalVideo.videoWidth) return [modalVideo.videoWidth, modalVideo.videoHeight];
+    return null;
+}
+// how many screen pixels of the picture are hidden past the frame (cover fit), per axis
+function overflowPx() {
+    const s = mediaNaturalSize();
+    if (!s) return { x: 0, y: 0 };
+    const r = modalMedia.getBoundingClientRect();
+    if (!r.width || !r.height) return { x: 0, y: 0 };
+    const k = Math.max(r.width / s[0], r.height / s[1]);
+    return { x: Math.max(0, s[0] * k - r.width), y: Math.max(0, s[1] * k - r.height) };
+}
+const clamp01 = v => Math.min(1, Math.max(0, v));
+
+function updateDragAffordance() {
+    const ov = overflowPx();
+    const ox = ov.x > OVERFLOW_MIN, oy = ov.y > OVERFLOW_MIN, can = ox || oy;
+    modalMedia.classList.toggle('draggable', can);
+    // let the page still scroll along the axis the picture cannot move in
+    modalMedia.style.touchAction = ox && oy ? 'none' : ox ? 'pan-y' : oy ? 'pan-x' : '';
+    dragCaption.hidden = !can;
+    dragCaptionText.textContent = ox && oy ? 'Drag the picture to choose which part fits your screen'
+        : ox ? 'Drag left or right to choose which part fits your screen'
+        : 'Drag up or down to choose which part fits your screen';
+    dragPill.hidden = !can || dragHintSeen;
+    const off = Math.abs(picFocus.x - 0.5) > 0.01 || Math.abs(picFocus.y - 0.5) > 0.01;
+    focusReset.hidden = !(can && off);
+}
+function applyFocus() {
+    const pos = `${(picFocus.x * 100).toFixed(2)}% ${(picFocus.y * 100).toFixed(2)}%`;
+    modalImage.style.objectPosition = pos;
+    modalVideo.style.objectPosition = pos;
+    document.querySelectorAll('.shape-row .shape-thumb').forEach(t => { t.style.backgroundPosition = pos; });
+    updateDragAffordance();
+}
+
+modalMedia.addEventListener('pointerdown', e => {
+    if (picDrag || e.button > 0 || e.target.closest('button')) return;
+    const ov = overflowPx();
+    if (ov.x <= OVERFLOW_MIN && ov.y <= OVERFLOW_MIN) return;
+    picDrag = { id: e.pointerId, x: e.clientX, y: e.clientY, fx: picFocus.x, fy: picFocus.y, ov };
+    try { modalMedia.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+    modalMedia.classList.add('dragging');
+});
+modalMedia.addEventListener('pointermove', e => {
+    if (!picDrag || e.pointerId !== picDrag.id) return;
+    // dragging the picture right shows more of its left side, so the window moves the other way
+    if (picDrag.ov.x > OVERFLOW_MIN) picFocus.x = clamp01(picDrag.fx - (e.clientX - picDrag.x) / picDrag.ov.x);
+    if (picDrag.ov.y > OVERFLOW_MIN) picFocus.y = clamp01(picDrag.fy - (e.clientY - picDrag.y) / picDrag.ov.y);
+    applyFocus();
+});
+function endPicDrag(e) {
+    if (!picDrag || e.pointerId !== picDrag.id) return;
+    const moved = Math.abs(picFocus.x - picDrag.fx) + Math.abs(picFocus.y - picDrag.fy) > 0.01;
+    picDrag = null;
+    modalMedia.classList.remove('dragging');
+    if (moved && !dragHintSeen) { dragHintSeen = true; safeSet('dragHintSeen', '1'); }
+    updateDragAffordance();
+}
+modalMedia.addEventListener('pointerup', endPicDrag);
+modalMedia.addEventListener('pointercancel', endPicDrag);
+focusReset.addEventListener('click', e => { e.stopPropagation(); picFocus = { x: 0.5, y: 0.5 }; applyFocus(); });
+modalImage.draggable = false;
+modalImage.addEventListener('load', () => { updateSetInfo(); applyFocus(); });
+modalVideo.addEventListener('loadedmetadata', () => { updateSetInfo(); applyFocus(); });
+if ('ResizeObserver' in window) new ResizeObserver(() => updateDragAffordance()).observe(modalMedia);   // shape change, rotate, full screen
 
 // ===== Customize (rotate / crop / adjust editor, see editor.js) =====
 customizeBtn.addEventListener('click', () => {
@@ -1586,13 +1675,42 @@ async function downloadWallpaper(wallpaper, quick) {
             return;
         }
 
-        const url = type === 'video' ? wallpaper.video : imgUrl(wallpaper.image, w, h);
+        // The part of the picture the visitor chose by dragging the preview (card downloads use the centre)
+        const f = quick ? null : { x: picFocus.x, y: picFocus.y };
+        const moved = !!f && (Math.abs(f.x - 0.5) > 0.005 || Math.abs(f.y - 0.5) > 0.005);
+
+        if (type === 'video' && !quick) {
+            // Video clips: crop to the screen shape at the chosen part (a clip that already has that shape is sent as is)
+            const toast = showNotification('Preparing your video… 0%', { sticky: true });
+            try {
+                const out = await recordCroppedVideo(wallpaper.video, SHAPES[device].ar, f, p => { toast.el.textContent = `Preparing your video… ${Math.round(p * 100)}%`; });
+                toast.close();
+                if (out) {
+                    saveBlob(out.blob, `${slug(wallpaper.title)}_${out.w}x${out.h}.${out.blob.type.includes('mp4') ? 'mp4' : 'webm'}`);
+                    showNotification('Video saved!');
+                    bumpDownloads(wallpaper);
+                    return;
+                }
+            } catch (err) {
+                toast.close();
+                showNotification('This browser cannot crop videos, so you get the full clip instead.');
+            }
+        }
+
+        const url = type === 'video' ? wallpaper.video
+            : imgUrl(wallpaper.image, w, h) + (moved ? `&crop=focalpoint&fp-x=${f.x.toFixed(3)}&fp-y=${f.y.toFixed(3)}` : '');
         showNotification('Download started!');
         const own = !/images\.unsplash\.com/.test(wallpaper.image);
-        if (type === 'image' && own) {
-            // Our own images: crop/resize to the chosen device + resolution in the browser
+        if (type === 'image' && (own || moved)) {
+            // Crop/resize to the chosen device + resolution + chosen part in the browser (our own images, and
+            // Unsplash photos the visitor moved: a large uncropped copy is cropped here so it matches the preview)
             try {
-                const out = await renderLocalImage(pickSrc(wallpaper, h > w), w, h);
+                let src = pickSrc(wallpaper, h > w);
+                if (!own) {
+                    const a = (currentWallpaper === wallpaper && modalImage.naturalWidth) ? modalImage.naturalWidth / modalImage.naturalHeight : 1.5;
+                    src = `${wallpaper.image.split('?')[0]}?w=${Math.min(5000, Math.ceil(Math.max(w, h * a)))}&auto=format&q=85`;
+                }
+                const out = await renderLocalImage(src, w, h, { focus: f });
                 saveBlob(out.blob, `${slug(wallpaper.title)}_${out.w}x${out.h}.jpg`);
                 bumpDownloads(wallpaper);
                 return;
@@ -1638,13 +1756,72 @@ async function renderLocalImage(src, w, h, opts = {}) {
         const r = opts.rect;
         cover(r.u0 * nw, r.v0 * nh, Math.max(1, (r.u1 - r.u0) * nw), Math.max(1, (r.v1 - r.v0) * nh));
     } else {
-        const ar = w / h;
+        const ar = w / h, f = opts.focus || { x: 0.5, y: 0.5 };
         let sw = nw, sh = nw / ar;
         if (sh > nh) { sh = nh; sw = nh * ar; }
-        cover((nw - sw) / 2, (nh - sh) / 2, sw, sh);
+        cover((nw - sw) * f.x, (nh - sh) * f.y, sw, sh);   // f = which part of the picture (0 = left/top, 1 = right/bottom)
     }
     const blob = await new Promise((res, rej) => c.toBlob(b => b ? res(b) : rej(new Error('encode')), 'image/jpeg', 0.92));
     return { blob, w, h };
+}
+
+// Size of the part of the clip that fits a screen shape (no upscaling, even numbers for the video encoder)
+function videoCropSize(ar, nw = modalVideo.videoWidth, nh = modalVideo.videoHeight) {
+    let sw = nw, sh = nw / ar;
+    if (sh > nh) { sh = nh; sw = nh * ar; }
+    return [Math.max(2, Math.round(sw / 2) * 2), Math.max(2, Math.round(sh / 2) * 2)];
+}
+
+// Plays the clip once into a canvas that shows only the chosen part, and records it.
+// Resolves {blob, w, h}, or null when the clip already has the wanted shape (then the original file is fine).
+function recordCroppedVideo(src, ar, f, onProgress) {
+    return new Promise((resolve, reject) => {
+        if (!window.MediaRecorder) return reject(new Error('Recording is not supported in this browser'));
+        const v = document.createElement('video');
+        v.muted = true; v.playsInline = true; v.preload = 'auto'; v.src = src;
+        v.onerror = () => reject(new Error('Could not load the clip'));
+        v.onloadedmetadata = () => {
+            const nw = v.videoWidth, nh = v.videoHeight;
+            if (Math.abs(ar - nw / nh) < 0.02) return resolve(null);
+            const focus = f || { x: 0.5, y: 0.5 };
+            let sw = nw, sh = nw / ar;
+            if (sh > nh) { sh = nh; sw = nh * ar; }
+            const sx = (nw - sw) * focus.x, sy = (nh - sh) * focus.y;
+            const [ow, oh] = videoCropSize(ar, nw, nh);
+            const c = document.createElement('canvas'); c.width = ow; c.height = oh;
+            if (!c.captureStream) return reject(new Error('Recording is not supported in this browser'));
+            const g = c.getContext('2d');
+            const types = ['video/mp4;codecs=avc1.42E01E', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'];
+            const mime = types.find(t => MediaRecorder.isTypeSupported(t));
+            let rec;
+            try { rec = new MediaRecorder(c.captureStream(30), mime ? { mimeType: mime, videoBitsPerSecond: 6e6 } : {}); } catch (e) { return reject(e); }
+            const chunks = [];
+            let raf = 0, finished = false;
+            const draw = () => {
+                g.drawImage(v, sx, sy, sw, sh, 0, 0, ow, oh);
+                if (onProgress && v.duration) onProgress(Math.min(1, v.currentTime / v.duration));
+                raf = requestAnimationFrame(draw);
+            };
+            const finish = () => {
+                if (finished) return;
+                finished = true;
+                cancelAnimationFrame(raf);
+                g.drawImage(v, sx, sy, sw, sh, 0, 0, ow, oh);
+                setTimeout(() => { try { rec.stop(); } catch (e) { reject(e); } }, 150);   // let the last frame reach the recorder
+            };
+            rec.ondataavailable = e => e.data && e.data.size && chunks.push(e.data);
+            rec.onstop = () => { v.pause(); v.removeAttribute('src'); v.load(); resolve({ blob: new Blob(chunks, { type: rec.mimeType || 'video/webm' }), w: ow, h: oh }); };
+            rec.onerror = e => { finished = true; cancelAnimationFrame(raf); reject(e.error || new Error('Recording failed')); };
+            v.loop = false;
+            v.onended = finish;
+            rec.start(250);
+            v.currentTime = 0;
+            const p = v.play();
+            if (p && p.then) p.then(draw, err => { finished = true; try { rec.stop(); } catch (e) { /* ignore */ } reject(err); });
+            else draw();
+            setTimeout(finish, ((v.duration || 10) + 5) * 1000);   // safety net
+        };
+    });
 }
 
 function bumpDownloads(wallpaper) {
@@ -1867,14 +2044,15 @@ function renderTagsAndRelated(w) {
 
 document.getElementById('originalBtn').addEventListener('click', async () => {
     const w = currentWallpaper;
-    if (!w || typeOf(w) !== 'image' || busyDownload) return;
-    const own = !/images\.unsplash\.com/.test(w.image);
-    const url = own ? w.image : `${w.image.split('?')[0]}?auto=format&q=90`;
+    if (!w || typeOf(w) === 'live' || busyDownload) return;
+    const isVideo = typeOf(w) === 'video';
+    const own = isVideo || !/images\.unsplash\.com/.test(w.image);
+    const url = isVideo ? w.video : own ? w.image : `${w.image.split('?')[0]}?auto=format&q=90`;
     try {
         const res = await fetch(url);
         if (!res.ok) throw new Error('bad');
         const blob = await res.blob();
-        const ext = (blob.type.split('/')[1] || 'jpg').split(';')[0].split('+')[0].replace('jpeg', 'jpg');
+        const ext = (blob.type.split('/')[1] || (isVideo ? 'mp4' : 'jpg')).split(';')[0].split('+')[0].replace('jpeg', 'jpg');
         saveBlob(blob, `${slug(w.title)}_original.${ext}`);
         showNotification('Original file saved!');
         bumpDownloads(w);
